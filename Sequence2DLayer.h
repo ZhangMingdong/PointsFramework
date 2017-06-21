@@ -3,6 +3,11 @@
 #include <vector>
 #include "MathTypes.h"
 #include <QGLWidget>
+/*
+	Layer to show the 2D sequence
+	Mingdong
+	2017/06/21
+	*/
 class Sequence2DLayer :
 	public ILayer
 {
@@ -13,8 +18,8 @@ public:
 	virtual void Draw();
 private:
 	// 2D sequence
-	std::vector<Point> _sequence2D;
-	std::vector<Point> _sequenceResult2D;
+	std::vector<Point> _sequence;
+	std::vector<Point> _sequenceResult;
 
 	// texture data and id
 	GLubyte* _dataTexture;

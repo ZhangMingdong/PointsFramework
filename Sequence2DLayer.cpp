@@ -12,6 +12,8 @@
 
 Sequence2DLayer::Sequence2DLayer():_dataTexture(0)
 {
+	_sequence.clear();
+	_sequenceResult.clear();
 	// 0.generation
 	DPoint3 seq[10] = {
 		DPoint3(-1.5, -1.5, 2)
@@ -25,11 +27,10 @@ Sequence2DLayer::Sequence2DLayer():_dataTexture(0)
 		,DPoint3(1.2, .3, 2)
 		,DPoint3(1.6, .0, 9)
 	};
-	_sequence2D.clear();
 	int nLen = 10;
 	for (size_t i = 0; i < nLen; i++)
 	{
-		_sequence2D.push_back(seq[i]);
+		_sequence.push_back(seq[i]);
 	}
 	int nResult = 100;
 	// 1.calculation
@@ -41,14 +42,14 @@ Sequence2DLayer::Sequence2DLayer():_dataTexture(0)
 	{
 		for (size_t j = 0; j < nLen; j++)
 		{
-			double dbX = _sequence2D[i].x - _sequence2D[j].x;
-			double dbY = _sequence2D[i].y - _sequence2D[j].y;
+			double dbX = _sequence[i].x - _sequence[j].x;
+			double dbY = _sequence[i].y - _sequence[j].y;
 			disMatrix[i][j] = funPhi(sqrt(dbX*dbX + dbY*dbY));
 		}
 	}
 	for (size_t i = 0; i < nLen; i++)
 	{
-		f[i][0] = _sequence2D[i].z;
+		f[i][0] = _sequence[i].z;
 	}
 	GetMatrixInverse_2(disMatrix, nLen, disMatrix_r);
 
@@ -69,11 +70,11 @@ Sequence2DLayer::Sequence2DLayer():_dataTexture(0)
 			double z = 0;
 			for (size_t k = 0; k < nLen; k++)
 			{
-				double dbX = x - _sequence2D[k].x;
-				double dbY = y - _sequence2D[k].y;
+				double dbX = x - _sequence[k].x;
+				double dbY = y - _sequence[k].y;
 				z += w[k][0] * funPhi(sqrt(dbX*dbX + dbY*dbY));
 			}
-			_sequenceResult2D.push_back(DPoint3(x, y, z));
+			_sequenceResult.push_back(DPoint3(x, y, z));
 
 		}
 	}
@@ -86,7 +87,7 @@ Sequence2DLayer::Sequence2DLayer():_dataTexture(0)
 		for (size_t j = 0; j < nResult; j++)
 		{
 			int nIndex = i*nResult + j;
-			MYGLColor color = colormap->GetColor(_sequenceResult2D[nIndex].z);
+			MYGLColor color = colormap->GetColor(_sequenceResult[nIndex].z);
 			_dataTexture[4 * nIndex + 0] = color._rgb[0];
 			_dataTexture[4 * nIndex + 1] = color._rgb[1];
 			_dataTexture[4 * nIndex + 2] = color._rgb[2];
@@ -118,7 +119,7 @@ Sequence2DLayer::~Sequence2DLayer()
 
 void Sequence2DLayer::Sequence2DLayer::Draw() {
 	// draw 2d sequence
-	int nSeqLen2D = _sequence2D.size();
+	int nSeqLen2D = _sequence.size();
 	if (nSeqLen2D>0)
 	{
 		ColorMap* colormap = ColorMap::GetInstance();
@@ -128,9 +129,9 @@ void Sequence2DLayer::Sequence2DLayer::Draw() {
 		glBegin(GL_POINTS);
 		for (size_t i = 0; i < nSeqLen2D; i++)
 		{
-			MYGLColor color = colormap->GetColor(_sequence2D[i].z);
+			MYGLColor color = colormap->GetColor(_sequence[i].z);
 			glColor3d(color._rgb[0] / 255.0, color._rgb[1] / 255.0, color._rgb[2] / 255.0);
-			glVertex3d(_sequence2D[i].x, _sequence2D[i].y, 0);
+			glVertex3d(_sequence[i].x, _sequence[i].y, 0);
 
 		}
 		glEnd();

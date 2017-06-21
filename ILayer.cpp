@@ -31,8 +31,8 @@ ILayer* ILayer::CreateLayer(EnumLayerType type) {
 
 double funPhi(double r) {
 	//	return exp(-r*r );
-	return exp(-r*r * 16);
-	//	return exp(-r*r * 4);
-	//	return exp(-r*r / 4);
+//	return exp(-r*r * 16);
+//	return exp(-r*r * 4);
+	return exp(-r*r / 4);
 	//	return exp(-r*r / 16);
 }

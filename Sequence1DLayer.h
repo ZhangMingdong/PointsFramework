@@ -16,9 +16,18 @@ public:
 public:
 	virtual void Draw();
 private:
-	// sequence
+	// the original sequence
 	std::vector<Point> _sequence;
-	// result of sequence
-	std::vector<Point> _sequenceResult;
+	// interpolation result of the sequence
+	std::vector<Point> _sequenceResultRBF;
+	std::vector<Point> _sequenceResultLagrangian;
+	// left and right position
+	double _dbLeft;
+	double _dbRight;
+private:
+	// do RBF interpolation
+	void doRBF();
+	// do Lagrangian interpolation
+	void doLagrangian();
 };
 
