@@ -23,6 +23,7 @@ protected:
 	void createConnections();
 public slots:
 	void onGenerateNormalClicked();
+	void onGenerateBlueNoiseClicked();
 	void onGenerateRandomClicked();
 	void onGenerateMultiNormalClicked();
 	void onGenerateSequenceClicked();

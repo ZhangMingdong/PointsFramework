@@ -41,6 +41,7 @@ void PointsFramework::createConnections(){
 	connect(pControlWidget->ui.pushButtonCalc, SIGNAL(pressed()), this, SLOT(onCalculateClicked()));
 	connect(pControlWidget->ui.pushButtonCalcDC, SIGNAL(pressed()), this, SLOT(onCalculateDCClicked()));
 	connect(pControlWidget->ui.pushButtonGenerateRandom, SIGNAL(pressed()), this, SLOT(onGenerateRandomClicked()));
+	connect(pControlWidget->ui.pushButtonGenerateBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseClicked()));
 	connect(pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
 	connect(pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
 	connect(pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
@@ -59,6 +60,11 @@ void PointsFramework::onGenerateRandomClicked(){
 
 }
 
+void PointsFramework::onGenerateBlueNoiseClicked() {
+	// generate normal points
+	pWidget->GenerateBlueNoise(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->updateGL();
+}
 void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
 	pWidget->GenerateNormalPoints(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);

@@ -104,6 +104,9 @@
     <ClCompile Include="RandomPointsLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BlueNoiseLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="pointsframework.h">
@@ -163,6 +166,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RandomPointsLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlueNoiseLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

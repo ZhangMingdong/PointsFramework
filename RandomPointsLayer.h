@@ -19,7 +19,7 @@ public:
 	virtual void AddPoint(Point pt) { _points.push_back(pt); };
 	virtual DistanceAndIndices Calculate(bool bDC);
 	virtual void Clear();
-private:
+protected:
 	// Point list
 	std::vector<Point> _points;
 	// the points list of the covering result
@@ -28,5 +28,9 @@ private:
 	DistanceAndIndices _result;
 	// if already calculated
 	bool _bCalculated;
+protected:
+	// generate the points
+	virtual void generatePoints(int nPoints);
+	double MyRandom();
 };
 

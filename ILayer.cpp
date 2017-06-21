@@ -5,7 +5,7 @@
 #include "SingleNormalPointsLayer.h"
 #include "MultiNormalPointsLayer.h"
 #include "RandomPointsLayer.h"
-
+#include "BlueNoiseLayer.h"
 
 
 ILayer::ILayer():_bShowBackground(false)
@@ -36,12 +36,18 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 	case ILayer::LT_Random:
 		pLayer = new RandomPointsLayer(nPoints);
 		break;
+	case ILayer::LT_Random_Blue:
+		pLayer = new BlueNoiseLayer(nPoints);
+		break;
 	default:
 		break;
 	}
-	if (pLayer)
-		pLayer->_bShowBackground = bShowBg;
+	if (pLayer) {
 
+		pLayer->_bShowBackground = bShowBg;
+		pLayer->Initialize();
+	}
+	
 	return pLayer;
 }
 

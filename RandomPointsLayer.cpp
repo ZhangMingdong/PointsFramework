@@ -133,7 +133,7 @@ double calcShortestDistance(const Point* ptsX, Point* ptsY, int low, int high, i
 }
 
 // 生成一个0~1随机数
-double MyRandom() {
+double RandomPointsLayer::MyRandom() {
 	return (double)((RAND_MAX + 1)*(long)rand() + rand()) / RAND_MAX / RAND_MAX;
 }
 
@@ -143,15 +143,16 @@ RandomPointsLayer::RandomPointsLayer(int nPoints): _bCalculated(false)
 	_result._dbDis = 0;
 
 	_bCalculated = false;
+	this->generatePoints(nPoints);
+
+}
+void RandomPointsLayer::generatePoints(int nPoints) {
 	_points.clear();
 	double dbSpatialScope =/*(number/10000.0)**/4.0;
 	for (int i = 0; i<nPoints; i++)
 	{
-		_points.push_back(DPoint3(-2 + MyRandom()*4.0, -2 + MyRandom()*4.0, 0));
 	}
-
 }
-
 
 RandomPointsLayer::~RandomPointsLayer()
 {

@@ -65,6 +65,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="pushButtonGenerateBlueNoise">
+        <property name="text">
+         <string>生成蓝噪声</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="pushButtonGenerateNormal">
         <property name="text">
          <string>生成正态分布</string>

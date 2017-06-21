@@ -79,6 +79,8 @@ public:
 	DistanceAndIndices CalcNearestPairOfPoints_DC();
 	// 生成number个随机点
 	void GenerateRandomPoints(int number);
+	// generate number blue noise points
+	void GenerateBlueNoise(int number, double mx, double my, double vx, double vy);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateNormalPoints(int number,double mx,double my,double vx,double vy);
 	// generate number points according to Normal(mx,my,vx,vy) distribution

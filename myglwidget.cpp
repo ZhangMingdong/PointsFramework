@@ -463,11 +463,18 @@ void MyGLWidget::GenerateRandomPoints(int number){
 
 }
 
+void MyGLWidget::GenerateBlueNoise(int number, double mx, double my, double vx, double vy) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue
+		, _bShowBg, number);
+}
+
 void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
 		, _bShowBg, number, mx, my, vx, vy);
 }
+
 
 void MyGLWidget::GenerateMVNPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;

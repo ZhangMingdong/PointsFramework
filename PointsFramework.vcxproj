@@ -138,6 +138,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AHCClustering.cpp" />
+    <ClCompile Include="BlueNoiseLayer.cpp" />
     <ClCompile Include="Clustering.cpp" />
     <ClCompile Include="ColorMap.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_myglwidget.cpp">
@@ -290,6 +291,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AHCClustering.h" />
+    <ClInclude Include="BlueNoiseLayer.h" />
     <ClInclude Include="Clustering.h" />
     <ClInclude Include="ColorMap.h" />
     <ClInclude Include="GeneratedFiles\ui_pointscontrolwidget.h" />

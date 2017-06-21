@@ -18,6 +18,7 @@ public:
 		,LT_Normal_Single
 		,LT_Normal_Multi
 		,LT_Random
+		,LT_Random_Blue
 	};
 	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0, double mx=0, double my = 0, double vx = 0, double vy = 0);
 public:
@@ -30,6 +31,8 @@ public:
 	}
 	// clear the calculation and points for add points by hand
 	virtual void Clear() {};
+	// initialization
+	virtual void Initialize() {};
 public:
 	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
 
