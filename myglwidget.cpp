@@ -4,26 +4,17 @@
 
 #include <math.h>
 #include <algorithm>
-#include <random>
 
 #include <QWheelEvent>
 
 
-#include "tnt_array1d.h"
-#include "tnt_array2d.h"
 
-#include "jama_eig.h"
-
-#include "AHCClustering.h"
-#include "KMeansClustering.h"
 #include "ILayer.h"
-#include "MathFunction.h"
 
 #include <assert.h>
 #include <fstream>
 
-using namespace TNT;
-using namespace JAMA;
+
 using namespace std;
 
 #define	GLAYER_STATE_MOVING			0
@@ -44,7 +35,6 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, m_sPolyStyle(0)
 	, m_pt3Eye(0.0, 0.0, 4.0)
 	, m_clearColor(.6, .6, .4, 1.0)
-	, _nCluster(0)
 	,_pLayer(0)
 {
 	_result._nIndex2 = -1;
@@ -242,39 +232,18 @@ void MyGLWidget::Draw()
 	if (_pLayer)
 		_pLayer->Draw();
 
-	if (_nCluster==0)
+	// draw points
+	for (int i = 0; i<_uiNumberOfPoints; i++)
 	{
-		// draw points
-		for (int i = 0; i<_uiNumberOfPoints; i++)
-		{
-			DrawPoint(_points[i]);
-		}
-		// draw the eclipse
-		SetColor(RGBAf(1, 0, 0, 1));
-		for (int i = 0; i<_pointsResult.size(); i++)
-		{
-			DrawPoint(_pointsResult[i]);
-		}
-
+		DrawPoint(_points[i]);
 	}
-	else
+	// draw the eclipse
+	SetColor(RGBAf(1, 0, 0, 1));
+	for (int i = 0; i<_pointsResult.size(); i++)
 	{
-		RGBAf arrColors[4] = {
-			RGBAf(1, 0, 0, 1)
-			,RGBAf(0, 1, 0, 1)
-			,RGBAf(0, 0, 1, 1)
-			,RGBAf(1, 0, 1, 1)
-		};
-		for (size_t i = 0; i < _nCluster; i++)
-		{
-
-			SetColor(arrColors[i]);
-			for (size_t j = 0; j<_clusteredPoints[i].size(); j++)
-			{
-				DrawPoint(_clusteredPoints[i][j]);
-			}
-		}
+		DrawPoint(_pointsResult[i]);
 	}
+
 	// draw the result
 	if (_bCalculated&&_uiNumberOfPoints>0)
 	{
@@ -785,7 +754,6 @@ double MyRandom(){
 // 生成number个随机点
 void MyGLWidget::GenerateRandomPoints(int number){
 	_bCalculated = false;
-	_nCluster = 0;
 	_uiNumberOfPoints = number;
 	_points.clear();
 	double dbSpatialScope =/*(number/10000.0)**/4.0;
@@ -795,134 +763,18 @@ void MyGLWidget::GenerateRandomPoints(int number){
 	}
 }
 
-
-void MyGLWidget::generateNormalPoints(int number, double mx, double my, double vx, double vy) {
-	//default_random_engine generator;//如果用这个默认的引擎，每次生成的随机序列是相同的。
-	random_device rd;
-	mt19937 gen(rd());
-	//normal(0,1)中0为均值，1为方差
-	normal_distribution<double> normalx(mx, vx);
-	normal_distribution<double> normaly(my, vy);
-
-	for (int i = 0; i < number; i++)
-	{
-		double x = normalx(gen);
-		double y = normaly(gen);
-		_points.push_back(DPoint3(x, y, 0));
-	}
-}
-
-void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy){
-	_bCalculated = false;
-	_nCluster = 0;
-	_uiNumberOfPoints = number;
-	_points.clear();
-
-	generateNormalPoints(number, mx, my, vx, vy);
-
-	// calculate the confidence eclipse
-	const int row = _uiNumberOfPoints;
-	const int col = 2;
-
-	Array2D<double> d(row, col);
-	for (int i = 0; i < row;i++)
-	{
-		d[i][0] = _points[i].x;
-		d[i][1] = _points[i].y;
-	}
-	// 2.compute covariance matrix
-	Array2D<double> covar_matrix(col, col);
-	compute_covariance_matrix(d, covar_matrix);
-	Array2D<double> covar_matrix_r(col, col);
-
-	// 3.compute the reverse matrix of covariance
-	GetMatrixInverse(covar_matrix, col, covar_matrix_r);
-
-	// 4.generate result points
-	_pointsResult.clear();
-	Array2D<double> m0(1, 2);
-	Array2D<double> m1(2, 1);
-	Array2D<double> m(1, 2);
-	Array2D<double> mr(1, 1);
-	double radius = 4;
-	for (double i = -radius; i < radius; i += 0.01)
-	{
-		for (double j = -radius; j < radius; j += 0.01)
-		{
-			m0[0][0] = m1[0][0] = i;
-			m0[0][1] = m1[1][0] = j;
-			multiply(m0, covar_matrix_r, m);
-			multiply(m, m1, mr);
-			double alpha = sqrt(mr[0][0]);
-			if (alpha<1.5)
-			{
-				_pointsResult.push_back(DPoint3(i, j, 0));
-			}
-		}
-	}
+void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
+		, number, mx, my, vx, vy);
 }
 
 void MyGLWidget::GenerateMVNPoints(int number, double mx, double my, double vx, double vy) {
-	_bCalculated = false;
-	_uiNumberOfPoints = number;
-	_points.clear();
-	_nCluster = 4;
-
-	bool bMVN = true;
-	if (bMVN) {
-		double dbScale = 3;
-
-		generateNormalPoints(number / _nCluster, mx - vx * dbScale, my - vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx - vx * dbScale, my + vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx + vx * dbScale, my + vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx + vx * dbScale, my - vy * dbScale, vx, vy);
-	}
-	else {
-		_uiNumberOfPoints = 200;
-		for (size_t i = 0; i < 10; i++)
-		{
-
-			for (size_t j = 0; j < 10; j++)
-			{
-				_points.push_back(DPoint3(i*0.1, j*0.1, 0.0));
-				_points.push_back(DPoint3(i*0.1-1.55, j*0.1, 0.0));
-			}
-		}
-	}
-
-//	AHCClustering clustering;
-	KMeansClustering clustering;
-	double* arrBuf = new double[_uiNumberOfPoints * 2];
-	for (size_t i = 0; i < _uiNumberOfPoints; i++)
-	{
-		arrBuf[i * 2] = _points[i].x;
-		arrBuf[i * 2+1] = _points[i].y;
-	}
-	int* arrLabel = new int[_uiNumberOfPoints];
-	clustering.DoCluster(_uiNumberOfPoints, 2, _nCluster, arrBuf, arrLabel);
-	_clusteredPoints.clear();
-	for (size_t i = 0; i < _nCluster; i++)
-	{
-		_clusteredPoints.push_back(std::vector<Point>());
-	}
-	for (size_t i = 0; i < _uiNumberOfPoints; i++)
-	{
-		_clusteredPoints[arrLabel[i]].push_back(_points[i]);
-	}
-
-	delete arrBuf;
-	delete arrLabel;
-
-
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Multi
+		, number, mx, my, vx, vy);
 }
 
-double funPhi2(double r) {
-//	return exp(-r*r );
-	return exp(-r*r * 16);
-//	return exp(-r*r * 4);
-//	return exp(-r*r / 4);
-//	return exp(-r*r / 16);
-}
 // generate a sequene
 void MyGLWidget::GenerateSequence() {
 	if (_pLayer) delete _pLayer;
@@ -1201,71 +1053,7 @@ void MyGLWidget::ZoomFitWrold(double e, double n, double w, double s)
 	// 	m_dbTranslate=DPoint3(0,0,0);
 	//m_dbScale=1;
 }//----------------------------------------------------------------------------------------------------
-// void COGL::GetTextBoxW(const wchar_t* string, FBox3& box)
-// {
-// 	m_pFont->GetStringBoxW(FONT_TEXT, string, box);
-// 	SW(box);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::GetStrokeBox(const char* string, FBox3& box)
-// {
-// 	m_pFont->GetStringBox(FONT_SYMBOL, string, box);
-// 	SW(box);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::GetSymbolBox(const char* string, FBox3& box,enumFONT pFont)
-// {
-// 	m_pFont->GetStringBox(pFont, string, box);
-// 	double scale=SW((double)m_pFont->GetFontSize(pFont));
-// 	box *= scale;
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::GetSymbolBoxW(const wchar_t* string, FBox3& box,enumFONT enumFont)
-// {
-// 	m_pFont->GetStringBoxW(enumFont, string, box);
-// 	double scale=SW((double)m_pFont->GetFontSize(enumFont));
-// 	box *= scale;
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::GetSymbolTextBox(const char* string, FBox3& box)
-// {
-// 	m_pFont->GetStringBox(FONT_TEXT, string, box);
-// 	SW(box);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::GetSymbolTextBoxW(const wchar_t* string, FBox3& box)
-// {
-// 	m_pFont->GetStringBoxW(FONT_TEXT, string, box);
-// 	SW(box);
-// }//----------------------------------------------------------------------------------------------------
-// float COGL::GetSymbolTextHeight()
-// {
-// 	return (float)SW(m_pFont->GetSymbolTextLineHight());
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::SetTextSize(short sSize)
-// {
-// 	m_pFont->SetFontSize(FONT_TEXT,sSize);
-// }
-// int COGL::GetTextSize()
-// {
-// 	return m_pFont->GetFontSize(FONT_TEXT);
-// }
-// void COGL::SetSymbolSize(short sSize)
-// {
-// 	m_pFont->SetFontSize(FONT_SYMBOL, sSize);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::SetSymbolTextSize(short sSize)
-// {
-// 	m_pFont->SetFontSize(FONT_TEXT, sSize);
-// }//----------------------------------------------------------------------------------------------------
-void MyGLWidget::SetLineWidth(const float wt)
-{
-	glLineWidth(wt);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidget::SetPointSize(const float ps)
-{
-	glPointSize(ps);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidget::SetColor(const RGBAf& col)
-{
-	// 	m_currentColor=col;
-	glColor4f(col.r, col.g, col.b, col.a);
-}//----------------------------------------------------------------------------------------------------
+
 void CALLBACK MyGLWidget::errorCallback(GLenum errorCode)
 {
 	const GLubyte *estring;
@@ -1283,6 +1071,21 @@ void CALLBACK MyGLWidget::combineCallback(GLdouble coords[3], GLdouble *data[4],
 	vertex[1] = coords[1];
 	vertex[2] = coords[2];
 	*dataOut = vertex;
+}//----------------------------------------------------------------------------------------------------
+
+
+void MyGLWidget::SetLineWidth(const float wt)
+{
+	glLineWidth(wt);
+}//----------------------------------------------------------------------------------------------------
+void MyGLWidget::SetPointSize(const float ps)
+{
+	glPointSize(ps);
+}//----------------------------------------------------------------------------------------------------
+void MyGLWidget::SetColor(const RGBAf& col)
+{
+	// 	m_currentColor=col;
+	glColor4f(col.r, col.g, col.b, col.a);
 }//----------------------------------------------------------------------------------------------------
 void MyGLWidget::EnableBlend(bool b)
 {
@@ -1344,121 +1147,6 @@ void MyGLWidget::SetPolygonStyle(short style)
 	m_sPolyStyle = style;
 }
 
-// void COGL::DrawText(const DPoint3& p, const char* string)
-// {
-// 	m_pFont->DrawText(FONT_TEXT, p, string);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::DrawTextAsW( const DPoint3& p, const std::string& string)
-// {
-// 	int nSize = string.size()+1;
-// 	//忽略超出长度的字符
-// 	if (nSize>=WCHAR_SIZE) nSize= WCHAR_SIZE;
-// 	wchar_t wchar[WCHAR_SIZE];
-// 	wchar[nSize] = L'\0';
-// 	int len = MultiByteToWideChar(CP_ACP,0,string.c_str(),nSize,wchar,nSize);
-// 	m_pFont->DrawText(FONT_TEXT, p, wchar);
-// }//----------------------------------------------------------------------------------------------------
-// void COGL::DrawTextAsW( const IPoint2& p, const std::string& string)
-// {
-// 	DPoint3 _point3;
-// 	ScreenToWorld(p,_point3);
-// 	DrawTextAsW(_point3,string);
-// }
-// void COGL::DrawSymbolW(const DPoint3& p, const wchar_t* string, double angle)
-// {
-// 	double scale=SW((double)m_pFont->GetFontSize(FONT_SYMBOL));
-// 	FBox3 box;
-// 	m_pFont->GetStringBoxW(FONT_SYMBOL, string, box);
-// 	glEnable( GL_POLYGON_OFFSET_LINE);
-// 	glPolygonOffset( 1.0, 1.0);
-// 	glPushMatrix();
-// 	glTranslated(p.x, p.y, p.z);
-// 	glRotated(-angle, 0, 0, 1);
-// 	glScaled(scale, scale, 1);
-// 	glTranslatef( -box.MidX(), -box.MidY(),0);
-// 	glNormal3d(0, 0, 1);
-// 	m_pFont->DrawText(FONT_SYMBOL, p, string);
-// 	glPopMatrix();
-// 	glDisable(GL_POLYGON_OFFSET_LINE);
-// }
-// void COGL::DrawSymbolAsW(const DPoint3& p, const std::string& string, double angle)
-// {
-// 	int n = string.size()+1;
-// 	wchar_t* wide = new wchar_t[n];
-// 	int len = MultiByteToWideChar(CP_ACP,0,string.c_str(),n,wide,n);
-// 
-// 	double scale=SW((double)m_pFont->GetFontSize(FONT_SYMBOL));
-// 	FBox3 box;
-// 	m_pFont->GetStringBoxW(FONT_SYMBOL, wide, box);
-// 	glEnable( GL_POLYGON_OFFSET_LINE);
-// 	glPolygonOffset( 1.0, 1.0);
-// 	glPushMatrix();
-// 	glTranslated(p.x, p.y, p.z);
-// 	glRotated(-angle, 0, 0, 1);
-// 	glScaled(scale, scale, 1);
-// 	// 	switch(_symbolPos)
-// 	// 	{
-// 	// 	case SP_TOP:
-// 	// 		glTranslatef( -box.MidX(), -box.MidY()*2,0);
-// 	// 		break;
-// 	// 	case SP_CENTER:
-// 	glTranslatef( -box.MidX(), -box.MidY(),0);
-// 	// 		break;
-// 	// 	case SP_BOTTOM:
-// 	// 		glTranslatef( -box.MidX(), 0,0);
-// 	// 		break;
-// 	// 	default:
-// 	// 		break;
-// 	// 	}
-// 	glNormal3d(0, 0, 1);
-// 	m_pFont->DrawText(FONT_SYMBOL, p, wide);
-// 	glPopMatrix();
-// 	glDisable(GL_POLYGON_OFFSET_LINE);
-// 
-// 	delete []wide;
-// }
-// void COGL::DrawSelectedSymbolW(const DPoint3& p, const wchar_t* string,double angle)
-// {
-// 	double scale=SW((double)m_pFont->GetFontSize(FONT_SYMBOL));
-// 	FBox3 box;
-// 	m_pFont->GetStringBoxW(FONT_SYMBOL, string, box);
-// 
-// 
-// 
-// 	glEnable( GL_POLYGON_OFFSET_LINE);
-// 	glPolygonOffset( 1.0, 1.0);
-// 	glPushMatrix();
-// 	glTranslated(p.x, p.y, p.z);
-// 	glRotated(-angle, 0, 0, 1);
-// 	glScaled(scale, scale, 1);
-// 	/*float fLineWidth =*/ SetLineWidth(2);
-// 	glBegin(GL_LINE_STRIP);
-// 	glVertex3d(-box.MidX(), -box.MidY(), 0);
-// 	glVertex3d(-box.MidX(), box.MidY(), 0);
-// 	glVertex3d(box.MidX(), box.MidY(), 0);
-// 	glVertex3d(box.MidX(), -box.MidY(), 0);
-// 	glVertex3d(-box.MidX(), -box.MidY(), 0);
-// 	glEnd();
-// // 	SetLineWidth(fLineWidth);
-// 	// 	switch(_symbolPos)
-// 	// 	{
-// 	// 	case SP_TOP:
-// 	// 		glTranslatef( -box.MidX(), -box.MidY()*2,0);
-// 	// 		break;
-// 	// 	case SP_CENTER:
-// 	glTranslatef( -box.MidX(), -box.MidY(),0);
-// 	// 		break;
-// 	// 	case SP_BOTTOM:
-// 	// 		glTranslatef( -box.MidX(), 0,0);
-// 	// 		break;
-// 	// 	default:
-// 	// 		break;
-// 	// 	}
-// 	glNormal3d(0, 0, 1);
-// 	m_pFont->DrawText(FONT_SYMBOL, p, string);
-// 	glPopMatrix();
-// 	glDisable(GL_POLYGON_OFFSET_LINE);
-// }
 void MyGLWidget::DrawPoint(const DPoint3& p)
 {
 	glBegin(GL_POINTS);
@@ -1569,53 +1257,7 @@ void MyGLWidget::DrawRectangleO(const IPoint2& pt1, const IPoint2& pt2)
 	glEnd();
 
 }//----------------------------------------------------------------------------------------------------
-// void COGL::DrawRectangleOTextAsW(const IPoint2& pt1, const IPoint2& pt2,string& str)
-// {
-// 	DPoint3 p1,p2,p3,p4,p5,p6,p7,p8;
-// 
-// 	ScreenToWorld(pt1+IPoint2(6,0),p1);
-// 	ScreenToWorld(pt1+IPoint2(3,2),p2);
-// 	ScreenToWorld(pt1+IPoint2(2,3),p3);
-// 	ScreenToWorld(pt1+IPoint2(0,6),p4);
-// 
-// 	ScreenToWorld(pt2+IPoint2(-6,0),p5);
-// 	ScreenToWorld(pt2+IPoint2(-3,-2),p6);
-// 	ScreenToWorld(pt2+IPoint2(-2,-3),p7);
-// 	ScreenToWorld(pt2+IPoint2(0,-6),p8);
-// 
-// 	DPoint3 p0;
-// 	DPoint3 p9;
-// 	ScreenToWorld(pt1+IPoint2(8,0),p0);
-// 	ScreenToWorld(pt1+IPoint2(6*str.size(),0),p9);
-// 	glBegin(GL_LINE_STRIP);
-// 	glVertex3d(p0.x,p0.y,0);
-// 
-// 	glVertex3d(p1.x, p1.y, 0);
-// 	glVertex3d(p2.x, p2.y, 0);
-// 	glVertex3d(p3.x, p3.y, 0);
-// 	glVertex3d(p4.x, p4.y, 0);
-// 	glVertex3d(p4.x, p8.y, 0);
-// 	glVertex3d(p3.x, p7.y, 0);
-// 	glVertex3d(p2.x, p6.y, 0);
-// 	glVertex3d(p1.x, p5.y, 0);
-// 	glVertex3d(p5.x, p5.y, 0);
-// 	glVertex3d(p6.x, p6.y, 0);
-// 	glVertex3d(p7.x, p7.y, 0);
-// 	glVertex3d(p8.x, p8.y, 0);
-// 
-// 	glVertex3d(p8.x, p4.y, 0);
-// 	glVertex3d(p7.x, p3.y, 0);
-// 	glVertex3d(p6.x, p2.y, 0);
-// 	glVertex3d(p5.x, p1.y, 0);
-// 
-// 	glVertex3d(p9.x,p9.y,0);
-// 	glEnd();
-// 
-// 	int size = GetTextSize();
-// 	SetTextSize(10);
-// 	DrawTextAsW(pt1+IPoint2(8,4),str);
-// 	SetTextSize(size);
-// }
+
 void MyGLWidget::DrawPolygon(const std::vector<std::vector<DPoint3>> &poly)
 {
 	//size of contours

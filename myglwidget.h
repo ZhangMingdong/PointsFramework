@@ -71,8 +71,6 @@ private:
 	std::vector<Point> _points;
 	// the points list of the covering result
 	std::vector<Point> _pointsResult;
-	// four cluster
-	std::vector<std::vector<Point> > _clusteredPoints;
 	// Number of points
 	int _uiNumberOfPoints;
 	// Ids of the nearest pair of points and their distance
@@ -219,10 +217,7 @@ public:
 	//20121022
 	void DrawRect3D(const DPoint3& pt1, const DPoint3& pt2);
 private:
-	// generate a list of points obey the normal distribution
-	void generateNormalPoints(int number, double mx, double my, double vx, double vy);
 private:
-	int _nCluster;
 
 	ILayer *_pLayer;	// current layer
 

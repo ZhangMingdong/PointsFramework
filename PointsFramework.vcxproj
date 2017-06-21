@@ -178,11 +178,14 @@
     <ClCompile Include="KMeansClustering.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathFunction.cpp" />
+    <ClCompile Include="MultiNormalPointsLayer.cpp" />
     <ClCompile Include="myglwidget.cpp" />
+    <ClCompile Include="NormalPointsLayer.cpp" />
     <ClCompile Include="pointscontrolwidget.cpp" />
     <ClCompile Include="pointsframework.cpp" />
     <ClCompile Include="Sequence1DLayer.cpp" />
     <ClCompile Include="Sequence2DLayer.cpp" />
+    <ClCompile Include="SingleNormalPointsLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="pointsframework.h">
@@ -292,8 +295,11 @@
     <ClInclude Include="ILayer.h" />
     <ClInclude Include="KMeansClustering.h" />
     <ClInclude Include="MathFunction.h" />
+    <ClInclude Include="MultiNormalPointsLayer.h" />
+    <ClInclude Include="NormalPointsLayer.h" />
     <ClInclude Include="Sequence1DLayer.h" />
     <ClInclude Include="Sequence2DLayer.h" />
+    <ClInclude Include="SingleNormalPointsLayer.h" />
     <ClInclude Include="ZCalcFuncs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
