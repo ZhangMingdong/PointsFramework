@@ -8,7 +8,6 @@
 #include <QWheelEvent>
 
 
-
 #include "ILayer.h"
 
 #include <assert.h>
@@ -29,26 +28,23 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, m_bLBtnDown(false)
 	, m_bRBtnDown(false)
 	, m_bMBtnDown(false)
-	, _uiNumberOfPoints(0)
-	, _bCalculated(false)
 	, _bHandPoint(false)
 	, m_sPolyStyle(0)
 	, m_pt3Eye(0.0, 0.0, 4.0)
 	, m_clearColor(.6, .6, .4, 1.0)
-	,_pLayer(0)
+	, _pLayer(0)
+	, _bShowBg(false)
 {
-	_result._nIndex2 = -1;
-	_result._dbDis = 0;
 	OnCreate();
 	SetClearColor(0, 0, 0, 0);
 	SetPointSize(2.0f);
 	SetLineWidth(1.0f);
 
 
-		m_dbFovy = 45.0;
-		m_dbZNear = 0.0001;
-		m_dbZFar = 1500.0;
-		m_nClientH = m_nClientW = 1;
+	m_dbFovy = 45.0;
+	m_dbZNear = 0.0001;
+	m_dbZFar = 1500.0;
+	m_nClientH = m_nClientW = 1;
 
 }
 
@@ -232,30 +228,6 @@ void MyGLWidget::Draw()
 	if (_pLayer)
 		_pLayer->Draw();
 
-	// draw points
-	for (int i = 0; i<_uiNumberOfPoints; i++)
-	{
-		DrawPoint(_points[i]);
-	}
-	// draw the eclipse
-	SetColor(RGBAf(1, 0, 0, 1));
-	for (int i = 0; i<_pointsResult.size(); i++)
-	{
-		DrawPoint(_pointsResult[i]);
-	}
-
-	// draw the result
-	if (_bCalculated&&_uiNumberOfPoints>0)
-	{
-		SetColor(RGBAf(1, 0, 0, 1));
-		DrawLine(_points[_result._nIndex1], _points[_result._nIndex2]);
-		double dbRadius = _result._dbDis * 2;
-		DrawCircle(_points[_result._nIndex1], dbRadius);
-		if (dbRadius<0.01)
-		{
-			DrawCircle(_points[_result._nIndex1], 0.1);
-		}
-	}
 
 	ReTransform();
 	OnPostRenderScene();
@@ -288,8 +260,8 @@ void MyGLWidget::OnLButtonDown(int x, int y)
 	{
 		DPoint3 pt1;
 		ScreenToWorld(m_ptLBtnDown, pt1);
-		_points.push_back(pt1);
-		_uiNumberOfPoints++;
+		if (_pLayer)
+			_pLayer->AddPoint(pt1);
 	}
 }
 void MyGLWidget::OnLButtonUp(int x, int y)
@@ -469,334 +441,61 @@ void MyGLWidget::OnKey(UINT nChar)
 }
 
 
-
-// bool sortByX(Point& p1,Point &p2)  
-// {  
-// 	return p1.x<=p2.x ;
-// }
-// bool sortByY(Point& p1,Point &p2)  
-// {  
-// 	return p1.y<=p2.y ;
-// }
-// 
-// double calcShortestDistance(std::vector<Point> &pts,int &index1,int &index2)
-// {
-// 	double dis=100000;	
-// 	int size=pts.size();
-// 	// 1.小于10个点直接两重循环计算
-// 	if (size<10)
-// 	{
-// 		for (int i=0;i<size;i++)
-// 		{
-// 			for (int j=0;j<size;j++)
-// 			{
-// 				if (i!=j)
-// 				{
-// 					double newDis=calcDis(pts[i],pts[j]);
-// 					if ( newDis<dis)
-// 					{
-// 						index1=pts[i]._ulPos;
-// 						index2=pts[j]._ulPos;
-// 						dis=newDis;
-// 					}
-// 				}
-// 			}
-// 		}
-// 		return dis;
-// 	}
-// 	// 2.分治
-// 	vector<Point> pts1;
-// 	vector<Point> pts2;
-// 
-// 	int mid=size/2;
-// 	for (int i=0;i<mid;i++)
-// 	{
-// 		pts1.push_back(pts[i]);
-// 	}
-// 	for (int i=mid;i<size;i++)
-// 	{
-// 		pts2.push_back(pts[i]);
-// 	}
-// 	int id11,id12,id21,id22;
-// 	double dis1=calcShortestDistance(pts1,id11,id12);
-// 	double dis2=calcShortestDistance(pts2,id21,id22);
-// 	if (dis1<dis2)
-// 	{
-// 		dis=dis1;
-// 		index1=id11;
-// 		index2=id12;
-// 	}
-// 	else
-// 	{
-// 		dis=dis2;
-// 		index1=id21;
-// 		index2=id22;
-// 	}
-// 	double dbLeft=pts[mid].x-dis;
-// 	double dbRight=pts[mid].x+dis;
-// 	int l=mid-1;
-// 	int r=mid+1;
-// 	while (l>0 && pts[l].x>dbLeft  ) l--;
-// 	while (r<size && pts[r].x<dbRight  ) r++;
-// 
-// 	pts1.clear();
-// 	for (int i=l+1;i<r;i++)
-// 	{
-// 		pts1.push_back(pts[i]);
-// 	}
-// 	std::sort(pts1.begin(),pts1.end(),sortByY);
-// 	size =pts1.size();
-// 	for (int i=0;i<size-7;i++)
-// 	{
-// 		double newDis=calcDis(pts1[i],pts1[i+7]);
-// 		if (newDis<dis)
-// 		{
-// 			dis=newDis;
-// 			index1=pts1[i]._ulPos;
-// 			index2=pts1[i+7]._ulPos;			
-// 		}
-// 	}
-// 	return dis;
-// }
-// 
-// void GLayer::CalcNearestPairOfPoints_DC(){
-// 	
-// 	// 1.为每个点设置序号,并创建一个副本:n
-// 	vector<Point> pts;
-// 	for (int i=0;i<_uiNumberOfPoints;i++)
-// 	{
-// 		_points[i]._ulPos=i;
-// 		pts.push_back(_points[i]);
-// 	}
-// 	// 2.按照横坐标排序:nlogn
-// 	std::sort(pts.begin(),pts.end(),sortByX);
-// 	// 3.寻找最近点:nlogn
-// 	calcShortestDistance(pts,_uiPointId1,_uiPointId2);
-// 	_bCalculated=true;
-// }
-
-// 计算两点之间距离
-double calcDis(DPoint3 pt1, DPoint3 pt2){
-	double xx = pt1.x - pt2.x;
-	double yy = pt1.y - pt2.y;
-	return sqrt(xx*xx + yy*yy);
-}
-
-// 按照Y坐标快排
-void QsortY(Point* pts, int low, int high)
-{
-	if (low >= high)
-	{
-		return;
-	}
-	int first = low;
-	int last = high;
-	Point key = pts[first];/*用字表的第一个记录作为枢轴*/
-	while (first<last)
-	{
-		while (first<last&&pts[last].y >= key.y)
-			--last;
-		pts[first] = pts[last];/*将比第一个小的移到低端*/
-		while (first<last&&pts[first].y <= key.y)
-			++first;
-		pts[last] = pts[first];/*将比第一个大的移到高端*/
-	}
-	pts[first] = key;/*枢轴记录到位*/
-	QsortY(pts, low, first - 1);
-	QsortY(pts, last + 1, high);
-}
-
-// 按照X坐标快排
-void QsortX(Point* pts, int low, int high)
-{
-	if (low >= high)
-	{
-		return;
-	}
-	int first = low;
-	int last = high;
-	Point key = pts[first];/*用字表的第一个记录作为枢轴*/
-	while (first<last)
-	{
-		while (first<last&&pts[last].x >= key.x)
-			--last;
-		pts[first] = pts[last];/*将比第一个小的移到低端*/
-		while (first<last&&pts[first].x <= key.x)
-			++first;
-		pts[last] = pts[first];/*将比第一个大的移到高端*/
-	}
-	pts[first] = key;/*枢轴记录到位*/
-	QsortX(pts, low, first - 1);
-	QsortX(pts, last + 1, high);
-}
-
-// 计算ptsX中下标从low到high之间最短距离的点对
-// 返回其距离，index1，index2分别返回两个点的索引
-// ptsY为辅助空间
-double calcShortestDistance(const Point* ptsX, Point* ptsY, int low, int high, int &index1, int &index2)
-{
-	double dis = 100000;
-	int size = high - low + 1;
-	// 1.小于10个点直接两重循环计算
-	if (size<10)
-	{
-		for (int i = low; i <= high; i++)
-		{
-			for (int j = low; j <= high; j++)
-			{
-				if (i != j)
-				{
-					double newDis = calcDis(ptsX[i], ptsX[j]);
-					if (newDis<dis)
-					{
-						index1 = ptsX[i]._ulPos;
-						index2 = ptsX[j]._ulPos;
-						dis = newDis;
-					}
-				}
-			}
-		}
-		return dis;
-	}
-	// 2.分治
-	int mid = low + size / 2;
-	int id11, id12, id21, id22;
-	// 2.1.按照X坐标分成两半分别计算
-	double dis1 = calcShortestDistance(ptsX, ptsY, low, mid, id11, id12);
-	double dis2 = calcShortestDistance(ptsX, ptsY, mid + 1, high, id21, id22);
-	if (dis1<dis2)
-	{
-		dis = dis1;
-		index1 = id11;
-		index2 = id12;
-	}
-	else
-	{
-		dis = dis2;
-		index1 = id21;
-		index2 = id22;
-	}
-	// 2.2.计算中间带
-	double dbLeft = ptsX[mid].x - dis;
-	double dbRight = ptsX[mid].x + dis;
-	int l = mid - 1;
-	int r = mid + 1;
-	while (l>0 && ptsX[l].x>dbLeft) l--;
-	while (r<size && ptsX[r].x<dbRight) r++;
-	for (int i = l + 1; i<r; i++)
-	{
-		ptsY[i] = ptsX[i];
-	}
-	QsortY(ptsY, l + 1, r - 1);
-
-	for (int i = l + 1; i<r - 7; i++)
-	{
-		double newDis = calcDis(ptsY[i], ptsY[i + 7]);
-		if (newDis<dis)
-		{
-			dis = newDis;
-			index1 = ptsY[i]._ulPos;
-			index2 = ptsY[i + 7]._ulPos;
-		}
-	}
-	return dis;
-}
-
 // 计算最近点对
 DistanceAndIndices MyGLWidget::CalcNearestPairOfPoints(){
-	double dis = 1000;
-	for (int i = 0; i<_uiNumberOfPoints; i++)
-	{
-		for (int j = 0; j<_uiNumberOfPoints; j++)
-		{
-			if (i != j)
-			{
-				double newDis = calcDis(_points[i], _points[j]);
-				if (newDis<dis)
-				{
-					dis = newDis;
-					_result._nIndex1 = i;
-					_result._nIndex2 = j;
-				}
-			}
-		}
-	}
-	_bCalculated = true;
-	_result._dbDis = dis;
-	return _result;
+	if (_pLayer)
+		return _pLayer->Calculate(false);
+	return DistanceAndIndices();
 }
 
 // 分治计算最近点对
 DistanceAndIndices MyGLWidget::CalcNearestPairOfPoints_DC(){
-	// 1.将点列置入临时缓冲区，并设置序号(n)
-	Point* pTempX = new Point[_uiNumberOfPoints];
-	Point* pTempY = new Point[_uiNumberOfPoints];
-	for (int i = 0; i<_uiNumberOfPoints; i++)
-	{
-		pTempX[i] = _points[i];
-		pTempX[i]._ulPos = i;
-	}
-	// 2.按照横坐标排序:nlogn
-	QsortX(pTempX, 0, _uiNumberOfPoints - 1);
-	// 3.寻找最近点:nlogn
-	_result._dbDis = calcShortestDistance(pTempX, pTempY, 0, _uiNumberOfPoints - 1, _result._nIndex1, _result._nIndex2);
-	delete[]pTempX;
-	delete[]pTempY;
-	_bCalculated = true;
-	return _result;
-}
-
-// 生成一个0~1随机数
-double MyRandom(){
-	return (double)((RAND_MAX + 1)*(long)rand() + rand()) / RAND_MAX / RAND_MAX;
+	if (_pLayer)
+		return _pLayer->Calculate(true);
+	return DistanceAndIndices();
 }
 
 // 生成number个随机点
 void MyGLWidget::GenerateRandomPoints(int number){
-	_bCalculated = false;
-	_uiNumberOfPoints = number;
-	_points.clear();
-	double dbSpatialScope =/*(number/10000.0)**/4.0;
-	for (int i = 0; i<_uiNumberOfPoints; i++)
-	{
-		_points.push_back(DPoint3(-2 + MyRandom()*4.0, -2 + MyRandom()*4.0, 0));
-	}
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random
+		, _bShowBg, number);
+
 }
 
 void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
-		, number, mx, my, vx, vy);
+		, _bShowBg, number, mx, my, vx, vy);
 }
 
 void MyGLWidget::GenerateMVNPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Multi
-		, number, mx, my, vx, vy);
+		,_bShowBg, number, mx, my, vx, vy);
 }
 
 // generate a sequene
 void MyGLWidget::GenerateSequence() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_1D);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_1D, _bShowBg);
 }
 
 // generate a sequene
 void MyGLWidget::GenerateSequence2D() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_2D);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_2D, _bShowBg);
 }
 
 // 开启\关闭手动选点
-void MyGLWidget::SetHandPoint()
-{
+void MyGLWidget::SetHandPoint(){
 	_bHandPoint = !_bHandPoint;
+	GenerateRandomPoints(0);
 	if (_bHandPoint)
 	{
-		_points.clear();
-		_uiNumberOfPoints = 0;
-		_result._nIndex1 = _result._nIndex2 = -1;
+		_pLayer->Clear();
 	}
+	updateGL();
 }
 
 //////////////////////////////////////////////////////////////////////////OGL
@@ -1381,6 +1080,7 @@ void MyGLWidget::DrawRect3D(const DPoint3& pt1, const DPoint3& pt2)
 }
 
 void MyGLWidget::onShowBackground(bool bChecked) {
+	_bShowBg = bChecked;
 	if (_pLayer)
 		_pLayer->ShowBackground(bChecked);
 	updateGL();

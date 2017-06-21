@@ -183,6 +183,7 @@
     <ClCompile Include="NormalPointsLayer.cpp" />
     <ClCompile Include="pointscontrolwidget.cpp" />
     <ClCompile Include="pointsframework.cpp" />
+    <ClCompile Include="RandomPointsLayer.cpp" />
     <ClCompile Include="Sequence1DLayer.cpp" />
     <ClCompile Include="Sequence2DLayer.cpp" />
     <ClCompile Include="SingleNormalPointsLayer.cpp" />
@@ -297,6 +298,7 @@
     <ClInclude Include="MathFunction.h" />
     <ClInclude Include="MultiNormalPointsLayer.h" />
     <ClInclude Include="NormalPointsLayer.h" />
+    <ClInclude Include="RandomPointsLayer.h" />
     <ClInclude Include="Sequence1DLayer.h" />
     <ClInclude Include="Sequence2DLayer.h" />
     <ClInclude Include="SingleNormalPointsLayer.h" />

@@ -67,6 +67,7 @@ void SingleNormalPointsLayer::Draw() {
 
 	int nLen = _points.size();
 	// draw points
+	glColor4f(0, 1, 1, 1);
 	for (int i = 0; i<nLen; i++)
 	{
 		glBegin(GL_POINTS);

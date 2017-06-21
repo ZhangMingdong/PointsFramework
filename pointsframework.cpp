@@ -51,7 +51,6 @@ void PointsFramework::createConnections(){
 	connect(pControlWidget->ui.checkBoxShowBackground, SIGNAL(clicked(bool)), pWidget, SLOT(onShowBackground(bool)));
 }
 
-
 void PointsFramework::onGenerateRandomClicked(){
 	// generate random points
  	pWidget->GenerateRandomPoints(pControlWidget->ui.spinBoxNum->value());
@@ -64,7 +63,6 @@ void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
 	pWidget->GenerateNormalPoints(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
 	pWidget->updateGL();
-
 }
 
 void PointsFramework::onGenerateMultiNormalClicked() {

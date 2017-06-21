@@ -67,16 +67,7 @@ private:
 public:
 	virtual void OnKey(UINT nChar);
 private:
-	// Point list
-	std::vector<Point> _points;
-	// the points list of the covering result
-	std::vector<Point> _pointsResult;
-	// Number of points
-	int _uiNumberOfPoints;
-	// Ids of the nearest pair of points and their distance
-	DistanceAndIndices _result;
-	// if already calculated
-	bool _bCalculated;
+
 	// add point by hand
 	bool _bHandPoint;
 
@@ -156,13 +147,7 @@ public://Set Status
 	void SetClearColor(float r, float g, float b, float a);
 	void SetPolygonStyle(short style);
 public://Drawing
-	// 	void DrawText(const DPoint3& p, const char* string);
-	// 	void DrawTextAsW( const DPoint3& p, const std::string& string);
-	// 	void DrawTextAsW( const IPoint2& p, const std::string& string);
 	void DrawPoint(const DPoint3& p);
-	// 	void DrawSymbolW(const DPoint3& p, const wchar_t* string, double angle=0);
-	// 	void DrawSymbolAsW(const DPoint3& p, const std::string& string, double angle=0);
-	// 	void DrawSelectedSymbolW(const DPoint3& p, const wchar_t* string, double angle=0);
 
 	void DrawLine(const DPoint3& p1, const DPoint3& p2);
 	void DrawLine3D(const DPoint3& p1, const DPoint3& p2);
@@ -217,9 +202,8 @@ public:
 	//20121022
 	void DrawRect3D(const DPoint3& pt1, const DPoint3& pt2);
 private:
-private:
-
 	ILayer *_pLayer;	// current layer
+	bool _bShowBg;		// whether show background
 
 
 public slots:
