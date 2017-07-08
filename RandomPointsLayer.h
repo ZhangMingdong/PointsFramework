@@ -16,12 +16,14 @@ public:
 	virtual ~RandomPointsLayer();
 public:
 	virtual void Draw();
-	virtual void AddPoint(Point pt) { _points.push_back(pt); };
+	virtual void AddPoint(Point pt, bool bRight = false);
 	virtual DistanceAndIndices Calculate(bool bDC);
 	virtual void Clear();
 protected:
 	// Point list
 	std::vector<Point> _points;
+	// another point list
+	std::vector<Point> _pointsR;
 	// the points list of the covering result
 	std::vector<Point> _pointsResult;
 	// Ids of the nearest pair of points and their distance

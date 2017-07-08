@@ -34,6 +34,8 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, m_clearColor(.6, .6, .4, 1.0)
 	, _pLayer(0)
 	, _bShowBg(false)
+	, _nSampleLen(10)
+	, _nSamplePeriod(1)
 {
 	OnCreate();
 	SetClearColor(0, 0, 0, 0);
@@ -160,7 +162,19 @@ void MyGLWidget::timerEvent(QTimerEvent* event)
 
 void MyGLWidget::mousePressEvent(QMouseEvent * event)
 {
-	OnLButtonDown(event->pos().x(), event->pos().y());
+	switch (event->button())
+	{
+	case Qt::MidButton:
+		break;
+	case Qt::LeftButton:
+		OnLButtonDown(event->pos().x(), event->pos().y());
+		break;
+	case Qt::RightButton:
+		OnRButtonDown(event->pos().x(), event->pos().y());
+		break;
+	default:
+		break;
+	}
 	updateGL();
 }
 void MyGLWidget::mouseReleaseEvent(QMouseEvent * event)
@@ -362,6 +376,14 @@ void MyGLWidget::OnRButtonDown(int x, int y)
 	m_ptLBtnDown.y = y;
 	m_ptMouseCurrent.x = x;
 	m_ptMouseCurrent.y = y;
+
+	if (_bHandPoint)
+	{
+		DPoint3 pt1;
+		ScreenToWorld(m_ptLBtnDown, pt1);
+		if (_pLayer)
+			_pLayer->AddPoint(pt1,true);
+	}
 }
 void MyGLWidget::OnRButtonUp(int x, int y)
 {
@@ -462,13 +484,30 @@ void MyGLWidget::GenerateRandomPoints(int number){
 		, _bShowBg, number);
 
 }
+void MyGLWidget::GenerateDuClassPoints() {
 
-void MyGLWidget::GenerateBlueNoise(int number, double mx, double my, double vx, double vy) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Dual
+		, _bShowBg);
+}
+
+void MyGLWidget::GenerateBlueNoise(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue
 		, _bShowBg, number);
 }
 
+void MyGLWidget::GenerateBlueNoiseNormal(int number, double mx, double my, double vx, double vy) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Blue
+		, _bShowBg, number, mx, my, vx, vy);
+}
+
+void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue_Mult
+		, _bShowBg, number);
+}
 void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
@@ -497,7 +536,7 @@ void MyGLWidget::GenerateSequence2D() {
 // 开启\关闭手动选点
 void MyGLWidget::SetHandPoint(){
 	_bHandPoint = !_bHandPoint;
-	GenerateRandomPoints(0);
+	GenerateDuClassPoints();
 	if (_bHandPoint)
 	{
 		_pLayer->Clear();
@@ -1090,5 +1129,25 @@ void MyGLWidget::onShowBackground(bool bChecked) {
 	_bShowBg = bChecked;
 	if (_pLayer)
 		_pLayer->ShowBackground(bChecked);
+	updateGL();
+}
+
+void MyGLWidget::onUpdateLayer() {
+	if (_pLayer)
+		_pLayer->UpdateLayer();
+	updateGL();
+}
+
+void MyGLWidget::onSetSampleLen(int nLen) {
+	_nSampleLen = nLen;
+	if (_pLayer)
+		_pLayer->Reset(_nSampleLen, _nSamplePeriod);
+	updateGL();
+}
+
+void MyGLWidget::onSetSamplePeriod(int nPeriod) {
+	_nSamplePeriod = nPeriod;
+	if (_pLayer)
+		_pLayer->Reset(_nSampleLen, _nSamplePeriod);
 	updateGL();
 }

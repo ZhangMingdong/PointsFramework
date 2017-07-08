@@ -21,8 +21,7 @@ protected:
 	// the points list of the covering result
 	std::vector<Point> _pointsResult;
 protected:
-
 	// generate a list of points obey the normal distribution
-	void generateNormalPoints(int number, double mx, double my, double vx, double vy);
+	virtual void generateNormalPoints(int number, double mx, double my, double vx, double vy);
 };
 

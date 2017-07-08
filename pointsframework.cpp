@@ -26,35 +26,41 @@ void PointsFramework::createDockWidgets(){
 		QDockWidget::DockWidgetMovable |
 		QDockWidget::DockWidgetFloatable;
 
-	pControlWidget = new PointsControlWidget();
+	_pControlWidget = new PointsControlWidget();
 
 
 	QDockWidget *controlDockWidget = new QDockWidget(
 		tr("Control"), this);
 	controlDockWidget->setFeatures(features);
-	controlDockWidget->setWidget(pControlWidget);
+	controlDockWidget->setWidget(_pControlWidget);
 	addDockWidget(Qt::RightDockWidgetArea, controlDockWidget);
 
 }
 
 void PointsFramework::createConnections(){
-	connect(pControlWidget->ui.pushButtonCalc, SIGNAL(pressed()), this, SLOT(onCalculateClicked()));
-	connect(pControlWidget->ui.pushButtonCalcDC, SIGNAL(pressed()), this, SLOT(onCalculateDCClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateRandom, SIGNAL(pressed()), this, SLOT(onGenerateRandomClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
-	connect(pControlWidget->ui.pushButtonGenerateSequence2D, SIGNAL(pressed()), this, SLOT(onGenerateSequence2DClicked()));
-	connect(pControlWidget->ui.checkBoxPicking, SIGNAL(clicked(bool)), this, SLOT(onPickingClicked(bool)));
+	connect(_pControlWidget->ui.pushButtonCalc, SIGNAL(pressed()), this, SLOT(onCalculateClicked()));
+	connect(_pControlWidget->ui.pushButtonCalcDC, SIGNAL(pressed()), this, SLOT(onCalculateDCClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateRandom, SIGNAL(pressed()), this, SLOT(onGenerateRandomClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateBlueNoiseNormal, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseNormalClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateMulticlassBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateMulticlassBlueNoiseClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateSequence2D, SIGNAL(pressed()), this, SLOT(onGenerateSequence2DClicked()));
+	connect(_pControlWidget->ui.checkBoxPicking, SIGNAL(clicked(bool)), this, SLOT(onPickingClicked(bool)));
 
 
-	connect(pControlWidget->ui.checkBoxShowBackground, SIGNAL(clicked(bool)), pWidget, SLOT(onShowBackground(bool)));
+	connect(_pControlWidget->ui.checkBoxShowBackground, SIGNAL(clicked(bool)), pWidget, SLOT(onShowBackground(bool)));
+	connect(_pControlWidget->ui.pushButtonUpdateLayer, SIGNAL(pressed()), pWidget, SLOT(onUpdateLayer()));
+
+	connect(_pControlWidget->ui.horizontalSliderLen, SIGNAL(valueChanged(int)), pWidget, SLOT(onSetSampleLen(int)));
+	connect(_pControlWidget->ui.horizontalSliderPeriod, SIGNAL(valueChanged(int)), pWidget, SLOT(onSetSamplePeriod(int)));
 }
 
 void PointsFramework::onGenerateRandomClicked(){
 	// generate random points
- 	pWidget->GenerateRandomPoints(pControlWidget->ui.spinBoxNum->value());
+ 	pWidget->GenerateRandomPoints(_pControlWidget->ui.spinBoxNum->value());
 
 	pWidget->updateGL();
 
@@ -62,18 +68,45 @@ void PointsFramework::onGenerateRandomClicked(){
 
 void PointsFramework::onGenerateBlueNoiseClicked() {
 	// generate normal points
-	pWidget->GenerateBlueNoise(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+
+	long t1 = GetTickCount();
+	pWidget->GenerateBlueNoise(_pControlWidget->ui.spinBoxNum->value());
+	int t = GetTickCount() - t1; 
+	QString s1 = QStringLiteral("生成蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
+
+	pWidget->updateGL();
+}void PointsFramework::onGenerateBlueNoiseNormalClicked() {
+	// generate normal points
+
+	long t1 = GetTickCount();
+	pWidget->GenerateBlueNoiseNormal(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	int t = GetTickCount() - t1;
+	QString s1 = QStringLiteral("生成正态蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
+
+	pWidget->updateGL();
+}
+void PointsFramework::onGenerateMulticlassBlueNoiseClicked() {
+	// generate normal points
+
+	long t1 = GetTickCount();
+	pWidget->GenerateMulticlassBlueNoise(_pControlWidget->ui.spinBoxNum->value());
+	int t = GetTickCount() - t1; 
+	QString s1 = QStringLiteral("生成多组蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
+
 	pWidget->updateGL();
 }
 void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
-	pWidget->GenerateNormalPoints(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->GenerateNormalPoints(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
 	pWidget->updateGL();
 }
 
 void PointsFramework::onGenerateMultiNormalClicked() {
 	// generate normal points
-	pWidget->GenerateMVNPoints(pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->GenerateMVNPoints(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
 	pWidget->updateGL();
 
 }
@@ -102,7 +135,7 @@ void PointsFramework::onCalculateClicked(){
 		+ QString::number(result._nIndex2) + QStringLiteral("。\n");
 	QString s3 = QStringLiteral("距离：") + QString::number(result._dbDis) + QStringLiteral("。\n");
 	QString s4 = "==============\n";
-	pControlWidget->ui.textEditResult->setPlainText(pControlWidget->ui.textEditResult->toPlainText() + s1 + s2 + s3 + s4);
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1 + s2 + s3 + s4);
 
 
 }
@@ -117,7 +150,7 @@ void PointsFramework::onCalculateDCClicked(){
 		+ QString::number(result._nIndex2) + QStringLiteral("。\n");
 	QString s3= QStringLiteral("距离：") + QString::number(result._dbDis) + QStringLiteral("。\n");
 	QString s4 = "==============\n";
-	pControlWidget->ui.textEditResult->setPlainText(pControlWidget->ui.textEditResult->toPlainText()+s1+s2+s3+s4);
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText()+s1+s2+s3+s4);
 
 }
 

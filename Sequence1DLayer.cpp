@@ -9,38 +9,31 @@
 #include <gl/GLU.h>
 #include "MathFunction.h"
 
-
+void forwardDFT(const std::vector<Point> s, int nLen, std::vector<double>& a, std::vector<double>& b)
+{
+	// note: this code is not optimised at all, written for clarity not speed.
+	for (int k = 0; k <= nLen / 2; ++k) {
+		double newA = 0;
+		double newB = 0;
+		for (int x = 0; x < nLen; ++x) {
+			newA += s[x].y * cos(2 * PId / nLen * k * x);
+			newB += s[x].y * sin(2 * PId / nLen * k * x);
+		}
+		// normalization
+		newA *= (k == 0 || k == nLen / 2) ? 1. / nLen : 2. / nLen;
+		newB *= 2. / nLen;
+		a.push_back(newA);
+		b.push_back(newB);
+	}
+}
 
 Sequence1DLayer::Sequence1DLayer():_dbLeft(-2),_dbRight(2)
 {
-	_sequence.clear();
-	_sequenceResultRBF.clear();
-	_sequenceResultLagrangian.clear();
-	// 0.generation
-	DPoint3 seq[10] = {
-		DPoint3(-2, -.2, 0)
-		,DPoint3(-1.6, -0.6, 0)
-		,DPoint3(-1.2, 0, 0)
-		,DPoint3(-0.8, .3, 0)
-		,DPoint3(-0.1, .5, 0)
-		,DPoint3(-0.0, .7, 0)
-		,DPoint3(0.4, .9, 0)
-		,DPoint3(0.6, .5, 0)
-		,DPoint3(1.2, .3, 0)
-		,DPoint3(1.6, .0, 0)
-	};
-	int nLen = 10;
-	for (size_t i = 0; i < nLen; i++)
-	{
-		//		double x = i;
-		//		double y = MyRandom()*4-2;
-		//		_sequence.push_back(DPoint3(x, y, 0));
-		_sequence.push_back(seq[i]);
-		//		_sequenceResult.push_back(DPoint3(seq[i].x, -seq[i].y,0));
-	}
-
-	// RBF
-	doRBF();
+	// 1.generate the original sequence
+	generateSequence();
+	return;
+	// 2.do interpolation	
+	doRBF();		
 	doLagrangian();
 }
 
@@ -111,6 +104,7 @@ void Sequence1DLayer::doLagrangian() {
 Sequence1DLayer::~Sequence1DLayer()
 {
 }
+
 void Sequence1DLayer::Draw() {
 	// draw polyline
 	glColor3f(0, 1, 1);
@@ -142,4 +136,65 @@ void Sequence1DLayer::Draw() {
 
 	}
 	glEnd();
+}
+
+void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
+	nLen *= 10;
+	// generate a sine wave
+	double dbScope = 4;
+	double dbLeft = -2;
+	double dbStep = dbScope / nLen;
+
+	for (size_t i = 0; i <= nLen; i++)
+	{
+		double x = dbLeft + i*dbStep;
+//		double y = sin(x*PIf*nPeriod);
+		double scaledX = i/100.0;// x*PIf*nPeriod;
+		double y = sin(scaledX) + cos(10 * scaledX) +0.5 * cos(40 * scaledX);
+		y /= 10;
+		_sequence.push_back(DPoint3(x, y, 0));
+	}
+	std::vector<double> a, b;
+	forwardDFT(_sequence, nLen, a, b);
+
+	return;
+	// original
+	{
+
+		// 0.generation
+		DPoint3 seq[10] = {
+			DPoint3(-2, -.2, 0)
+			,DPoint3(-1.6, -0.6, 0)
+			,DPoint3(-1.2, 0, 0)
+			,DPoint3(-0.8, .3, 0)
+			,DPoint3(-0.1, .5, 0)
+			,DPoint3(-0.0, .7, 0)
+			,DPoint3(0.4, .9, 0)
+			,DPoint3(0.6, .5, 0)
+			,DPoint3(1.2, .3, 0)
+			,DPoint3(1.6, .0, 0)
+		};
+		int nLen = 10;
+		for (size_t i = 0; i < nLen; i++)
+		{
+			//		double x = i;
+			//		double y = MyRandom()*4-2;
+			//		_sequence.push_back(DPoint3(x, y, 0));
+			_sequence.push_back(seq[i]);
+			//		_sequenceResult.push_back(DPoint3(seq[i].x, -seq[i].y,0));
+		}
+	}
+
+}
+
+void Sequence1DLayer::Reset(int nLen, int nPeriod) {
+	_sequence.clear();
+	_sequenceResultRBF.clear();
+	_sequenceResultLagrangian.clear();
+
+	generateSequence(nLen, nPeriod);
+	return;
+	doRBF();
+	doLagrangian();
+
 }

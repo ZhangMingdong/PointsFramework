@@ -11,9 +11,6 @@
 
 SingleNormalPointsLayer::SingleNormalPointsLayer(int number, double mx, double my, double vx, double vy)
 {
-
-	_points.clear();
-
 	generateNormalPoints(number, mx, my, vx, vy);
 
 	// calculate the confidence eclipse

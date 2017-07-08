@@ -79,8 +79,13 @@ public:
 	DistanceAndIndices CalcNearestPairOfPoints_DC();
 	// 生成number个随机点
 	void GenerateRandomPoints(int number);
+	void GenerateDuClassPoints();
 	// generate number blue noise points
-	void GenerateBlueNoise(int number, double mx, double my, double vx, double vy);
+	void GenerateBlueNoise(int number);
+	// generate number blue noise points
+	void GenerateBlueNoiseNormal(int number, double mx, double my, double vx, double vy);
+	// generate multiple class blue noise points of the given number
+	void GenerateMulticlassBlueNoise(int number);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateNormalPoints(int number,double mx,double my,double vx,double vy);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
@@ -207,9 +212,16 @@ private:
 	ILayer *_pLayer;	// current layer
 	bool _bShowBg;		// whether show background
 
+	// for sampling
+	int _nSampleLen;
+	int _nSamplePeriod;
+
 
 public slots:
 	void onShowBackground(bool bChecked);
+	void onUpdateLayer();
+	void onSetSampleLen(int nLen);
+	void onSetSamplePeriod(int nPeriod);
 };
 
 #endif // MYGLWIDGET_H

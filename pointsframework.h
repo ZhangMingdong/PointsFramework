@@ -17,13 +17,15 @@ public:
 
 private:
 	MyGLWidget* pWidget;
-	PointsControlWidget* pControlWidget;
+	PointsControlWidget* _pControlWidget;
 protected:
 	void createDockWidgets();
 	void createConnections();
 public slots:
 	void onGenerateNormalClicked();
 	void onGenerateBlueNoiseClicked();
+	void onGenerateBlueNoiseNormalClicked();
+	void onGenerateMulticlassBlueNoiseClicked();
 	void onGenerateRandomClicked();
 	void onGenerateMultiNormalClicked();
 	void onGenerateSequenceClicked();

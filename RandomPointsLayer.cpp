@@ -143,14 +143,16 @@ RandomPointsLayer::RandomPointsLayer(int nPoints): _bCalculated(false)
 	_result._dbDis = 0;
 
 	_bCalculated = false;
-	this->generatePoints(nPoints);
+	generatePoints(nPoints);
 
 }
+
 void RandomPointsLayer::generatePoints(int nPoints) {
 	_points.clear();
 	double dbSpatialScope =/*(number/10000.0)**/4.0;
 	for (int i = 0; i<nPoints; i++)
 	{
+		_points.push_back(DPoint3(-dbSpatialScope / 2 + MyRandom()*dbSpatialScope, -dbSpatialScope / 2 + MyRandom()*dbSpatialScope, 0));
 	}
 }
 
@@ -160,7 +162,6 @@ RandomPointsLayer::~RandomPointsLayer()
 
 void RandomPointsLayer::Draw() {
 
-
 	int nLen = _points.size();
 	// draw points
 	glColor4f(0, 1, 1, 1);
@@ -168,6 +169,17 @@ void RandomPointsLayer::Draw() {
 	{
 		glBegin(GL_POINTS);
 		glVertex3d(_points[i].x, _points[i].y, _points[i].z);
+		glEnd();
+	}
+
+
+	// draw points of class two
+	glColor4f(1, 1, 0, 1);
+	int nLenR = _pointsR.size();
+	for (int i = 0; i<nLenR; i++)
+	{
+		glBegin(GL_POINTS);
+		glVertex3d(_pointsR[i].x, _pointsR[i].y, _pointsR[i].z);
 		glEnd();
 	}
 
@@ -238,3 +250,14 @@ void RandomPointsLayer::Clear() {
 	_points.clear();
 	_result._nIndex1 = _result._nIndex2 = -1;
 }
+
+
+void RandomPointsLayer::AddPoint(Point pt, bool bRight) {
+	if (bRight)
+	{
+		_pointsR.push_back(pt);
+	}
+	else {
+		_points.push_back(pt);
+	}
+};

@@ -14,17 +14,20 @@ public:
 	enum EnumLayerType
 	{
 		LT_Sequence_1D
-		,LT_Sequence_2D
-		,LT_Normal_Single
-		,LT_Normal_Multi
-		,LT_Random
-		,LT_Random_Blue
+		, LT_Sequence_2D
+		, LT_Normal_Single
+		, LT_Normal_Multi
+		, LT_Normal_Blue
+		, LT_Random
+		, LT_Random_Blue
+		, LT_Random_Blue_Mult
+		, LT_Dual
 	};
 	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0, double mx=0, double my = 0, double vx = 0, double vy = 0);
 public:
 	virtual void Draw()=0;
 	// add a point
-	virtual void AddPoint(Point pt) {};
+	virtual void AddPoint(Point pt, bool bRight = false) {};
 	// calculate the nearest points pair
 	virtual DistanceAndIndices Calculate(bool bDC) {
 		return DistanceAndIndices();
@@ -33,6 +36,12 @@ public:
 	virtual void Clear() {};
 	// initialization
 	virtual void Initialize() {};
+	// update this layer, used for the display of classes in multiclass blue noise layer
+	virtual void UpdateLayer() {};
+
+
+	// reset length of sample points and period of the function
+	virtual void Reset(int nLen, int nPeriod) {};
 public:
 	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
 
@@ -44,9 +53,13 @@ protected:// drawing
 	void DrawPoint(const DPoint3& p);
 
 	void DrawLine(const DPoint3& p1, const DPoint3& p2);
+
 	void DrawLine(const std::vector<DPoint3> &dline, bool bClose);		//draw a line
 
 	void DrawCircle(DPoint3 center, double radius);
+
+	// return true if the distance between pt and every points in list are all larger than dis
+	bool distanceCheck(const Point& pt, const std::vector<Point>& list, double dis);
 
 };
 

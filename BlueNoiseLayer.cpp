@@ -23,12 +23,17 @@ void BlueNoiseLayer::generatePoints(int nPoints) {
 	int nCount = 0;							// count the darting times
 	int nMaxTime = 10000000;				// try this time at most
 
+	// use a global distance
+	double dbDis = dbSpatialScope / sqrt(nPoints * 2);
+
 	while (nGeneratedPoints<nPoints&&nCount++<nMaxTime)
 	{
 		DPoint3 ptNew(-dbSpatialScope / 2 + MyRandom()*dbSpatialScope, -dbSpatialScope / 2 + MyRandom()*dbSpatialScope, 0);
 		int nLen = _points.size();
-		double dbDis = dbSpatialScope / sqrt(nLen*2);
 		bool bDiscard = false;	// whether discard this point
+		// original distance, using adaptive distance
+		// double dbDis = dbSpatialScope / sqrt(nLen * 2);
+
 		// test the distance
 		for (size_t i = 0; i < nLen; i++)
 		{
@@ -43,6 +48,5 @@ void BlueNoiseLayer::generatePoints(int nPoints) {
 			_points.push_back(ptNew);
 			nGeneratedPoints++;
 		}
-
 	}
 }

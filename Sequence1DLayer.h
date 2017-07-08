@@ -15,12 +15,17 @@ public:
 	virtual ~Sequence1DLayer();
 public:
 	virtual void Draw();
+	// reset length of sample points and period of the function
+	virtual void Reset(int nLen, int nPeriod);
 private:
 	// the original sequence
 	std::vector<Point> _sequence;
 	// interpolation result of the sequence
 	std::vector<Point> _sequenceResultRBF;
 	std::vector<Point> _sequenceResultLagrangian;
+
+
+	std::vector<double> a, b;
 	// left and right position
 	double _dbLeft;
 	double _dbRight;
@@ -29,5 +34,8 @@ private:
 	void doRBF();
 	// do Lagrangian interpolation
 	void doLagrangian();
+protected:
+	// generate the sequence
+	virtual void generateSequence(int nLen=10, int nPeriod=1);
 };
 

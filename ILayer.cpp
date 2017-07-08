@@ -6,6 +6,9 @@
 #include "MultiNormalPointsLayer.h"
 #include "RandomPointsLayer.h"
 #include "BlueNoiseLayer.h"
+#include "MulticlassBlueNoiseLayer.h"
+#include "BlueNoiseNormalPointsLayer.h"
+#include "DuClassPointsLayer.h"
 
 
 ILayer::ILayer():_bShowBackground(false)
@@ -33,11 +36,20 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 	case ILayer::LT_Normal_Multi:
 		pLayer = new MultiNormalPointsLayer(nPoints, mx, my, vx, vy);
 		break;
+	case ILayer::LT_Normal_Blue:
+		pLayer = new BlueNoiseNormalPointsLayer(nPoints, mx, my, vx, vy);
+		break;
 	case ILayer::LT_Random:
 		pLayer = new RandomPointsLayer(nPoints);
 		break;
 	case ILayer::LT_Random_Blue:
 		pLayer = new BlueNoiseLayer(nPoints);
+		break;
+	case ILayer::LT_Random_Blue_Mult:
+		pLayer = new MultiClassBlueNoiseLayer(nPoints);
+		break;
+	case ILayer::LT_Dual:
+		pLayer = new DuClassPointsLayer();
 		break;
 	default:
 		break;
@@ -86,7 +98,6 @@ void ILayer::DrawLine(const std::vector<DPoint3> &dline, bool bClose)
 	glEnd();
 }//----------------------------------------------------------------------------------------------------
 
-
 void ILayer::DrawCircle(DPoint3 center, double radius)
 {
 	std::vector<DPoint3> circle;
@@ -99,4 +110,18 @@ void ILayer::DrawCircle(DPoint3 center, double radius)
 		circle.push_back(pt);
 	}
 	DrawLine(circle, true);
+}
+
+
+bool ILayer::distanceCheck(const Point& pt, const std::vector<Point>& list, double dis) {
+	int nLen = list.size();
+	for (size_t i = 0; i < nLen; i++)
+	{
+		double x = list[i].x - pt.x;
+		double y = list[i].y - pt.y;
+		if (sqrt(x*x + y*y) < dis) {
+			return false;
+		}
+	}
+	return true;
 }
