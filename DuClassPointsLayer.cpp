@@ -48,6 +48,21 @@ void DuClassPointsLayer::Draw() {
 	glEnd();
 
 }
+
+/*
+	update the parateters
+	nClass=1/-1;
+*/
+void updateW(double* pW, Point pt, int nClass,double dbDelta,double dbLambda) {
+	double dbBias = pW[0] * pt.x + pW[1] * pt.y + pW[2] - nClass*dbDelta;
+	if (nClass*dbBias<0)
+	{
+		pW[0] -= pt.x*dbBias*dbLambda;
+		pW[1] -= pt.y*dbBias*dbLambda;
+		pW[2] -= dbBias*dbLambda;
+	}
+}
+
 void DuClassPointsLayer::UpdateLayer() {
 	// update parameter
 	int nEpochs = 100;
@@ -58,27 +73,13 @@ void DuClassPointsLayer::UpdateLayer() {
 		for (size_t j = 0,length=_points.size(); j < length; j++)
 		{
 			Point pt = _points[j];
-			double dbBias = _arrW[0] * pt.x + _arrW[1] * pt.y + _arrW[2]-dbDelta;
-			if (dbBias<0)
-			{
-				_arrW[0] -= pt.x*dbBias*dbLambda;
-				_arrW[1] -= pt.y*dbBias*dbLambda;
-				_arrW[2] -= dbBias*dbLambda;
-			}
+			updateW(_arrW, pt, 1, dbDelta, dbLambda);
 		}
 		for (size_t j = 0, length = _pointsR.size(); j < length; j++)
 		{
 			Point pt = _pointsR[j];
-			double dbBias = _arrW[0] * pt.x + _arrW[1] * pt.y + _arrW[2] + dbDelta;
-			if (dbBias>0)
-			{
-				_arrW[0] -= pt.x*dbBias*dbLambda;
-				_arrW[1] -= pt.y*dbBias*dbLambda;
-				_arrW[2] -= dbBias*dbLambda;
-			}
-
+			updateW(_arrW, pt, -1, dbDelta, dbLambda);
 		}
-
 	}
 }
 
@@ -86,7 +87,6 @@ void DuClassPointsLayer::Clear() {
 	_points.clear();
 	_pointsR.clear();
 }
-
 
 void DuClassPointsLayer::AddPoint(Point pt, bool bRight) {
 	if (bRight)
