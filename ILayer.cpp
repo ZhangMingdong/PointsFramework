@@ -9,6 +9,7 @@
 #include "MulticlassBlueNoiseLayer.h"
 #include "BlueNoiseNormalPointsLayer.h"
 #include "DuClassPointsLayer.h"
+#include "SpiralPointsLayer.h"
 
 
 ILayer::ILayer():_bShowBackground(false)
@@ -50,6 +51,9 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 		break;
 	case ILayer::LT_Dual:
 		pLayer = new DuClassPointsLayer();
+		break;
+	case ILayer::LT_Spiral:
+		pLayer = new SpiralPointsLayer();
 		break;
 	default:
 		break;

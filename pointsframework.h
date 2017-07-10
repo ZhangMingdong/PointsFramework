@@ -33,6 +33,7 @@ public slots:
 	void onCalculateClicked();
 	void onCalculateDCClicked();
 	void onPickingClicked(bool bChecked);
+	void onGenerateSpiralClicked();
 };
 
 #endif // POINTSFRAMEWORK_H

@@ -42,6 +42,7 @@ void PointsFramework::createConnections(){
 	connect(_pControlWidget->ui.pushButtonCalcDC, SIGNAL(pressed()), this, SLOT(onCalculateDCClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateRandom, SIGNAL(pressed()), this, SLOT(onGenerateRandomClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateSpiral, SIGNAL(pressed()), this, SLOT(onGenerateSpiralClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateBlueNoiseNormal, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateMulticlassBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateMulticlassBlueNoiseClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
@@ -76,7 +77,19 @@ void PointsFramework::onGenerateBlueNoiseClicked() {
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
 
 	pWidget->updateGL();
-}void PointsFramework::onGenerateBlueNoiseNormalClicked() {
+}
+void PointsFramework::onGenerateSpiralClicked() {
+	// generate normal points
+
+	long t1 = GetTickCount();
+	pWidget->GenerateSpiralPoints();
+	int t = GetTickCount() - t1;
+	QString s1 = QStringLiteral("生成蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
+	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
+
+	pWidget->updateGL();
+}
+void PointsFramework::onGenerateBlueNoiseNormalClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();

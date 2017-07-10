@@ -338,20 +338,20 @@ void MyGLWidget::OnMouseMove(int x, int y)
 		break;
 	default:
 	{
-			   if (m_bLBtnDown)
-			   {
-				   PanScreenDelta(x - m_ptMouseCurrent.x, m_ptMouseCurrent.y - y);
-			   }
-			   else if (m_bRBtnDown)
-			   {
-				   ScreenRoll(y - m_ptMouseCurrent.y, x - m_ptMouseCurrent.x);
-			   }
-			   else if (m_bMBtnDown)
-			   {
-				   ScreenRotate(m_ptMouseCurrent.x, m_ptMouseCurrent.y, x, y);
-			   }
-	}
+		if (m_bLBtnDown)
+		{
+			PanScreenDelta(x - m_ptMouseCurrent.x, m_ptMouseCurrent.y - y);
+		}
+		else if (m_bRBtnDown)
+		{
+//			ScreenRoll(y - m_ptMouseCurrent.y, x - m_ptMouseCurrent.x);
+		}
+		else if (m_bMBtnDown)
+		{
+//			ScreenRotate(m_ptMouseCurrent.x, m_ptMouseCurrent.y, x, y);
+		}
 		break;
+	}
 	}
 	m_ptMouseCurrent.x = x;
 	m_ptMouseCurrent.y = y;
@@ -489,6 +489,11 @@ void MyGLWidget::GenerateDuClassPoints() {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Dual
 		, _bShowBg);
+}
+void MyGLWidget::GenerateSpiralPoints() {
+
+	if (_pLayer) delete _pLayer;	
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Spiral , _bShowBg);
 }
 
 void MyGLWidget::GenerateBlueNoise(int number) {

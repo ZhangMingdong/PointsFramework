@@ -22,6 +22,7 @@ public:
 		, LT_Random_Blue
 		, LT_Random_Blue_Mult
 		, LT_Dual
+		, LT_Spiral
 	};
 	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0, double mx=0, double my = 0, double vx = 0, double vy = 0);
 public:

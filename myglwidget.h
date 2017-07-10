@@ -79,7 +79,10 @@ public:
 	DistanceAndIndices CalcNearestPairOfPoints_DC();
 	// 生成number个随机点
 	void GenerateRandomPoints(int number);
+	// generate point of dual classes
 	void GenerateDuClassPoints();
+	// generate sparial points
+	void GenerateSpiralPoints();
 	// generate number blue noise points
 	void GenerateBlueNoise(int number);
 	// generate number blue noise points
