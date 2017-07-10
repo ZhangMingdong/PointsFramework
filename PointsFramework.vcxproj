@@ -139,8 +139,10 @@
   <ItemGroup>
     <ClCompile Include="AHCClustering.cpp" />
     <ClCompile Include="BlueNoiseLayer.cpp" />
+    <ClCompile Include="BlueNoiseNormalPointsLayer.cpp" />
     <ClCompile Include="Clustering.cpp" />
     <ClCompile Include="ColorMap.cpp" />
+    <ClCompile Include="DuClassPointsLayer.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_myglwidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -179,6 +181,7 @@
     <ClCompile Include="KMeansClustering.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MathFunction.cpp" />
+    <ClCompile Include="MultiClassBlueNoiseLayer.cpp" />
     <ClCompile Include="MultiNormalPointsLayer.cpp" />
     <ClCompile Include="myglwidget.cpp" />
     <ClCompile Include="NormalPointsLayer.cpp" />
@@ -188,6 +191,7 @@
     <ClCompile Include="Sequence1DLayer.cpp" />
     <ClCompile Include="Sequence2DLayer.cpp" />
     <ClCompile Include="SingleNormalPointsLayer.cpp" />
+    <ClCompile Include="SpiralPointsLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="pointsframework.h">
@@ -292,18 +296,22 @@
   <ItemGroup>
     <ClInclude Include="AHCClustering.h" />
     <ClInclude Include="BlueNoiseLayer.h" />
+    <ClInclude Include="BlueNoiseNormalPointsLayer.h" />
     <ClInclude Include="Clustering.h" />
     <ClInclude Include="ColorMap.h" />
+    <ClInclude Include="DuClassPointsLayer.h" />
     <ClInclude Include="GeneratedFiles\ui_pointscontrolwidget.h" />
     <ClInclude Include="ILayer.h" />
     <ClInclude Include="KMeansClustering.h" />
     <ClInclude Include="MathFunction.h" />
+    <ClInclude Include="MultiClassBlueNoiseLayer.h" />
     <ClInclude Include="MultiNormalPointsLayer.h" />
     <ClInclude Include="NormalPointsLayer.h" />
     <ClInclude Include="RandomPointsLayer.h" />
     <ClInclude Include="Sequence1DLayer.h" />
     <ClInclude Include="Sequence2DLayer.h" />
     <ClInclude Include="SingleNormalPointsLayer.h" />
+    <ClInclude Include="SpiralPointsLayer.h" />
     <ClInclude Include="ZCalcFuncs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
