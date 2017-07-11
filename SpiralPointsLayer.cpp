@@ -8,11 +8,20 @@ SpiralPointsLayer::SpiralPointsLayer()
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	_pW = new MyMatrix(_nD,_nClass);
+	_pB = new MyMatrix(1,_nClass);
 
 	generatePoints();
 	initializeParams();
 	showClassifier();
+//	showClassifierAnn();
 	// the classifier will be changed when pushing the update button
+}
+
+SpiralPointsLayer::~SpiralPointsLayer()
+{
+	delete _pW;
+	delete _pB;
 }
 
 void SpiralPointsLayer::generatePoints() {
@@ -38,16 +47,15 @@ void SpiralPointsLayer::generatePoints() {
 void SpiralPointsLayer::initializeParams() {
 	for (size_t j = 0; j < _nClass; j++)
 	{
-		_arrB[j] = 1;
+		_pB->SetValue(0, j, 1);
+//		_arrB[j] = 1;
 		for (size_t i = 0; i < _nD; i++)
 		{
-			_arrW[i][j] = rand() / (double)RAND_MAX;
+			_pW->SetValue(i, j, rand() / (double)RAND_MAX);
+//			_arrW[i][j] = rand() / (double)RAND_MAX;
 		}
 	}
-}
 
-SpiralPointsLayer::~SpiralPointsLayer()
-{
 }
 
 void SpiralPointsLayer::Draw() {
@@ -77,8 +85,8 @@ void SpiralPointsLayer::Draw() {
 	glBegin(GL_POINTS);
 	for (size_t i = 0,length=_vecResultPt.size(); i < length; i++)
 	{
-		glColor4dv(Rcolors[_vecResultLabel[i]]);
-		glVertex3d(_vecResultPt[i].x, _vecResultPt[i].y, 0);
+		glColor4dv(Rcolors[_vecResultPt[i]._nLabel]);
+		glVertex3d(_vecResultPt[i]._arrCoord[0], _vecResultPt[i]._arrCoord[1], 0);
 	}
 	glEnd();
 }
@@ -142,7 +150,8 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 	{
 		for (size_t k = 0; k < _nClass; k++)
 		{
-			dbRegLoss += _arrW[j][k] * _arrW[j][k];
+//			dbRegLoss += _arrW[j][k] * _arrW[j][k];
+			dbRegLoss += _pW->GetValue(j, k)*_pW->GetValue(j, k);
 		}
 	}
 	dbRegLoss *= (0.5*dbReg);
@@ -194,17 +203,17 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 	// 6.regularization gradient
 	for (size_t j = 0; j < _nD; j++) {
 		for (size_t k = 0; k < _nClass; k++) {
-			arrDW[j][k] += dbReg*_arrW[j][k];
+			arrDW[j][k] += dbReg*_pW->GetValue(j, k);
 		}
 	}
 	// 7.perform parameter update
 	for (size_t j = 0; j < _nD; j++) {
 		for (size_t k = 0; k < _nClass; k++) {
-			_arrW[j][k] -= dbStepSize*arrDW[j][k];
+			_pW->SetValue(j, k, _pW->GetValue(j, k) - dbStepSize*arrDW[j][k]);
 		}
 	}
 	for (size_t k = 0; k < _nClass; k++) {
-		_arrB[k] -= dbStepSize*arrDB[k];
+		_pB->SetValue(0, k, _pB->GetValue(0, k) - dbStepSize*arrDB[k]);
 	}
 
 	// 8.calculate score and accuracy
@@ -218,7 +227,6 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 
 void SpiralPointsLayer::showClassifier() {
 	_vecResultPt.clear();
-	_vecResultLabel.clear();
 	// generate the result plot
 	double xMin = _vecPoints[0]._arrCoord[0];
 	double xMax = _vecPoints[0]._arrCoord[0];
@@ -240,9 +248,8 @@ void SpiralPointsLayer::showClassifier() {
 	{
 		for (double y = yMin; y < yMax; y += h)
 		{
-			_vecResultPt.push_back(DPoint3(x, y, 0));
 			double X[_nD] = { x,y };
-			_vecResultLabel.push_back(calcLabel(X));
+			_vecResultPt.push_back(LabeledPoint(x, y, calcLabel(X)));
 		}
 	}
 }
@@ -272,10 +279,10 @@ int SpiralPointsLayer::calcLabel(double* X) {
 void SpiralPointsLayer::calcScore(const double* X, double* arrScore) {
 	for (size_t i = 0; i < _nClass; i++)
 	{
-		arrScore[i] = _arrB[i];
+		arrScore[i] = _pB->GetValue(0, i);
 		for (size_t j = 0; j < _nD; j++)
 		{
-			arrScore[i] += X[j] * _arrW[j][i];
+			arrScore[i] += X[j] * _pW->GetValue(j, i);
 		}
 	}
 }
@@ -286,4 +293,8 @@ void SpiralPointsLayer::evaluateScore(double(*arrScores)[_nClass]) {
 		calcScore(_vecPoints[i]._arrCoord, arrScores[i]);
 	}
 }
-// little change in my desktop
+
+
+void SpiralPointsLayer::showClassifierAnn() {
+
+}

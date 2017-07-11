@@ -1,6 +1,7 @@
 #pragma once
 #include "ILayer.h"
 #include <vector>
+#include "MyMatrix.h"
 
 // point with label
 class LabeledPoint
@@ -38,12 +39,19 @@ private:
 	// points
 	std::vector<LabeledPoint> _vecPoints;
 	// W 
-	double _arrW[_nD][_nClass];
+//	double _arrW[_nD][_nClass];
+	MyMatrix* _pW;
 	// b
-	double _arrB[_nClass];
+//	double _arrB[_nClass];
+	MyMatrix* _pB;
 	// points and labels of the result
-	std::vector<Point> _vecResultPt;
-	std::vector<int> _vecResultLabel;
+	std::vector<LabeledPoint> _vecResultPt;
+
+	// for ann
+	// number of hidden layers
+	static const int _nHidden=100;
+
+
 private:
 	// generate the spiral points
 	void generatePoints();
@@ -61,5 +69,9 @@ private:
 	void trainStep(double dbStepSize,double dbReg);
 	// show the classifier
 	void showClassifier();
+	// for ann
+	// show the classifier
+	void showClassifierAnn();
+
 };
 
