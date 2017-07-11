@@ -12,6 +12,7 @@ SpiralPointsLayer::SpiralPointsLayer()
 	generatePoints();
 	initializeParams();
 	showClassifier();
+	// the classifier will be changed when pushing the update button
 }
 
 void SpiralPointsLayer::generatePoints() {
@@ -90,6 +91,7 @@ void SpiralPointsLayer::train() {
 	// train
 	double dbStepSize = 1.0;
 	double dbReg = 0.003;
+	// set step to 1 to show the training procedure
 	int nEpochs = 1;// 200;
 	for (size_t i = 0; i < nEpochs; i++)
 	{
@@ -97,37 +99,37 @@ void SpiralPointsLayer::train() {
 	}
 }
 
-
 void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {	
-	int nPoints = _vecPoints.size();						// size of traning data
+	// size of traning data
+	int nPoints = _vecPoints.size();						
 
-
-	// evaluate class scores
-	double arrScores[_nClass*_nPointPerClass][_nClass];
+	// 1.evaluate class scores
+	double arrScores[_nPoints][_nClass];
 	evaluateScore(arrScores);
 
-	// compute the class probabilities
-	double arrExpScores[_nClass*_nPointPerClass][_nClass];
-	double dbExpScoreSum = 0;
+	// 2.compute the class probabilities
+	double arrExpScores[_nPoints][_nClass];
+	double arrExpScoreSum[_nPoints];
 	for (size_t i = 0; i < nPoints; i++)
 	{
+		arrExpScoreSum[i] = 0;
 		for (size_t j = 0; j < _nClass; j++)
 		{
 			arrExpScores[i][j] = exp(arrScores[i][j]);
-			dbExpScoreSum += arrExpScores[i][j];
+			arrExpScoreSum[i] += arrExpScores[i][j];
 		}
 	}
-	double arrProb[_nClass*_nPointPerClass][_nClass];
+	double arrProb[_nPoints][_nClass];
 	for (size_t i = 0; i < nPoints; i++)
 	{
 		for (size_t j = 0; j < _nClass; j++)
 		{
-			arrProb[i][j] = arrExpScores[i][j] / dbExpScoreSum;
+			arrProb[i][j] = arrExpScores[i][j] / arrExpScoreSum[i];
 		}
 	}
 
-	// compute the loss: average cross-entropy loss and regularization
-	double arrCorrectLogProb[_nClass*_nPointPerClass];
+	// 3.compute the loss: average cross-entropy loss and regularization
+	double arrCorrectLogProb[_nPoints];
 	double dbDataLoss = 0;
 	for (size_t i = 0; i < nPoints; i++)
 	{
@@ -145,10 +147,10 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 	}
 	dbRegLoss *= (0.5*dbReg);
 	double dbLoss = dbRegLoss + dbDataLoss;	
-	cout << dbLoss << "\t";
+	cout << "Loss:\t"<<dbLoss << "\t";
 
-	// compute the  gradient on scores
-	double arrDScore[_nClass*_nPointPerClass][_nClass];
+	// 4.compute the  gradient on scores
+	double arrDScore[_nPoints][_nClass];
 	double dbCorrectProbs = 0;
 	for (size_t j = 0; j < nPoints; j++)
 	{
@@ -166,7 +168,7 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 		}
 	}
 
-	// backpropagate the gradient to the parameters (W,b)
+	// 5.backpropagate the gradient to the parameters (W,b)
 	double arrDW[_nD][_nClass];
 	for (size_t i = 0; i < _nD; i++)
 	{
@@ -189,13 +191,13 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 		}
 	}
 
-	// regularization gradient
+	// 6.regularization gradient
 	for (size_t j = 0; j < _nD; j++) {
 		for (size_t k = 0; k < _nClass; k++) {
 			arrDW[j][k] += dbReg*_arrW[j][k];
 		}
 	}
-	// perform parameter update
+	// 7.perform parameter update
 	for (size_t j = 0; j < _nD; j++) {
 		for (size_t k = 0; k < _nClass; k++) {
 			_arrW[j][k] -= dbStepSize*arrDW[j][k];
@@ -205,13 +207,13 @@ void SpiralPointsLayer::trainStep(double dbStepSize, double dbReg) {
 		_arrB[k] -= dbStepSize*arrDB[k];
 	}
 
-	// calculate score and accuracy
+	// 8.calculate score and accuracy
 	int nPredicted = 0;
 	for each (LabeledPoint pt in _vecPoints)
 	{
 		if (calcLabel(pt._arrCoord) == pt._nLabel) nPredicted++;
 	}
-	cout << nPredicted / (double)(_nClass*_nPointPerClass) << endl;;
+	cout<< "Accuracy:\t"<< nPredicted / (double)(_nPoints) << endl;;
 }
 
 void SpiralPointsLayer::showClassifier() {
@@ -246,8 +248,9 @@ void SpiralPointsLayer::showClassifier() {
 }
 
 void SpiralPointsLayer::UpdateLayer() {
+	// train the parameter
 	train();
-
+	// reload the visualization of the classifier
 	showClassifier();
 }
 

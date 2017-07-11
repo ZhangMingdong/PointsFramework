@@ -33,6 +33,8 @@ private:
 	static const int _nClass = 3;
 	// dimension
 	static const int _nD = 2;
+	// number of training points
+	static const int _nPoints = _nPointPerClass*_nClass;
 	// points
 	std::vector<LabeledPoint> _vecPoints;
 	// W 
