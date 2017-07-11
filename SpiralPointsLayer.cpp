@@ -283,3 +283,4 @@ void SpiralPointsLayer::evaluateScore(double(*arrScores)[_nClass]) {
 		calcScore(_vecPoints[i]._arrCoord, arrScores[i]);
 	}
 }
+// little change in my desktop
