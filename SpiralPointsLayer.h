@@ -39,10 +39,8 @@ private:
 	// points
 	std::vector<LabeledPoint> _vecPoints;
 	// W 
-//	double _arrW[_nD][_nClass];
 	MyMatrix* _pW;
 	// b
-//	double _arrB[_nClass];
 	MyMatrix* _pB;
 	// points and labels of the result
 	std::vector<LabeledPoint> _vecResultPt;
@@ -50,6 +48,16 @@ private:
 	// for ann
 	// number of hidden layers
 	static const int _nHidden=100;
+	// W1 
+	MyMatrix* _pW1;
+	// b1
+	MyMatrix* _pB1;
+	// W2 
+	MyMatrix* _pW2;
+	// b2
+	MyMatrix* _pB2;
+	// hidden layer
+	MyMatrix* _pHidden;
 
 
 private:
@@ -72,6 +80,20 @@ private:
 	// for ann
 	// show the classifier
 	void showClassifierAnn();
+
+	// initialize the parameters
+	void initializeParamsAnn();
+
+	// calculate the label of point
+	int calcLabelAnn(double* X);
+	// calculate score
+	void calcScoreAnn(const double* X, double* arrScore);
+	// train
+	void trainAnn();
+	// an epoch of the training
+	void trainStepAnn(double dbStepSize, double dbReg);
+	// evaluate scores of all the instance
+	void evaluateScoreAnn(double(*arrScores)[_nClass]);
 
 };
 
