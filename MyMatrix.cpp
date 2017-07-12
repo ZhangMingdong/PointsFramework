@@ -1,5 +1,6 @@
 #include "MyMatrix.h"
-
+#include <assert.h>
+#include <random>
 
 
 MyMatrix::MyMatrix(int r, int c):_nR(r),_nC(c)
@@ -12,19 +13,40 @@ MyMatrix::MyMatrix(const MyMatrix* m1, const MyMatrix* m2)
 	_nR = m1->_nR;
 	_nC = m2->_nC;
 	allocateSpace();
-	if (m1->_nC==m2->_nR)
+	Multi(m1, m2);
+}
+
+MyMatrix::MyMatrix(const MyMatrix* m1, const MyMatrix* m2, const MyMatrix* b) {
+	_nR = m1->_nR;
+	_nC = m2->_nC;
+	allocateSpace();
+	Formula(m1, m2, b);
+}
+
+MyMatrix::MyMatrix(const MyMatrix* m1, bool bTranspose) {
+	if (bTranspose)
 	{
-		for (size_t i = 0; i < _nR; i++) 
+		_nR = m1->_nC;
+		_nC = m1->_nR;
+	}
+	else {
+		_nR = m1->_nR;
+		_nC = m1->_nC;
+	}
+	allocateSpace();
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++)
 		{
-			for (size_t j = 0; j < _nC; j++) 
+			if (bTranspose)
 			{
-				for (size_t k = 0; k < m1->_nC; k++) {
-					_data[i][j] += m1->GetValue(i, k)*m2->GetValue(k, j);
-				}
+				_data[i][j] = m1->GetValue(j, i);
+			}
+			else {
+				_data[i][j] = m1->GetValue(i, j);
 			}
 		}
 	}
-
 }
 
 MyMatrix::~MyMatrix()
@@ -55,18 +77,6 @@ void MyMatrix::allocateSpace() {
 	}
 }
 
-MyMatrix MyMatrix::Transpose() {
-	MyMatrix result(_nC, _nR);
-	for (size_t i = 0; i < _nR; i++)
-	{
-		for (size_t j = 0; j < _nC; j++)
-		{
-			result.SetValue(j, i, _data[i][j]);
-		}
-	}
-	return result;
-}
-
 void MyMatrix::TrimNegative() {
 	for (size_t i = 0; i < _nR; i++)
 	{
@@ -76,6 +86,7 @@ void MyMatrix::TrimNegative() {
 		}
 	}
 }
+
 void MyMatrix::Multi(double dbFactor) {
 	for (size_t i = 0; i < _nR; i++)
 	{
@@ -84,4 +95,79 @@ void MyMatrix::Multi(double dbFactor) {
 			_data[i][j] *= dbFactor;
 		}
 	}
+}
+
+double MyMatrix::Norm2() {
+	double dbNorm = 0;
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++) {
+			dbNorm += _data[i][j] * _data[i][j];
+		}
+	}
+	return dbNorm;
+}
+
+
+void MyMatrix::Multi(const MyMatrix* m1, const MyMatrix* m2) {
+	if (m1->_nC == m2->_nR)
+	{
+		for (size_t i = 0; i < _nR; i++)
+		{
+			for (size_t j = 0; j < _nC; j++)
+			{
+				_data[i][j] = 0;
+				for (size_t k = 0; k < m1->_nC; k++) {
+					_data[i][j] += m1->GetValue(i, k)*m2->GetValue(k, j);
+				}
+			}
+		}
+	}
+}
+
+void MyMatrix::Formula(const MyMatrix* m1, const MyMatrix* m2, const MyMatrix* b) {
+	if (m1->_nC == m2->_nR&&m2->_nC == b->_nC)
+	{
+		for (size_t i = 0; i < _nR; i++)
+		{
+			for (size_t j = 0; j < _nC; j++)
+			{
+				_data[i][j] = b->GetValue(0, j);
+				for (size_t k = 0; k < m1->_nC; k++) {
+					_data[i][j] += m1->GetValue(i, k)*m2->GetValue(k, j);
+				}
+			}
+		}
+	}
+}
+
+
+void MyMatrix::Linear(const MyMatrix* m1, double dbScale) {
+	assert(m1->_nR == _nR&&m1->_nC == _nC);
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++) {
+			_data[i][j] += m1->_data[i][j] * dbScale;
+		}
+	}
+}
+
+// initialize value randomly
+void MyMatrix::InitRandom() {
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++) {
+			_data[i][j] = rand() / (double)RAND_MAX;
+		}
+	}
+}
+// initialize value to 0
+void MyMatrix::InitZero() {
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++) {
+			_data[i][j] = 0;
+		}
+	}
+
 }
