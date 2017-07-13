@@ -174,11 +174,11 @@ void MyMatrix::Linear(const MyMatrix* m1, double dbScale) {
 }
 
 // initialize value randomly
-void MyMatrix::InitRandom() {
+void MyMatrix::InitRandom(double dbScale) {
 	for (size_t i = 0; i < _nR; i++)
 	{
 		for (size_t j = 0; j < _nC; j++) {
-			_data[i][j] = rand() / (double)RAND_MAX;
+			_data[i][j] = dbScale*rand() / (double)RAND_MAX;
 		}
 	}
 }

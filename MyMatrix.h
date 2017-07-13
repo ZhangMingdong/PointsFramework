@@ -34,7 +34,7 @@ public:
 	// calculate the norm2
 	double Norm2();
 	// initialize value randomly
-	void InitRandom();
+	void InitRandom(double dbScale);
 	// initialize value to 0
 	void InitZero();
 public:		// modify
@@ -61,6 +61,8 @@ public:		// modify
 	// divide by pDivisor
 	void Div(MyMatrix* pResult, MyMatrix* pDivisor);
 
+	int Rows() { return _nR; }
+	int Cols() { return _nC; }
 
 
 private:

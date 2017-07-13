@@ -12,7 +12,7 @@ SoftMaxClassifier::SoftMaxClassifier(int nPoints, int nD, int nClass):_nPoints(n
 	_pW = new MyMatrix(_nD, _nClass);
 	_pB = new MyMatrix(1, _nClass);
 	_pB->InitZero();
-	_pW->InitRandom();
+	_pW->InitRandom(0.01);
 }
 
 
@@ -70,17 +70,8 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 	// 5.backpropagate the gradient to the parameters (W,b)
 	MyMatrix inputT(_pI, true);
 	MyMatrix dW(&inputT, &dScore);
-	MyMatrix dB(1, _nClass);
-
-	for (size_t j = 0; j < _nClass; j++)
-	{
-		double dbDB = 0;
-		for (size_t k = 0; k < _nPoints; k++)
-		{
-			dbDB += dScore.GetValue(k, j);
-		}
-		dB.SetValue(0, j, dbDB);
-	}
+	MyMatrix dB;
+	dScore.Sum(&dB, 0);
 
 	// 6.regularization gradient
 	for (size_t j = 0; j < _nD; j++) {
@@ -122,17 +113,6 @@ int SoftMaxClassifier::CalcLabel(const double* X) {
 		}
 	}
 	return nResult;
-}
-
-void SoftMaxClassifier::calcScore(const double* X, double* arrScore) {
-	for (size_t i = 0; i < _nClass; i++)
-	{
-		arrScore[i] = _pB->GetValue(0, i);
-		for (size_t j = 0; j < _nD; j++)
-		{
-			arrScore[i] += X[j] * _pW->GetValue(j, i);
-		}
-	}
 }
 
 void SoftMaxClassifier::evaluateScore(MyMatrix* pScores) {

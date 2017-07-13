@@ -1,18 +1,24 @@
 #pragma once
 #include "MyMatrix.h"
 /*
-	SoftMaxClassifier
+	Artificial Neural Network classifier
 */
-class SoftMaxClassifier
+class AnnClassifier
 {
 public:
-	SoftMaxClassifier(int nPoints,int nD,int nClass);
-	virtual ~SoftMaxClassifier();
+	AnnClassifier(int nPoints, int nD, int nClass);
+	virtual ~AnnClassifier();	
 private:
-	// W 
-	MyMatrix* _pW;
-	// b
-	MyMatrix* _pB;
+	// W1 
+	MyMatrix* _pW1;
+	// b1
+	MyMatrix* _pB1;
+	// W2 
+	MyMatrix* _pW2;
+	// b2
+	MyMatrix* _pB2;
+	// hidden layer
+	MyMatrix* _pHidden;
 	// input
 	const MyMatrix* _pI;
 	// output
@@ -23,6 +29,8 @@ private:
 	int _nD;
 	// number of training points
 	int _nPoints;
+	// number of hidden layers
+	static const int _nHidden = 100;
 public:
 	// training
 	void Train(const MyMatrix* pInput, const int* pLabel);

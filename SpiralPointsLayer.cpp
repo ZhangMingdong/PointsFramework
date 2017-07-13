@@ -3,24 +3,21 @@
 #include <gl/GLU.h>
 #include <iostream>
 
-//#define TRAIN_ANN
+#define TRAIN_ANN
 
 using namespace std;
 
-SpiralPointsLayer::SpiralPointsLayer()
+SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	_pW1 = new MyMatrix(_nD, _nHidden);
-	_pB1 = new MyMatrix(1, _nHidden);
-	_pW2 = new MyMatrix(_nHidden, _nClass);
-	_pB2 = new MyMatrix(1, _nClass);
-	_pHidden = new MyMatrix(_nPoints, _nHidden);
+
 	_pInput = new MyMatrix(_nPoints, _nD);
 	_pOutput = new MyMatrix(_nPoints, 1);
 
 	_pSoftMax = new SoftMaxClassifier(_nPoints, _nD, _nClass);
+	_pAnn = new AnnClassifier(_nPoints, _nD, _nClass);
 
 	generatePoints();
 
@@ -39,17 +36,15 @@ SpiralPointsLayer::SpiralPointsLayer()
 SpiralPointsLayer::~SpiralPointsLayer()
 {
 
-	delete _pW1;
-	delete _pB1;
-	delete _pW2;
-	delete _pB2;
 
-	delete _pHidden;
 
 	delete _pInput;
 	delete _pOutput;
 
 	delete _pSoftMax;
+	delete _pAnn;
+
+	if (_arrLabels) delete[] _arrLabels;
 }
 
 void SpiralPointsLayer::generatePoints() {
@@ -77,8 +72,11 @@ void SpiralPointsLayer::generatePoints() {
 			_pInput->SetValue(i, j, _vecPoints[i]._arrCoord[j]);
 		}
 	}
+	_arrLabels = new int[_nPoints];
 	for (size_t i = 0; i < _nPoints; i++)
 	{
+		_arrLabels[i] = _vecPoints[i]._nLabel;
+
 	}
 
 }
@@ -87,10 +85,7 @@ void SpiralPointsLayer::initializeParams() {
 }
 
 void SpiralPointsLayer::initializeParamsAnn() {
-	_pB1->InitZero();
-	_pW1->InitRandom();
-	_pB2->InitZero();
-	_pW2->InitRandom();
+
 }
 
 void SpiralPointsLayer::Draw() {
@@ -131,13 +126,8 @@ void SpiralPointsLayer::Clear() {
 }
 
 void SpiralPointsLayer::train() {
-	int* arrLabel = new int[_nPoints];
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		arrLabel[i] = _vecPoints[i]._nLabel;
 
-	}
-	_pSoftMax->Train(_pInput, arrLabel);
+	_pSoftMax->Train(_pInput, _arrLabels);
 }
 
 
@@ -210,10 +200,17 @@ void SpiralPointsLayer::showClassifierAnn() {
 		for (double y = yMin; y < yMax; y += h)
 		{
 			double X[_nD] = { x,y };
-			_vecResultPt.push_back(LabeledPoint(x, y, calcLabelAnn(X)));
+			_vecResultPt.push_back(LabeledPoint(x, y, _pAnn->CalcLabel(X)));
 		}
 	}
 }
+
+
+void SpiralPointsLayer::trainAnn() {
+	_pAnn->Train(_pInput, _arrLabels);
+}
+
+/*
 
 int SpiralPointsLayer::calcLabelAnn(double* X) {
 	double arrScore[_nClass];
@@ -254,17 +251,6 @@ void SpiralPointsLayer::calcScoreAnn(const double* X, double* arrScore) {
 	delete[] pHiddenLayer;
 }
 
-void SpiralPointsLayer::trainAnn() {
-	// train
-	double dbStepSize = 1.0;
-	double dbReg = 0.003;
-	// set step to 1 to show the training procedure
-	int nEpochs = 10000;
-	for (size_t i = 0; i < nEpochs; i++)
-	{
-		trainStepAnn(dbStepSize, dbReg);
-	}
-}
 
 void SpiralPointsLayer::trainStepAnn(double dbStepSize, double dbReg) {
 	MyMatrix inputT(_pInput, true);
@@ -401,3 +387,4 @@ void SpiralPointsLayer::evaluateScoreAnn(MyMatrix* pScore) {
 	_pHidden->Formula(&input, _pW1, _pB1);
 	pScore->Formula(_pHidden, _pW2, _pB2);
 }
+*/
