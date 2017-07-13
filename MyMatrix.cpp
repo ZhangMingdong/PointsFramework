@@ -194,10 +194,10 @@ void MyMatrix::InitZero() {
 
 }
 
-
 const double* MyMatrix::GetRow(int r) const {
 	return _data[r];
 }
+
 void MyMatrix::ApplyFun(double(*f)(double)) {
 	for (size_t i = 0; i < _nR; i++)
 	{
@@ -206,7 +206,6 @@ void MyMatrix::ApplyFun(double(*f)(double)) {
 		}
 	}
 }
-
 
 void MyMatrix::Sum(MyMatrix* pResult, int nAxis) {
 	if (nAxis==0)
@@ -245,6 +244,20 @@ void MyMatrix::Sum(MyMatrix* pResult, int nAxis) {
 	}
 }
 
+double MyMatrix::Sum(double(*f)(double)) {
+	double dbResult = 0;
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++)
+		{
+			if (f) {
+				dbResult += f(_data[i][j]);
+			}
+			else dbResult += _data[i][j];
+		}
+	}
+	return dbResult;
+}
 
 void MyMatrix::Div(MyMatrix* pResult, MyMatrix* pDivisor) {
 	pResult->_nR = _nR;

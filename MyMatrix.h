@@ -45,6 +45,7 @@ public:		// modify
 
 	// linear combination: m=m+m1*k
 	void Linear(const MyMatrix* m1, double dbScale);
+	
 	// get the reference of the row of given index
 	const double* GetRow(int r) const;
 
@@ -54,8 +55,12 @@ public:		// modify
 	// sum the matrix along the axis
 	void Sum(MyMatrix* pResult, int nAxis);
 
+	// calculate sum of the element, apply f if need
+	double Sum(double(*f)(double));
+
 	// divide by pDivisor
 	void Div(MyMatrix* pResult, MyMatrix* pDivisor);
+
 
 
 private:

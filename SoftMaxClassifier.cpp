@@ -37,9 +37,6 @@ void SoftMaxClassifier::Train(const MyMatrix* pInput, const int* pLabel) {
 }
 
 void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
-
-	MyMatrix inputT(_pI, true);
-
 	// 1.evaluate class scores
 	MyMatrix scores(_nPoints, _nClass);
 	evaluateScore(&scores);
@@ -64,22 +61,14 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 	cout << "Loss:\t" << dbLoss << "\t";
 
 	// 4.compute the  gradient on scores
-	MyMatrix dScore(_nPoints, _nClass);
-	double dbCorrectProbs = 0;
+	MyMatrix dScore(&prob);
 	for (size_t j = 0; j < _nPoints; j++)
 	{
-		for (size_t k = 0; k < _nClass; k++)
-		{
-			if (k == _arrLabel[j])
-			{
-				dScore.SetValue(j, k, (prob.GetValue(j,k) - 1) / _nPoints);
-			}
-			else {
-				dScore.SetValue(j, k, (prob.GetValue(j, k)) / _nPoints);
-			}
-		}
+		dScore.SetValue(j, _arrLabel[j], (prob.GetValue(j, _arrLabel[j]) - 1));
 	}
+	dScore.Multi(1.0 / _nPoints);
 	// 5.backpropagate the gradient to the parameters (W,b)
+	MyMatrix inputT(_pI, true);
 	MyMatrix dW(&inputT, &dScore);
 	MyMatrix dB(1, _nClass);
 
