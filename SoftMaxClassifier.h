@@ -1,28 +1,22 @@
 #pragma once
-#include "MyMatrix.h"
+#include"IMyClassifier.h"
 /*
 	SoftMaxClassifier
 */
-class SoftMaxClassifier
+class SoftMaxClassifier:public IMyClassifier
 {
 public:
-	SoftMaxClassifier(int nPoints,int nD,int nClass);
+	SoftMaxClassifier();
 	virtual ~SoftMaxClassifier();
 private:
 	// W 
 	MyMatrix* _pW;
 	// b
 	MyMatrix* _pB;
-	// input
-	const MyMatrix* _pI;
-	// output
-	const int* _arrLabel;
-	// number of classes
-	int _nClass;
-	// dimension
-	int _nD;
-	// number of training points
-	int _nPoints;
+
+protected:
+	// initialized the classifer
+	void initializeImp();
 public:
 	// training
 	void Train(const MyMatrix* pInput, const int* pLabel);

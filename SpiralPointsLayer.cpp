@@ -16,18 +16,14 @@ SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0)
 	_pInput = new MyMatrix(_nPoints, _nD);
 	_pOutput = new MyMatrix(_nPoints, 1);
 
-	_pSoftMax = new SoftMaxClassifier(_nPoints, _nD, _nClass);
-	_pAnn = new AnnClassifier(_nPoints, _nD, _nClass);
-
 	generatePoints();
 
 #ifdef TRAIN_ANN
-	initializeParamsAnn();
-	showClassifierAnn();
+	_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::Ann, _nPoints, _nD, _nClass,100);
 #else
-	initializeParams();
-	showClassifier();
+	_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::SoftMax, _nPoints, _nD, _nClass);
 #endif
+	showClassifier();
 
 
 	// the classifier will be changed when pushing the update button
@@ -35,14 +31,10 @@ SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0)
 
 SpiralPointsLayer::~SpiralPointsLayer()
 {
-
-
-
 	delete _pInput;
 	delete _pOutput;
 
-	delete _pSoftMax;
-	delete _pAnn;
+	delete _pClassifier;
 
 	if (_arrLabels) delete[] _arrLabels;
 }
@@ -78,13 +70,6 @@ void SpiralPointsLayer::generatePoints() {
 		_arrLabels[i] = _vecPoints[i]._nLabel;
 
 	}
-
-}
-
-void SpiralPointsLayer::initializeParams() {
-}
-
-void SpiralPointsLayer::initializeParamsAnn() {
 
 }
 
@@ -127,7 +112,7 @@ void SpiralPointsLayer::Clear() {
 
 void SpiralPointsLayer::train() {
 
-	_pSoftMax->Train(_pInput, _arrLabels);
+	_pClassifier->Train(_pInput, _arrLabels);
 }
 
 
@@ -155,236 +140,15 @@ void SpiralPointsLayer::showClassifier() {
 		for (double y = yMin; y < yMax; y += h)
 		{
 			double X[_nD] = { x,y };
-			_vecResultPt.push_back(LabeledPoint(x, y, _pSoftMax->CalcLabel(X)));
+			_vecResultPt.push_back(LabeledPoint(x, y, _pClassifier->CalcLabel(X)));
 		}
 	}
 }
 
 void SpiralPointsLayer::UpdateLayer() {
-
-#ifdef TRAIN_ANN
-	// train the parameter
-	trainAnn();
-	// reload the visualization of the classifier
-	showClassifierAnn();
-#else
 	// train the parameter
 	train();
 	// reload the visualization of the classifier
 	showClassifier();
-#endif
 }
 
-
-void SpiralPointsLayer::showClassifierAnn() {
-	_vecResultPt.clear();
-	// generate the result plot
-	double xMin = _vecPoints[0]._arrCoord[0];
-	double xMax = _vecPoints[0]._arrCoord[0];
-	double yMin = _vecPoints[0]._arrCoord[1];
-	double yMax = _vecPoints[0]._arrCoord[1];
-	for each (LabeledPoint pt in _vecPoints)
-	{
-		if (pt._arrCoord[0] < xMin) xMin = pt._arrCoord[0];
-		if (pt._arrCoord[0] > xMax) xMax = pt._arrCoord[0];
-		if (pt._arrCoord[1] < yMin) yMin = pt._arrCoord[1];
-		if (pt._arrCoord[1] > yMax) yMax = pt._arrCoord[1];
-	}
-	xMin = xMin - 1;
-	xMax = xMax + 1;
-	yMin = yMin - 1;
-	yMax = yMax + 1;
-	double h = 0.01;
-	for (double x = xMin; x < xMax; x += h)
-	{
-		for (double y = yMin; y < yMax; y += h)
-		{
-			double X[_nD] = { x,y };
-			_vecResultPt.push_back(LabeledPoint(x, y, _pAnn->CalcLabel(X)));
-		}
-	}
-}
-
-
-void SpiralPointsLayer::trainAnn() {
-	_pAnn->Train(_pInput, _arrLabels);
-}
-
-/*
-
-int SpiralPointsLayer::calcLabelAnn(double* X) {
-	double arrScore[_nClass];
-	calcScoreAnn(X, arrScore);
-	int nResult = 0;
-	double dbMaxScore = arrScore[0];
-	for (size_t i = 1; i < _nClass; i++)
-	{
-		if (arrScore[i] > dbMaxScore) {
-			nResult = i;
-			dbMaxScore = arrScore[i];
-		}
-	}
-	return nResult;
-}
-
-void SpiralPointsLayer::calcScoreAnn(const double* X, double* arrScore) {
-	double* pHiddenLayer = new double[_nHidden];
-	for (size_t i = 0; i < _nHidden; i++)
-	{
-		pHiddenLayer[i] = _pB1->GetValue(0, i);
-		for (size_t j = 0; j < _nD; j++)
-		{
-			pHiddenLayer[i] += X[j] * _pW1->GetValue(j, i);
-		}
-		if (pHiddenLayer[i] < 0) pHiddenLayer[i] = 0;
-	}
-
-	for (size_t i = 0; i < _nClass; i++)
-	{
-		arrScore[i] = _pB2->GetValue(0, i);
-		for (size_t j = 0; j < _nHidden; j++)
-		{
-			arrScore[i] += pHiddenLayer[j] * _pW2->GetValue(j, i);
-		}
-	}
-
-	delete[] pHiddenLayer;
-}
-
-
-void SpiralPointsLayer::trainStepAnn(double dbStepSize, double dbReg) {
-	MyMatrix inputT(_pInput, true);
-
-	// 1.evaluate class scores
-	MyMatrix score(_nPoints, _nClass);
-	evaluateScoreAnn(&score);
-
-	// 2.compute the class probabilities
-	double arrExpScores[_nPoints][_nClass];
-	double arrExpScoreSum[_nPoints];
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		arrExpScoreSum[i] = 0;
-		for (size_t j = 0; j < _nClass; j++)
-		{
-			arrExpScores[i][j] = exp(score.GetValue(i,j));
-			arrExpScoreSum[i] += arrExpScores[i][j];
-		}
-	}
-	double arrProb[_nPoints][_nClass];
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		for (size_t j = 0; j < _nClass; j++)
-		{
-			arrProb[i][j] = arrExpScores[i][j] / arrExpScoreSum[i];
-		}
-	}
-
-	// 3.compute the loss: average cross-entropy loss and regularization
-	double arrCorrectLogProb[_nPoints];
-	double dbDataLoss = 0;
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		arrCorrectLogProb[i] = -log(arrProb[i][_vecPoints[i]._nLabel]);
-		dbDataLoss += arrCorrectLogProb[i];
-	}
-	dbDataLoss /= _nPoints;
-	double dbRegLoss = 0.5*dbReg*_pW1->Norm2() + 0.5*dbReg*_pW2->Norm2();
-	double dbLoss = dbRegLoss + dbDataLoss;
-	cout << "Loss:\t" << dbLoss << "\t";
-
-	// 4.compute the  gradient on scores
-	MyMatrix dScore(_nPoints, _nClass);
-	double dbCorrectProbs = 0;
-	for (size_t j = 0; j < _nPoints; j++)
-	{
-		for (size_t k = 0; k < _nClass; k++)
-		{
-			if (k == _vecPoints[j]._nLabel)
-			{
-				dScore.SetValue(j, k, (arrProb[j][k] - 1) / _nPoints);
-			}
-			else {
-				dScore.SetValue(j, k, (arrProb[j][k]) / _nPoints);
-			}
-		}
-	}
-
-	// 5.backpropagate the gradient to the parameters (W,b)
-	// first backprop into parameters W2 and b2
-	MyMatrix hiddenT(_pHidden, true);
-
-	MyMatrix dW2(&hiddenT, &dScore);
-	MyMatrix dB2(1, _nClass);
-	for (size_t i = 0; i < _nClass; i++)
-	{
-		double dbB = 0;
-		for (size_t j = 0; j < _nPoints; j++)
-		{
-			dbB += dScore.GetValue(j, i);
-		}
-		dB2.SetValue(0, i, dbB);
-	}
-	MyMatrix W2T(_pW2, true);
-	MyMatrix dHidden(&dScore, &W2T);
-//	dHidden.TrimNegative();
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		for (size_t j = 0; j < _nClass; j++) {
-			if (_pHidden->GetValue(i, j) < 0) dHidden.SetValue(i, j, 0);
-		}
-	}
-	MyMatrix dW1(&inputT, &dHidden);
-	MyMatrix dB1(1, _nHidden);
-	for (size_t i = 0; i < _nHidden; i++)
-	{
-		double dbB = 0;
-		for (size_t j = 0; j < _nPoints; j++)
-		{
-			dbB += dHidden.GetValue(j, i);
-		}
-		dB1.SetValue(0, i, dbB);
-	}
-
-	// 6.regularization gradient
-	for (size_t j = 0; j < _nD; j++) {
-		for (size_t k = 0; k < _nHidden; k++) {
-			dW1.SetValue(j, k, dW1.GetValue(j, k) + dbReg*_pW1->GetValue(j, k));
-		}
-	}	
-	for (size_t j = 0; j < _nHidden; j++) {
-		for (size_t k = 0; k < _nClass; k++) {
-			dW2.SetValue(j, k, dW2.GetValue(j, k) + dbReg*_pW2->GetValue(j, k));
-		}
-	}
-
-
-	// 7.perform parameter update
-
-	_pW1->Linear(&dW1, -dbStepSize);
-	_pB1->Linear(&dB1, -dbStepSize);
-	_pW2->Linear(&dW2, -dbStepSize);
-	_pB2->Linear(&dB2, -dbStepSize);
-
-	// 8.calculate score and accuracy
-	int nPredicted = 0;
-	for each (LabeledPoint pt in _vecPoints)
-	{
-		if (calcLabelAnn(pt._arrCoord) == pt._nLabel) nPredicted++;
-	}
-	cout << "Accuracy:\t" << nPredicted / (double)(_nPoints) << endl;;
-}
-
-void SpiralPointsLayer::evaluateScoreAnn(MyMatrix* pScore) {
-	MyMatrix input(_nPoints, _nD);
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		for (size_t j = 0; j < _nD; j++)
-		{
-			input.SetValue(i, j, _vecPoints[i]._arrCoord[j]);
-		}
-	}
-	_pHidden->Formula(&input, _pW1, _pB1);
-	pScore->Formula(_pHidden, _pW2, _pB2);
-}
-*/

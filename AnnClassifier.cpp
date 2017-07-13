@@ -5,10 +5,18 @@
 using namespace std;
 
 
-AnnClassifier::AnnClassifier(int nPoints, int nD, int nClass) :_nPoints(nPoints)
-, _nD(nD)
-, _nClass(nClass)
+AnnClassifier::AnnClassifier(int nHidden):_pW1(0)
+,_pB1(0)
+,_pW2(0)
+,_pB2(0)
+,_pHidden(0)
+,_nHidden(nHidden)
 {
+
+}
+
+
+void AnnClassifier::initializeImp() {
 	_pW1 = new MyMatrix(_nD, _nHidden);
 	_pB1 = new MyMatrix(1, _nHidden);
 	_pW2 = new MyMatrix(_nHidden, _nClass);
@@ -21,16 +29,13 @@ AnnClassifier::AnnClassifier(int nPoints, int nD, int nClass) :_nPoints(nPoints)
 	_pW2->InitRandom(0.01);
 }
 
-
-
 AnnClassifier::~AnnClassifier()
 {
-	delete _pW1;
-	delete _pB1;
-	delete _pW2;
-	delete _pB2;
-
-	delete _pHidden;
+	if (_pW1) delete _pW1;
+	if (_pB1) delete _pB1;
+	if (_pW2) delete _pW2;
+	if (_pB2) delete _pB2;
+	if (_pHidden) delete _pHidden;
 }
 
 void AnnClassifier::Train(const MyMatrix* pInput, const int* pLabel) {

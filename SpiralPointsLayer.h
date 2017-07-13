@@ -3,8 +3,7 @@
 #include <vector>
 #include "MyMatrix.h"
 
-#include "SoftMaxClassifier.h"
-#include "AnnClassifier.h"
+#include "IMyClassifier.h"
 
 // point with label
 class LabeledPoint
@@ -44,50 +43,25 @@ private:
 	// points and labels of the result
 	std::vector<LabeledPoint> _vecResultPt;
 
-	// for ann
 
 	// input layer
 	MyMatrix* _pInput;
 	// output layer
 	MyMatrix* _pOutput;
 
-	// softmax classifier
-	SoftMaxClassifier* _pSoftMax;
-	// ann classifier
-	AnnClassifier* _pAnn;
+	// classifier
+	IMyClassifier* _pClassifier;
 	// the labels
 	int* _arrLabels;
 private:
 	// generate the spiral points
 	void generatePoints();
-	// initialize the parameters
-	void initializeParams();
 
 	// train
 	void train();
-	// an epoch of the training
-//	void trainStep(double dbStepSize,double dbReg);
+
 	// show the classifier
 	void showClassifier();
-	// for ann
-	// show the classifier
-	void showClassifierAnn();
 
-	// initialize the parameters
-	void initializeParamsAnn();
-
-	// calculate the label of point
-	int calcLabelAnn(double* X);
-	// train
-	void trainAnn();
-
-	/*
-	// calculate score
-	void calcScoreAnn(const double* X, double* arrScore);
-	// an epoch of the training
-	void trainStepAnn(double dbStepSize, double dbReg);
-	// evaluate scores of all the instance
-	void evaluateScoreAnn(MyMatrix* pScore);
-	*/
 };
 

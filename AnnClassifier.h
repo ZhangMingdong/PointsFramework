@@ -1,12 +1,12 @@
 #pragma once
-#include "MyMatrix.h"
+#include"IMyClassifier.h"
 /*
 	Artificial Neural Network classifier
 */
-class AnnClassifier
+class AnnClassifier:public IMyClassifier
 {
 public:
-	AnnClassifier(int nPoints, int nD, int nClass);
+	AnnClassifier(int nHidden);
 	virtual ~AnnClassifier();	
 private:
 	// W1 
@@ -19,18 +19,11 @@ private:
 	MyMatrix* _pB2;
 	// hidden layer
 	MyMatrix* _pHidden;
-	// input
-	const MyMatrix* _pI;
-	// output
-	const int* _arrLabel;
-	// number of classes
-	int _nClass;
-	// dimension
-	int _nD;
-	// number of training points
-	int _nPoints;
 	// number of hidden layers
-	static const int _nHidden = 100;
+	int _nHidden = 100;
+protected:
+	// initialized the classifer
+	void initializeImp();
 public:
 	// training
 	void Train(const MyMatrix* pInput, const int* pLabel);

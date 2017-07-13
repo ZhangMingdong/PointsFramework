@@ -5,21 +5,22 @@
 using namespace std;
 
 
-SoftMaxClassifier::SoftMaxClassifier(int nPoints, int nD, int nClass):_nPoints(nPoints)
-,_nD(nD)
-,_nClass(nClass)
+SoftMaxClassifier::SoftMaxClassifier():_pW(0),_pB(0)
 {
+}
+
+void SoftMaxClassifier::initializeImp() {
+
 	_pW = new MyMatrix(_nD, _nClass);
 	_pB = new MyMatrix(1, _nClass);
 	_pB->InitZero();
 	_pW->InitRandom(0.01);
 }
 
-
 SoftMaxClassifier::~SoftMaxClassifier()
 {
-	delete _pW;
-	delete _pB;
+	if (_pW)delete _pW;
+	if (_pB)delete _pB;
 }
 
 void SoftMaxClassifier::Train(const MyMatrix* pInput, const int* pLabel) {
