@@ -49,13 +49,36 @@ MyMatrix::MyMatrix(const MyMatrix* m1, bool bTranspose) {
 	}
 }
 
-MyMatrix::~MyMatrix()
-{
+
+MyMatrix::MyMatrix(const MyMatrix* m1, double(*f)(double)) {
+	_nR = m1->_nR;
+	_nC = m1->_nC;
+	allocateSpace();
 	for (size_t i = 0; i < _nR; i++)
 	{
-		delete[] _data[i];
+		for (size_t j = 0; j < _nC; j++)
+		{
+			_data[i][j] = f(m1->_data[i][j]);
+		}
 	}
-	delete[]_data;
+}
+
+
+MyMatrix::MyMatrix():_data(0) {
+	
+}
+
+MyMatrix::~MyMatrix()
+{
+	if (_data)
+	{
+		for (size_t i = 0; i < _nR; i++)
+		{
+			delete[] _data[i];
+		}
+		delete[]_data;
+
+	}
 }
 
 // get a value
@@ -108,7 +131,6 @@ double MyMatrix::Norm2() {
 	return dbNorm;
 }
 
-
 void MyMatrix::Multi(const MyMatrix* m1, const MyMatrix* m2) {
 	if (m1->_nC == m2->_nR)
 	{
@@ -141,7 +163,6 @@ void MyMatrix::Formula(const MyMatrix* m1, const MyMatrix* m2, const MyMatrix* b
 	}
 }
 
-
 void MyMatrix::Linear(const MyMatrix* m1, double dbScale) {
 	assert(m1->_nR == _nR&&m1->_nC == _nC);
 	for (size_t i = 0; i < _nR; i++)
@@ -161,6 +182,7 @@ void MyMatrix::InitRandom() {
 		}
 	}
 }
+
 // initialize value to 0
 void MyMatrix::InitZero() {
 	for (size_t i = 0; i < _nR; i++)
@@ -170,4 +192,85 @@ void MyMatrix::InitZero() {
 		}
 	}
 
+}
+
+
+const double* MyMatrix::GetRow(int r) const {
+	return _data[r];
+}
+void MyMatrix::ApplyFun(double(*f)(double)) {
+	for (size_t i = 0; i < _nR; i++)
+	{
+		for (size_t j = 0; j < _nC; j++) {
+			_data[i][j] = f(_data[i][j]);
+		}
+	}
+}
+
+
+void MyMatrix::Sum(MyMatrix* pResult, int nAxis) {
+	if (nAxis==0)
+	{
+		pResult->_nR = 1;
+		pResult->_nC = _nC;
+	}
+	else if (nAxis == 1) {
+		pResult->_nR = _nR;
+		pResult->_nC = 1;
+	}
+	pResult->allocateSpace();
+	if (nAxis == 0)
+	{
+		for (size_t i = 0; i < _nC; i++)
+		{
+			{
+				pResult->_data[0][i] = 0;
+				for (size_t j = 0; j < _nR; j++)
+				{
+					pResult->_data[0][i] += _data[j][i];
+				}
+			}
+		}
+	}
+	else if (nAxis == 1) {
+		for (size_t i = 0; i < _nR; i++)
+		{
+			pResult->_data[i][0] = 0;
+			for (size_t j = 0; j < _nC; j++)
+			{
+				pResult->_data[i][0] += _data[i][j];
+			}
+		}
+
+	}
+}
+
+
+void MyMatrix::Div(MyMatrix* pResult, MyMatrix* pDivisor) {
+	pResult->_nR = _nR;
+	pResult->_nC = _nC;
+	pResult->allocateSpace();
+
+	if (pDivisor->_nR == 1 && pDivisor->_nC == _nC)
+	{
+		for (size_t i = 0; i < _nR; i++)
+		{
+			for (size_t j = 0; j < _nC; j++)
+			{
+				pResult->_data[i][j] = _data[i][j] / pDivisor->_data[0][j];
+			}
+		}
+	}
+	else if (pDivisor->_nR == _nR && pDivisor->_nC == 1) {
+		for (size_t i = 0; i < _nR; i++)
+		{
+			for (size_t j = 0; j < _nC; j++)
+			{
+				pResult->_data[i][j] = _data[i][j] / pDivisor->_data[i][0];
+			}
+		}
+	}
+	else {
+		assert(false);
+	}
 }

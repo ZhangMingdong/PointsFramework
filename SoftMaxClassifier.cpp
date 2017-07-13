@@ -20,7 +20,6 @@ SoftMaxClassifier::~SoftMaxClassifier()
 {
 	delete _pW;
 	delete _pB;
-	delete _pI;
 }
 
 void SoftMaxClassifier::Train(const MyMatrix* pInput, const int* pLabel) {
@@ -37,15 +36,6 @@ void SoftMaxClassifier::Train(const MyMatrix* pInput, const int* pLabel) {
 	}
 }
 
-// number of points of each class
-const int g_nPointPerClass = 100;
-// number of classes
-const int g_nClass = 3;
-// dimension
-const int g_nD = 2;
-// number of training points
-const int g_nPoints = g_nPointPerClass*g_nClass;
-
 void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 
 	MyMatrix inputT(_pI, true);
@@ -55,33 +45,18 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 	evaluateScore(&scores);
 
 	// 2.compute the class probabilities
-	double arrExpScores[g_nPoints][g_nClass];
-	double arrExpScoreSum[g_nPoints];
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		arrExpScoreSum[i] = 0;
-		for (size_t j = 0; j < _nClass; j++)
-		{
-			arrExpScores[i][j] = exp(scores.GetValue(i, j));
-			arrExpScoreSum[i] += arrExpScores[i][j];
-		}
-	}
-	double arrProb[g_nPoints][g_nClass];
-	for (size_t i = 0; i < _nPoints; i++)
-	{
-		for (size_t j = 0; j < _nClass; j++)
-		{
-			arrProb[i][j] = arrExpScores[i][j] / arrExpScoreSum[i];
-		}
-	}
+	MyMatrix expScores(&scores, exp);
+	MyMatrix expScoreSum;
+	expScores.Sum(&expScoreSum, 1);
+	MyMatrix prob;
+	expScores.Div(&prob, &expScoreSum);
 
 	// 3.compute the loss: average cross-entropy loss and regularization
-	double arrCorrectLogProb[g_nPoints];
 	double dbDataLoss = 0;
 	for (size_t i = 0; i < _nPoints; i++)
 	{
-		arrCorrectLogProb[i] = -log(arrProb[i][_arrLabel[i]]);
-		dbDataLoss += arrCorrectLogProb[i];
+		double dbCorrectLogProb = -log(prob.GetValue(i,_arrLabel[i]));// -log(arrProb[i][_arrLabel[i]]);
+		dbDataLoss += dbCorrectLogProb;
 	}
 	dbDataLoss /= _nPoints;
 	double dbRegLoss = 0.5*dbReg*_pW->Norm2();
@@ -97,10 +72,10 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 		{
 			if (k == _arrLabel[j])
 			{
-				dScore.SetValue(j, k, (arrProb[j][k] - 1) / _nPoints);
+				dScore.SetValue(j, k, (prob.GetValue(j,k) - 1) / _nPoints);
 			}
 			else {
-				dScore.SetValue(j, k, (arrProb[j][k]) / _nPoints);
+				dScore.SetValue(j, k, (prob.GetValue(j, k)) / _nPoints);
 			}
 		}
 	}
@@ -130,24 +105,31 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 
 	// 8.calculate score and accuracy
 	int nPredicted = 0;
-//	for (size_t i = 0; i < _nPoints; i++)
-//	{
-//		if (calcLabel(pt._arrCoord) == pt._nLabel) nPredicted++;
-//	}
+	for (size_t i = 0; i < _nPoints; i++)
+	{
+		if (CalcLabel(_pI->GetRow(i)) == _arrLabel[i]) nPredicted++;
+	}
 	cout << "Accuracy:\t" << nPredicted / (double)(_nPoints) << endl;;
 }
 
 
-int SoftMaxClassifier::calcLabel(double* X) {
-	double arrScore[g_nClass];
-	calcScore(X, arrScore);
+int SoftMaxClassifier::CalcLabel(const double* X) {
+	MyMatrix score(1, _nClass);
+	MyMatrix input(1, _nD);
+	for (size_t i = 0; i < _nD; i++)
+	{
+		input.SetValue(0, i, X[i]);
+	}
+	score.Formula(&input, _pW, _pB);
+
 	int nResult = 0;
-	double dbMaxScore = arrScore[0];
+	double dbMaxScore = score.GetValue(0,0);
 	for (size_t i = 1; i < _nClass; i++)
 	{
-		if (arrScore[i] > dbMaxScore) {
+		double dbValue = score.GetValue(0, i);
+		if (dbValue > dbMaxScore) {
 			nResult = i;
-			dbMaxScore = arrScore[i];
+			dbMaxScore = dbValue;
 		}
 	}
 	return nResult;

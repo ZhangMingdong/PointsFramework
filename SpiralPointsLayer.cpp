@@ -165,7 +165,7 @@ void SpiralPointsLayer::showClassifier() {
 		for (double y = yMin; y < yMax; y += h)
 		{
 			double X[_nD] = { x,y };
-			_vecResultPt.push_back(LabeledPoint(x, y, _pSoftMax->calcLabel(X)));
+			_vecResultPt.push_back(LabeledPoint(x, y, _pSoftMax->CalcLabel(X)));
 		}
 	}
 }

@@ -27,7 +27,7 @@ public:
 	// training
 	void Train(const MyMatrix* pInput, const int* pLabel);
 	// calculate the label of point
-	int calcLabel(double* X);
+	int CalcLabel(const double* X);
 private:
 	// an epoch of the training
 	void trainStep(double dbStepSize, double dbReg);

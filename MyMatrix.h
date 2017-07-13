@@ -3,11 +3,17 @@
 class MyMatrix
 {
 public:
+	// empty matrix
+	MyMatrix();
+	// construct by r and c
 	MyMatrix(int r,int c);
 	// construct from multiplying two matrix
 	MyMatrix(const MyMatrix* m1, const MyMatrix* m2);
 	// create a matrix from another one
 	MyMatrix(const MyMatrix* m1, bool bTranspose = false);
+
+	// construct by apply a function on the element of m1
+	MyMatrix(const MyMatrix* m1,double(*f)(double));
 
 	// construct matrix using pattern m1*m2+b
 	MyMatrix(const MyMatrix* m1, const MyMatrix* m2,const MyMatrix* b);
@@ -39,6 +45,18 @@ public:		// modify
 
 	// linear combination: m=m+m1*k
 	void Linear(const MyMatrix* m1, double dbScale);
+	// get the reference of the row of given index
+	const double* GetRow(int r) const;
+
+	// apply a function to each element
+	void ApplyFun(double(*f)(double));
+
+	// sum the matrix along the axis
+	void Sum(MyMatrix* pResult, int nAxis);
+
+	// divide by pDivisor
+	void Div(MyMatrix* pResult, MyMatrix* pDivisor);
+
 
 private:
 	// allocate space for _data
