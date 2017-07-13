@@ -14,6 +14,7 @@ AnnClassifier::AnnClassifier(int nPoints, int nD, int nClass) :_nPoints(nPoints)
 	_pW2 = new MyMatrix(_nHidden, _nClass);
 	_pB2 = new MyMatrix(1, _nClass);
 	_pHidden = new MyMatrix(_nPoints, _nHidden);
+
 	_pB1->InitZero();
 	_pW1->InitRandom(0.01);
 	_pB2->InitZero();
@@ -77,7 +78,8 @@ void AnnClassifier::trainStep(double dbStepSize, double dbReg) {
 		dScore.SetValue(j, _arrLabel[j], (prob.GetValue(j, _arrLabel[j]) - 1));
 	}
 	dScore.Multi(1.0 / _nPoints);
-	// 5.backpropagate the gradient to the parameters (W,b)
+
+	// 5.backpropagate the gradient to the parameters
 	// first backprop into parameters w2 and b2
 	MyMatrix hiddenT(_pHidden, true);
 	MyMatrix dW2(&hiddenT, &dScore);
@@ -92,7 +94,7 @@ void AnnClassifier::trainStep(double dbStepSize, double dbReg) {
 	{
 		for (size_t j = 0; j < _nHidden; j++)
 		{
-			if (_pHidden->GetValue(i,j)<0)
+			if (_pHidden->GetValue(i,j)<=0)
 			{
 				dHidden.SetValue(i, j, 0);
 			}
