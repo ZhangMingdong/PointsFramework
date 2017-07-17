@@ -40,21 +40,8 @@ SpiralPointsLayer::~SpiralPointsLayer()
 }
 
 void SpiralPointsLayer::generatePoints() {
-	_vecPoints.clear();
-	// generate spiral points
-	for (size_t i = 0; i < _nClass; i++)
-	{
-		// for each class
-		for (size_t j = 0; j < _nPointPerClass; j++)
-		{
-			// add each point
-			double r = j / (double)(_nPointPerClass - 1);
-			// in the web the delt is 0.2, but I use 0.002. No idea why
-			double t = i * 4 + j*4.0 / (_nPointPerClass - 1) + rand() / (double)RAND_MAX*_nPointPerClass*0.002;
-
-			_vecPoints.push_back(LabeledPoint(r*sin(t), r*cos(t),i));
-		}
-	}
+//	generateSpiralPoints();
+	generateCircularPoints();
 
 
 	for (size_t i = 0; i < _nPoints; i++)
@@ -71,6 +58,49 @@ void SpiralPointsLayer::generatePoints() {
 
 	}
 
+}
+
+void SpiralPointsLayer::generateSpiralPoints() {
+	double dbBiasX = .1;
+	double dbBiasY = .2;
+	_vecPoints.clear();
+	// generate spiral points
+	for (size_t i = 0; i < _nClass; i++)
+	{
+		// for each class
+		for (size_t j = 0; j < _nPointPerClass; j++)
+		{
+			// add each point
+			double r = j / (double)(_nPointPerClass - 1);
+			// in the web the delt is 0.2, but I use 0.002. No idea why
+			double t = i * 4 + j*4.0 / (_nPointPerClass - 1) + rand() / (double)RAND_MAX*_nPointPerClass*0.002;
+
+			_vecPoints.push_back(LabeledPoint(dbBiasX + r*sin(t), dbBiasY + r*cos(t), i));
+		}
+	}
+}
+
+void SpiralPointsLayer::generateCircularPoints() {
+	double dbBiasX = .1;
+	double dbBiasY = .2;
+	_vecPoints.clear();
+	// generate spiral points
+	for (size_t i = 0; i < _nClass; i++)
+	{
+		// for each class
+		for (size_t j = 0; j < _nPointPerClass; j++)
+		{
+			// add each point
+			// the radius
+			double r = (i + 1) / 5.0 + rand() / (double)RAND_MAX*0.02;
+			// in the web the delt is 0.2, but I use 0.002. No idea why
+			double t = 2 * 3.14159*j / _nPointPerClass;
+
+			_vecPoints.push_back(LabeledPoint(dbBiasX + r*sin(t), dbBiasY + r*cos(t), i));
+		}
+		// add this line to bias the circles
+		//dbBiasX += .5;
+	}
 }
 
 void SpiralPointsLayer::Draw() {

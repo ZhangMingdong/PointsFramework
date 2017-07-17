@@ -54,8 +54,14 @@ private:
 	// the labels
 	int* _arrLabels;
 private:
-	// generate the spiral points
+	// generate points and set them to the form of input data
 	void generatePoints();
+
+	// generate points of different circle
+	void generateCircularPoints();
+
+	// generate the spiral points
+	void generateSpiralPoints();
 
 	// train
 	void train();

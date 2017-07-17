@@ -65,7 +65,7 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 	MyMatrix dScore(&prob);
 	for (size_t j = 0; j < _nPoints; j++)
 	{
-		dScore.SetValue(j, _arrLabel[j], (prob.GetValue(j, _arrLabel[j]) - 1));
+		dScore.SetValue(j, _arrLabel[j], prob.GetValue(j, _arrLabel[j]) - 1);
 	}
 	dScore.Multi(1.0 / _nPoints);
 	// 5.backpropagate the gradient to the parameters (W,b)
