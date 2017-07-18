@@ -99,7 +99,7 @@ void SpiralPointsLayer::generateCircularPoints() {
 			_vecPoints.push_back(LabeledPoint(dbBiasX + r*sin(t), dbBiasY + r*cos(t), i));
 		}
 		// add this line to bias the circles
-		//dbBiasX += .5;
+		dbBiasX += .5;
 	}
 }
 

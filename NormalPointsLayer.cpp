@@ -19,7 +19,7 @@ void NormalPointsLayer::Draw() {
 }
 
 
-void NormalPointsLayer::generateNormalPoints(int number, double mx, double my, double vx, double vy) {
+void NormalPointsLayer::generateNormalPoints(int number, double mx, double my, double vx, double vy,double dbBiasX, double dbBiasY) {
 	//default_random_engine generator;//如果用这个默认的引擎，每次生成的随机序列是相同的。
 	random_device rd;
 	mt19937 gen(rd());
@@ -29,8 +29,8 @@ void NormalPointsLayer::generateNormalPoints(int number, double mx, double my, d
 
 	for (int i = 0; i < number; i++)
 	{
-		double x = normalx(gen);
-		double y = normaly(gen);
+		double x = dbBiasX+normalx(gen);
+		double y = dbBiasY+normaly(gen);
 		_points.push_back(DPoint3(x, y, 0));
 	}
 }
