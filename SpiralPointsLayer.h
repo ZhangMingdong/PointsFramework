@@ -4,7 +4,8 @@
 #include "MyMatrix.h"
 
 #include "IMyClassifier.h"
-
+class BPNeuralNetwork;
+class LabeledVector;
 // point with label
 class LabeledPoint
 {
@@ -50,9 +51,15 @@ private:
 	MyMatrix* _pOutput;
 
 	// classifier
-	IMyClassifier* _pClassifier;
+	IMyClassifier* _pClassifier=NULL;
 	// the labels
 	int* _arrLabels;
+
+	// bpnn classifer
+	BPNeuralNetwork* _pBPNN = NULL;
+	// the vector
+	LabeledVector* _pVector = NULL;
+	std::vector<LabeledVector*> _vecTrainingSet;
 private:
 	// generate points and set them to the form of input data
 	void generatePoints();

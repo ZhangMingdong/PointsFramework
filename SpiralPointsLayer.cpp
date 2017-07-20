@@ -3,11 +3,14 @@
 #include <gl/GLU.h>
 #include <iostream>
 
+#include "BPNeuralNetwork.h"
+
 #define TRAIN_ANN
+#define BP_ANN
 
 using namespace std;
 
-SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0)
+SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0),_pBPNN(NULL)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -18,10 +21,27 @@ SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0)
 
 	generatePoints();
 
-#ifdef TRAIN_ANN
-	_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::Ann, _nPoints, _nD, _nClass,100);
+#ifdef BP_ANN
+	_pVector = new LabeledVector(2);
+	_pVector->SetK(3);
+	for each (LabeledPoint pt in _vecPoints)
+	{
+		LabeledVector* pV = new LabeledVector(2);
+		pV->SetK(3);
+		pV->SetData(0, pt._arrCoord[0]);
+		pV->SetData(1, pt._arrCoord[1]);
+		pV->SetLabel(pt._nLabel);
+		_vecTrainingSet.push_back(pV);
+	}
+
+	int nHiddenLayer = 10;
+	_pBPNN = BPNeuralNetwork::Create(2, nHiddenLayer, _nClass);
 #else
-	_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::SoftMax, _nPoints, _nD, _nClass);
+	#ifdef TRAIN_ANN
+		_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::Ann, _nPoints, _nD, _nClass, 100);
+	#else
+		_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::SoftMax, _nPoints, _nD, _nClass);
+	#endif
 #endif
 	showClassifier();
 
@@ -34,9 +54,12 @@ SpiralPointsLayer::~SpiralPointsLayer()
 	delete _pInput;
 	delete _pOutput;
 
-	delete _pClassifier;
+	if(_pClassifier) delete _pClassifier;
 
 	if (_arrLabels) delete[] _arrLabels;
+
+	if (_pBPNN) delete _pBPNN;
+	if (_pVector) delete _pVector;
 }
 
 void SpiralPointsLayer::generatePoints() {
@@ -141,10 +164,16 @@ void SpiralPointsLayer::Clear() {
 }
 
 void SpiralPointsLayer::train() {
+#ifdef BP_ANN
+	int epochs = 2000;
+	double dbLearningRate = 0.3;
+	double dbMomentum = 0.3;
+	_pBPNN->TrainNet(epochs, _vecTrainingSet, dbLearningRate, dbMomentum);
 
+#else
 	_pClassifier->Train(_pInput, _arrLabels);
+#endif
 }
-
 
 void SpiralPointsLayer::showClassifier() {
 	_vecResultPt.clear();
@@ -170,7 +199,16 @@ void SpiralPointsLayer::showClassifier() {
 		for (double y = yMin; y < yMax; y += h)
 		{
 			double X[_nD] = { x,y };
+#ifdef BP_ANN
+			_pVector->SetData(0, x);
+			_pVector->SetData(1, y);
+			_pVector->SetLabel(0);
+			_pBPNN->LoadInputData(_pVector);
+			_pBPNN->FeedForward();
+			_vecResultPt.push_back(LabeledPoint(x, y, _pBPNN->CalculateLabel()-1));
+#else
 			_vecResultPt.push_back(LabeledPoint(x, y, _pClassifier->CalcLabel(X)));
+#endif
 		}
 	}
 }
