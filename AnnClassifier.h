@@ -29,6 +29,8 @@ public:
 	void Train(const MyMatrix* pInput, const int* pLabel);
 	// calculate the label of point
 	int CalcLabel(const double* X);
+	// get the nIndex column of the hidden layer
+	virtual void GetHiddenLayer(int nIndex, double* _arrBuf);
 private:
 	// an epoch of the training
 	void trainStep(double dbStepSize, double dbReg);

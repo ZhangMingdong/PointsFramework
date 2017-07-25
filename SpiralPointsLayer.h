@@ -32,17 +32,20 @@ public:
 	virtual void UpdateLayer();
 private:
 	// number of points of each class
-	static const int _nPointPerClass=100;
+	static const int _nPointPerClass=300;
 	// number of classes
 	static const int _nClass = 3;
 	// dimension
 	static const int _nD = 2;
 	// number of training points
-	static const int _nPoints = _nPointPerClass*_nClass;
+	int _nPoints = _nPointPerClass*_nClass;
 	// points
 	std::vector<LabeledPoint> _vecPoints;
 	// points and labels of the result
 	std::vector<LabeledPoint> _vecResultPt;
+
+	// points of hidden layers
+	std::vector<LabeledPoint> _vecHiddenlayerPt;
 
 
 	// input layer
@@ -70,11 +73,23 @@ private:
 	// generate the spiral points
 	void generateSpiralPoints();
 
+	// generate points obey multi-normal distribution
+	void generateMultiNormalPoints();
+
+	// generate rectangular grid points
+	void generateRectangularGridPoints();
+
+	// generate circular grid points
+	void generateCircularGridPoints();
+
 	// train
 	void train();
 
 	// show the classifier
 	void showClassifier();
+
+	// generate points of the hidden layer
+	void generateHiddenLayerPoints();
 
 };
 

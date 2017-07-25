@@ -6,19 +6,19 @@
 #include "BPNeuralNetwork.h"
 
 #define TRAIN_ANN
-#define BP_ANN
+//#define BP_ANN
 
 using namespace std;
+
+// number of hidden layers
+int g_nHiddenLayer = 100;
 
 SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0),_pBPNN(NULL)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-	_pInput = new MyMatrix(_nPoints, _nD);
-	_pOutput = new MyMatrix(_nPoints, 1);
-
+	
 	generatePoints();
 
 #ifdef BP_ANN
@@ -38,7 +38,7 @@ SpiralPointsLayer::SpiralPointsLayer():_arrLabels(0),_pBPNN(NULL)
 	_pBPNN = BPNeuralNetwork::Create(2, nHiddenLayer, _nClass);
 #else
 	#ifdef TRAIN_ANN
-		_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::Ann, _nPoints, _nD, _nClass, 100);
+		_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::Ann, _nPoints, _nD, _nClass, g_nHiddenLayer);
 	#else
 		_pClassifier = IMyClassifier::CreateClassifier(IMyClassifier::SoftMax, _nPoints, _nD, _nClass);
 	#endif
@@ -63,9 +63,16 @@ SpiralPointsLayer::~SpiralPointsLayer()
 }
 
 void SpiralPointsLayer::generatePoints() {
-//	generateSpiralPoints();
-	generateCircularPoints();
+	generateSpiralPoints();
+//	generateCircularPoints();
+//	generateMultiNormalPoints();
+//	generateRectangularGridPoints();
+//	generateCircularGridPoints();
 
+	_nPoints = _vecPoints.size();
+
+	_pInput = new MyMatrix(_nPoints, _nD);
+	_pOutput = new MyMatrix(_nPoints, 1);
 
 	for (size_t i = 0; i < _nPoints; i++)
 	{
@@ -103,6 +110,23 @@ void SpiralPointsLayer::generateSpiralPoints() {
 	}
 }
 
+void SpiralPointsLayer::generateMultiNormalPoints() {
+	
+	std::vector<Point> pts[3];
+	double arrMX[3] = { -1,1,0 };
+	double arrMY[3] = { 1,1,-1 };
+	double arrDX[3] = { .5,.5,.5 };
+	double arrDY[3] = { .5,.5,.5 };
+	for (size_t i = 0; i < 3; i++)
+	{
+		GenerateNormalPoints(pts[i], _nPointPerClass, arrMX[i], arrMY[i], arrDX[i], arrDY[i]);
+		for each (Point pt in pts[i])
+		{
+			_vecPoints.push_back(LabeledPoint(pt.x,pt.y,i));
+		}
+	}
+}
+
 void SpiralPointsLayer::generateCircularPoints() {
 	double dbBiasX = .1;
 	double dbBiasY = .2;
@@ -123,6 +147,49 @@ void SpiralPointsLayer::generateCircularPoints() {
 		}
 		// add this line to bias the circles
 		dbBiasX += .5;
+	}
+}
+
+void SpiralPointsLayer::generateRectangularGridPoints() {
+	double xMin =  - 1;
+	double xMax =  + 1;
+	double yMin =  - 1;
+	double yMax =  + 1;
+	double h = 0.1;
+	for (double x = xMin; x <= xMax; x += h)
+	{
+		for (double y = yMin; y <= yMax; y += h)
+		{
+			double X[_nD] = { x,y };
+			int nLabel = 0;
+			if (abs(x) < .5&&abs(y) < .5) {
+				if (x > y) nLabel = 1;
+				else nLabel = 2;
+			}
+			_vecPoints.push_back(LabeledPoint(x, y, nLabel));
+		}
+	}
+}
+
+void SpiralPointsLayer::generateCircularGridPoints() {
+	double xMin = -1;
+	double xMax = +1;
+	double yMin = -1;
+	double yMax = +1;
+	double h = 0.1;
+	for (double x = xMin; x <= xMax; x += h)
+	{
+		for (double y = yMin; y <= yMax; y += h)
+		{
+			double X[_nD] = { x,y };
+			int nLabel = 0;
+			if (x*x+y*y<0.64) {
+				nLabel = 1;
+				if (x*x + y*y < 0.16)
+					nLabel = 2;
+			}
+			_vecPoints.push_back(LabeledPoint(x, y, nLabel));
+		}
 	}
 }
 
@@ -157,6 +224,16 @@ void SpiralPointsLayer::Draw() {
 		glVertex3d(_vecResultPt[i]._arrCoord[0], _vecResultPt[i]._arrCoord[1], 0);
 	}
 	glEnd();
+
+	// draw hidden layer points
+	glPointSize(5.0f);
+	glBegin(GL_POINTS);
+	glColor4d(0, 1.0, 1.0, .5);
+	for each (LabeledPoint pt in _vecHiddenlayerPt)
+	{
+		glVertex3d(pt._arrCoord[0], pt._arrCoord[1], 0);
+	}
+	glEnd();
 }
 
 void SpiralPointsLayer::Clear() {
@@ -165,9 +242,9 @@ void SpiralPointsLayer::Clear() {
 
 void SpiralPointsLayer::train() {
 #ifdef BP_ANN
-	int epochs = 2000;
-	double dbLearningRate = 0.3;
-	double dbMomentum = 0.3;
+	int epochs = 10000;
+	double dbLearningRate = .01;
+	double dbMomentum = 0.1;
 	_pBPNN->TrainNet(epochs, _vecTrainingSet, dbLearningRate, dbMomentum);
 
 #else
@@ -218,5 +295,16 @@ void SpiralPointsLayer::UpdateLayer() {
 	train();
 	// reload the visualization of the classifier
 	showClassifier();
+
+//	generateHiddenLayerPoints();
 }
 
+void SpiralPointsLayer::generateHiddenLayerPoints() {
+	for (size_t i = 0; i < g_nHiddenLayer; i++)
+	{
+		LabeledPoint pt(0, 0, 0);
+		_pClassifier->GetHiddenLayer(i, pt._arrCoord);
+		_vecHiddenlayerPt.push_back(pt);
+
+	}
+}

@@ -16,10 +16,10 @@ MultiNormalPointsLayer::MultiNormalPointsLayer(int number, double mx, double my,
 	if (bMVN) {
 		double dbScale = 3;
 
-		generateNormalPoints(number / _nCluster, mx - vx * dbScale, my - vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx - vx * dbScale, my + vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx + vx * dbScale, my + vy * dbScale, vx, vy);
-		generateNormalPoints(number / _nCluster, mx + vx * dbScale, my - vy * dbScale, vx, vy);
+		GenerateNormalPoints(_points, number / _nCluster, mx - vx * dbScale, my - vy * dbScale, vx, vy);
+		GenerateNormalPoints(_points,number / _nCluster, mx - vx * dbScale, my + vy * dbScale, vx, vy);
+		GenerateNormalPoints(_points,number / _nCluster, mx + vx * dbScale, my + vy * dbScale, vx, vy);
+		GenerateNormalPoints(_points,number / _nCluster, mx + vx * dbScale, my - vy * dbScale, vx, vy);
 	}
 	else {
 		number = 200;

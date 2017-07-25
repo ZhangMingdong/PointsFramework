@@ -13,7 +13,7 @@ SingleNormalPointsLayer::SingleNormalPointsLayer(int number, double mx, double m
 {
 
 
-	generateNormalPoints(number, mx, my, vx, vy,.2,.4);
+	GenerateNormalPoints(_points,number, mx, my, vx, vy,.2,.4);
 
 	generateResult();
 }

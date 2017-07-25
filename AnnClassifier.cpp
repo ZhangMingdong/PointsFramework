@@ -168,3 +168,10 @@ void AnnClassifier::evaluateScore(MyMatrix* pScores) {
 	_pHidden->TrimNegative();
 	pScores->Formula(_pHidden, _pW2, _pB2);
 }
+
+void AnnClassifier::GetHiddenLayer(int nIndex, double* _arrBuf) {
+	for (size_t i = 0; i < _nD; i++)
+	{
+		_arrBuf[i] = _pW1->GetValue(i,nIndex);
+	}
+}

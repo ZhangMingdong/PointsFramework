@@ -10,7 +10,8 @@
 #include "BlueNoiseNormalPointsLayer.h"
 #include "DuClassPointsLayer.h"
 #include "SpiralPointsLayer.h"
-
+#include <random>
+using namespace std;
 
 ILayer::ILayer():_bShowBackground(false)
 {
@@ -128,4 +129,20 @@ bool ILayer::distanceCheck(const Point& pt, const std::vector<Point>& list, doub
 		}
 	}
 	return true;
+}
+
+void ILayer::GenerateNormalPoints(std::vector<Point>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX, double dbBiasY) {
+	//default_random_engine generator;//如果用这个默认的引擎，每次生成的随机序列是相同的。
+	random_device rd;
+	mt19937 gen(rd());
+	//normal(0,1)中0为均值，1为方差
+	normal_distribution<double> normalx(mx, vx);
+	normal_distribution<double> normaly(my, vy);
+
+	for (int i = 0; i < number; i++)
+	{
+		double x = dbBiasX + normalx(gen);
+		double y = dbBiasY + normaly(gen);
+		vecPts.push_back(DPoint3(x, y, 0));
+	}
 }

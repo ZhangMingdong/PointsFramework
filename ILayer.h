@@ -62,6 +62,10 @@ protected:// drawing
 	// return true if the distance between pt and every points in list are all larger than dis
 	bool distanceCheck(const Point& pt, const std::vector<Point>& list, double dis);
 
+public:
+	// generate a list of points obey the normal distribution
+	static void GenerateNormalPoints(std::vector<Point>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX = 0, double dbBiasY = 0);
+
 };
 
 // phi function used in RBF with Gaussian kernel
