@@ -95,8 +95,12 @@ public:
 	void GenerateMVNPoints(int number, double mx, double my, double vx, double vy);
 	// generate a sequene
 	void GenerateSequence();
-	// generate a sequene
+	// generate a 2D sequene
 	void GenerateSequence2D();
+	// generate a dimensional reduction layer
+	void GenerateDR();
+	// generate data layer
+	void GenerateDataLayer();
 	// 开启\关闭手动选点
 	void SetHandPoint();
 	// 获取是否手动选点状态

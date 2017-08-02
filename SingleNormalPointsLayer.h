@@ -1,6 +1,8 @@
 #pragma once
 #include "NormalPointsLayer.h"
 #include <QGLWidget>
+#include "TextureRenderer.h"
+#include "ConfidenceEllipse.h"
 /*
 	Layer to show the points obey single normal distribution
 	Mingdong
@@ -17,8 +19,10 @@ public:
 protected:
 	// generate the result points
 	void generateResult();
-	// texture data and id
-	GLubyte* _dataTexture;
-	GLuint texID[1];
+protected:
+	// the texture renderer
+	TextureRenderer* _pTRenderer;
+	// the confidence ellipse
+	ConfidenceEllipse* _pCEllipse;
 };
 

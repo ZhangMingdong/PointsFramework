@@ -138,3 +138,16 @@ public:
 	Point(DPoint3& p) :DPoint3(p), _ulPos(0) {}
 	int _ulPos;
 };
+
+// point with label
+class LabeledPoint
+{
+public:
+	LabeledPoint() {};
+	LabeledPoint(double x, double y, int nLabel) :_nLabel(nLabel) {
+		_arrCoord[0] = x;
+		_arrCoord[1] = y;
+	}
+	double _arrCoord[2];
+	int _nLabel;
+};

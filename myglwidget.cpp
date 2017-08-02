@@ -31,14 +31,14 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, _bHandPoint(false)
 	, m_sPolyStyle(0)
 	, m_pt3Eye(0.0, 0.0, 4.0)
-	, m_clearColor(.6, .6, .4, 1.0)
+//	, m_clearColor(.6, .6, .4, 1.0)
+	, m_clearColor(0, 0, 0, 1.0)
 	, _pLayer(0)
 	, _bShowBg(false)
 	, _nSampleLen(10)
 	, _nSamplePeriod(1)
 {
 	OnCreate();
-	SetClearColor(0, 0, 0, 0);
 	SetPointSize(2.0f);
 	SetLineWidth(1.0f);
 
@@ -87,7 +87,6 @@ void MyGLWidget::initializeGL()
 // 		glGenerateMipmap(GL_TEXTURE_2D);
 // 	}
 	// ~build texture
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -177,18 +176,21 @@ void MyGLWidget::mousePressEvent(QMouseEvent * event)
 	}
 	updateGL();
 }
+
 void MyGLWidget::mouseReleaseEvent(QMouseEvent * event)
 {
 	OnLButtonUp(event->pos().x(), event->pos().y());
 	updateGL();
 
 }
+
 void MyGLWidget::mouseMoveEvent(QMouseEvent * event)
 {
 	OnMouseMove(event->pos().x(), event->pos().y());
 	updateGL();
 
 }
+
 void MyGLWidget::wheelEvent(QWheelEvent * event)
 {
 	// 	int n = event->delta();
@@ -204,6 +206,7 @@ void MyGLWidget::wheelEvent(QWheelEvent * event)
 	OnMouseWheel(event->delta());
 	updateGL();
 }
+
 void MyGLWidget::keyPressEvent(QKeyEvent * event)
 {
 // 	switch (event->key())
@@ -538,6 +541,14 @@ void MyGLWidget::GenerateSequence2D() {
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_2D, _bShowBg);
 }
 
+void MyGLWidget::GenerateDR() {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_DR, _bShowBg);
+}
+void MyGLWidget::GenerateDataLayer() {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Data, _bShowBg);
+}
 // 开启\关闭手动选点
 void MyGLWidget::SetHandPoint(){
 	_bHandPoint = !_bHandPoint;

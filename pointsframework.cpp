@@ -49,6 +49,8 @@ void PointsFramework::createConnections(){
 	connect(_pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSequence2D, SIGNAL(pressed()), this, SLOT(onGenerateSequence2DClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateDR, SIGNAL(pressed()), this, SLOT(onGenerateDRClicked()));
+	connect(_pControlWidget->ui.pushButtonShowData, SIGNAL(pressed()), this, SLOT(onGenerateDataLayerClicked()));
 	connect(_pControlWidget->ui.checkBoxPicking, SIGNAL(clicked(bool)), this, SLOT(onPickingClicked(bool)));
 
 
@@ -137,7 +139,17 @@ void PointsFramework::onGenerateSequence2DClicked() {
 	pWidget->updateGL();
 
 }
+void PointsFramework::onGenerateDRClicked() {
+	// generate sequence
+	pWidget->GenerateDR();
+	pWidget->updateGL();
 
+}void PointsFramework::onGenerateDataLayerClicked() {
+	// generate sequence
+	pWidget->GenerateDataLayer();
+	pWidget->updateGL();
+
+}
 void PointsFramework::onCalculateClicked(){
 	long t1 = GetTickCount();
 	DistanceAndIndices result = pWidget->CalcNearestPairOfPoints();

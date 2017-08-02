@@ -30,6 +30,8 @@ public slots:
 	void onGenerateMultiNormalClicked();
 	void onGenerateSequenceClicked();
 	void onGenerateSequence2DClicked();
+	void onGenerateDRClicked();
+	void onGenerateDataLayerClicked();
 	void onCalculateClicked();
 	void onCalculateDCClicked();
 	void onPickingClicked(bool bChecked);

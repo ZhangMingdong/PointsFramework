@@ -1,7 +1,9 @@
 #include "IMyClassifier.h"
 #include "SoftMaxClassifier.h"
 #include "AnnClassifier.h"
+#include "L3AnnClassifier.h"
 
+//#define L3_ANN
 
 IMyClassifier::IMyClassifier() :_nPoints(0)
 , _nD(0)
@@ -28,7 +30,11 @@ IMyClassifier* IMyClassifier::CreateClassifier(Enum_Classifier type, int nPoints
 		pClassifier = new SoftMaxClassifier();
 		break;
 	case IMyClassifier::Ann:
+#ifdef L3_ANN
+		pClassifier = new L3AnnClassifier(nHiddden);
+#else
 		pClassifier = new AnnClassifier(nHiddden);
+#endif
 		break;
 	default:
 		break;

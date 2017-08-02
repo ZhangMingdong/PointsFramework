@@ -10,6 +10,9 @@
 #include "BlueNoiseNormalPointsLayer.h"
 #include "DuClassPointsLayer.h"
 #include "SpiralPointsLayer.h"
+#include "DRLayer.h"
+#include "DataLayer.h"
+
 #include <random>
 using namespace std;
 
@@ -55,6 +58,12 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 		break;
 	case ILayer::LT_Spiral:
 		pLayer = new SpiralPointsLayer();
+		break;
+	case ILayer::LT_DR:
+		pLayer = new DRLayer();
+		break;
+	case ILayer::LT_Data:
+		pLayer = new DataLayer();
 		break;
 	default:
 		break;
