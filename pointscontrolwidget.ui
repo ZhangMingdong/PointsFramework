@@ -7,44 +7,34 @@
     <x>0</x>
     <y>0</y>
     <width>734</width>
-    <height>771</height>
+    <height>877</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>PointsControlWidget</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>计算最小距离点对</string>
      </property>
-     <widget class="QPushButton" name="pushButtonCalc">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>22</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>常规方法</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButtonCalcDC">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>51</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>分治方法</string>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="pushButtonCalc">
+        <property name="text">
+         <string>常规方法</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonCalcDC">
+        <property name="text">
+         <string>分治方法</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
