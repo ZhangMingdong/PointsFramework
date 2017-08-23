@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "MathTypes.h"
+#include <MathTypes.hpp>
 #include "tnt_array2d.h"
 /*
 	Interpolator use radial basis function 

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "tnt_array2d.h"
-#include "MathTypes.h"
+#include <MathTypes.hpp>
 #include <vector>
 class MyPCA
 {

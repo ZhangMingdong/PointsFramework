@@ -1,7 +1,6 @@
 #pragma once
 #include "ILayer.h"
 #include <vector>
-#include "MathTypes.h"
 /*
 	class used to represent points with dual class. This layer is use to test svm
 */

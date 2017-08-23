@@ -40,3 +40,4 @@ void transpose(const Array2D<double>& src, Array2D<double>& target);
 
 // z = x * y
 void multiply(const Array2D<double>& x, const Array2D<double>& y, Array2D<double>& z);
+

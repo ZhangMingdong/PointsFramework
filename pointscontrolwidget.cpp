@@ -5,7 +5,7 @@ PointsControlWidget::PointsControlWidget(QWidget *parent)
 {
 	ui.setupUi(this);
 	ui.spinBoxNum->setRange(0, 1000000);
-	ui.spinBoxNum->setValue(1000);
+	ui.spinBoxNum->setValue(100);
 
 
 	connect(ui.horizontalSliderLen, SIGNAL(valueChanged(int)), ui.spinBoxLen, SLOT(setValue(int)));

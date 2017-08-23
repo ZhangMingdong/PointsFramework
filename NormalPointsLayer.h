@@ -1,6 +1,5 @@
 #pragma once
 #include "ILayer.h"
-#include "MathTypes.h"
 #include <vector>
 /*
 	Layer to show the points obey normal distribution

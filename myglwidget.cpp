@@ -12,6 +12,7 @@
 
 #include <assert.h>
 #include <fstream>
+#include <qdebug.h>
 
 
 using namespace std;
@@ -487,12 +488,14 @@ void MyGLWidget::GenerateRandomPoints(int number){
 		, _bShowBg, number);
 
 }
+
 void MyGLWidget::GenerateDuClassPoints() {
 
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Dual
 		, _bShowBg);
 }
+
 void MyGLWidget::GenerateSpiralPoints() {
 
 	if (_pLayer) delete _pLayer;	
@@ -516,12 +519,12 @@ void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue_Mult
 		, _bShowBg, number);
 }
+
 void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
 		, _bShowBg, number, mx, my, vx, vy);
 }
-
 
 void MyGLWidget::GenerateMVNPoints(int number, double mx, double my, double vx, double vy) {
 	if (_pLayer) delete _pLayer;
@@ -1165,5 +1168,16 @@ void MyGLWidget::onSetSamplePeriod(int nPeriod) {
 	_nSamplePeriod = nPeriod;
 	if (_pLayer)
 		_pLayer->Reset(_nSampleLen, _nSamplePeriod);
+	updateGL();
+}
+
+void MyGLWidget::updateMethod(int method) {
+	if (_pLayer)
+		_pLayer->SetMethod(method);
+	updateGL();
+}
+void MyGLWidget::updateSource(int source) {
+	if (_pLayer)
+		_pLayer->SetSource(source);
 	updateGL();
 }

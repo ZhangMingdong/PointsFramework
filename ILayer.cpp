@@ -78,11 +78,14 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 }
 
 double funPhi(double r) {
-	//	return exp(-r*r );
-	return exp(-r*r * 16);
+//	return exp(-r*r );
 //	return exp(-r*r * 4);
+//	return exp(-r*r * 9);
+//	return exp(-r*r * 16);
+//	return exp(-r*r * 64);
+	return exp(-r*r * 256);
 //	return exp(-r*r / 4);
-	//	return exp(-r*r / 16);
+//	return exp(-r*r / 16);
 }
 
 
@@ -153,5 +156,18 @@ void ILayer::GenerateNormalPoints(std::vector<Point>& vecPts,int number, double 
 		double x = dbBiasX + normalx(gen);
 		double y = dbBiasY + normaly(gen);
 		vecPts.push_back(DPoint3(x, y, 0));
+	}
+}
+
+
+// generate a list of points obey the random distribution
+void ILayer::GenerateRandomPoints(std::vector<Point>& vecPts, int number, double x, double y, double r) {
+	for (int i = 0; i < number; i++)
+	{
+		double randomR = rand() / (double)RAND_MAX*r;
+		double randomA = rand() / (double)RAND_MAX*PI2d;
+		double randomX = x + randomR*sin(randomA);
+		double randomY = y + randomR*cos(randomA);
+		vecPts.push_back(DPoint3(randomX, randomY, 0));
 	}
 }

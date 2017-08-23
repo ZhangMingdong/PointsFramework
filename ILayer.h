@@ -1,5 +1,5 @@
 #pragma once
-#include"MathTypes.h"
+#include <MathTypes.hpp>
 
 
 
@@ -48,6 +48,12 @@ public:
 
 	// reset length of sample points and period of the function
 	virtual void Reset(int nLen, int nPeriod) {};
+
+	// set the interpolation method
+	virtual void SetMethod(int nMethod) {};
+
+	// set the method to generate the source
+	virtual void SetSource(int nSource) {};
 public:
 	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
 
@@ -70,6 +76,10 @@ protected:// drawing
 public:
 	// generate a list of points obey the normal distribution
 	static void GenerateNormalPoints(std::vector<Point>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX = 0, double dbBiasY = 0);
+
+
+	// generate a list of points obey the random distribution
+	static void GenerateRandomPoints(std::vector<Point>& vecPts, int number, double x,double y,double r);
 
 };
 

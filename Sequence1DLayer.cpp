@@ -27,14 +27,17 @@ void forwardDFT(const std::vector<Point> s, int nLen, std::vector<double>& a, st
 	}
 }
 
+const bool c_bFFT = false;
+
 Sequence1DLayer::Sequence1DLayer():_dbLeft(-2),_dbRight(2)
 {
 	// 1.generate the original sequence
 	generateSequence();
-	return;
+//	return;
 	// 2.do interpolation	
 	doRBF();		
 	doLagrangian();
+	doKDE();
 }
 
 void Sequence1DLayer::doRBF() {
@@ -72,6 +75,44 @@ void Sequence1DLayer::doRBF() {
 			y += w[j][0] * funPhi(abs(x - _sequence[j].x));
 		}
 		_sequenceResultRBF.push_back(DPoint3(x, y, 0));
+	}
+}
+
+const double c_dbK = 1.0 / sqrt(PI2d);
+double KernelFun(double para) {
+	return c_dbK*exp(-para*para / 2.0);
+}
+
+void Sequence1DLayer::doKDE() {
+	// whether using original KDE or method in "Interactive Visualization of Streaming Data with Kernel Density Estimation"
+	bool bOriginal = false;	
+
+	int nLen = _sequence.size();
+	// 1.calculation
+	// 2.generate result
+	int nResultLen = 101;
+	double dbStep = (_dbRight - _dbLeft) / (nResultLen - 1);
+	int n = _sequence.size();
+	double h = _dbH;
+	for (size_t i = 0; i < nResultLen; i++)
+	{
+		double x = _dbLeft + dbStep*i;
+		double y = 0;
+		if (bOriginal) {
+			for (size_t j = 0; j < n; j++)
+			{
+				y += KernelFun((x - _sequence[j].x) / h);
+			}
+			y /= (n*h);
+		} 
+		else {
+			for (size_t j = 0; j < n; j++)
+			{
+				y += _sequence[j].y*KernelFun((x - _sequence[j].x) / h);
+			}
+			y /= h;
+		}
+		_sequenceResultKDE.push_back(DPoint3(x, y, 0));
 	}
 }
 
@@ -122,7 +163,6 @@ void Sequence1DLayer::Draw() {
 	for (size_t i = 0; i < nSeqResultLen; i++)
 	{
 		glVertex3d(_sequenceResultRBF[i].x, _sequenceResultRBF[i].y, _sequenceResultRBF[i].z);
-
 	}
 	glEnd();
 
@@ -133,34 +173,43 @@ void Sequence1DLayer::Draw() {
 	for (size_t i = 0; i < nSeqResultLen; i++)
 	{
 		glVertex3d(_sequenceResultLagrangian[i].x, _sequenceResultLagrangian[i].y, _sequenceResultLagrangian[i].z);
+	}
+	glEnd();
+
+	// draw KDE results
+	glColor3f(1, 0, 1);
+	nSeqResultLen = _sequenceResultKDE.size();
+	glBegin(GL_LINE_STRIP);
+	for (size_t i = 0; i < nSeqResultLen; i++)
+	{
+		glVertex3d(_sequenceResultKDE[i].x, _sequenceResultKDE[i].y, _sequenceResultKDE[i].z);
 
 	}
 	glEnd();
 }
 
 void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
-	nLen *= 10;
-	// generate a sine wave
-	double dbScope = 4;
-	double dbLeft = -2;
-	double dbStep = dbScope / nLen;
+	if (c_bFFT) {
+		nLen *= 10;
+		// generate a sine wave
+		double dbScope = 4;
+		double dbLeft = -2;
+		double dbStep = dbScope / nLen;
 
-	for (size_t i = 0; i <= nLen; i++)
-	{
-		double x = dbLeft + i*dbStep;
-//		double y = sin(x*PIf*nPeriod);
-		double scaledX = i/100.0;// x*PIf*nPeriod;
-		double y = sin(scaledX) + cos(10 * scaledX) +0.5 * cos(40 * scaledX);
-		y /= 10;
-		_sequence.push_back(DPoint3(x, y, 0));
+		for (size_t i = 0; i <= nLen; i++)
+		{
+			double x = dbLeft + i*dbStep;
+			//		double y = sin(x*PIf*nPeriod);
+			double scaledX = i / 100.0;// x*PIf*nPeriod;
+			double y = sin(scaledX) + cos(10 * scaledX) + 0.5 * cos(40 * scaledX);
+			y /= 10;
+			_sequence.push_back(DPoint3(x, y, 0));
+		}
+		std::vector<double> a, b;
+		forwardDFT(_sequence, nLen, a, b);
 	}
-	std::vector<double> a, b;
-	forwardDFT(_sequence, nLen, a, b);
-
-	return;
-	// original
+	else
 	{
-
 		// 0.generation
 		DPoint3 seq[10] = {
 			DPoint3(-2, -.2, 0)
@@ -191,10 +240,14 @@ void Sequence1DLayer::Reset(int nLen, int nPeriod) {
 	_sequence.clear();
 	_sequenceResultRBF.clear();
 	_sequenceResultLagrangian.clear();
+	_sequenceResultKDE.clear();
 
 	generateSequence(nLen, nPeriod);
-	return;
-	doRBF();
-	doLagrangian();
+	if (!c_bFFT) {
+		doRBF();
+		doLagrangian();
+		_dbH = nPeriod;
+		doKDE();
+	}
 
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include "ILayer.h"
-#include "MathTypes.h"
 #include <vector>
 /*
 	Layer to show the 1D sequence
@@ -20,22 +19,31 @@ public:
 private:
 	// the original sequence
 	std::vector<Point> _sequence;
-	// interpolation result of the sequence
+	// RBF interpolation result of the sequence
 	std::vector<Point> _sequenceResultRBF;
+	// Lagrangian interpolation result of the sequence
 	std::vector<Point> _sequenceResultLagrangian;
+	// KDE interpolation result of the sequence
+	std::vector<Point> _sequenceResultKDE;
 
 
 	std::vector<double> a, b;
 	// left and right position
 	double _dbLeft;
 	double _dbRight;
+
+	// parameter h of kde
+	double _dbH=1.0;
 private:
 	// do RBF interpolation
 	void doRBF();
 	// do Lagrangian interpolation
 	void doLagrangian();
+	// do kernel density estimation 
+	void doKDE();
 protected:
 	// generate the sequence
 	virtual void generateSequence(int nLen=10, int nPeriod=1);
+
 };
 

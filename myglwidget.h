@@ -1,13 +1,14 @@
 #ifndef MYGLWIDGET_H
 #define MYGLWIDGET_H
 
-#include "MathTypes.h"
+#include <MathTypes.hpp>
 
 // #include <gl/glew.h>
 #include <QGLWidget>
 #include <gl/GLU.h>
 
 
+class ILayer;
 
 class MyGLWidget : public QGLWidget
 {
@@ -229,6 +230,8 @@ public slots:
 	void onUpdateLayer();
 	void onSetSampleLen(int nLen);
 	void onSetSamplePeriod(int nPeriod);
+	void updateMethod(int method);
+	void updateSource(int source);
 };
 
 #endif // MYGLWIDGET_H

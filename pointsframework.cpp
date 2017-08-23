@@ -1,5 +1,5 @@
 #include "pointsframework.h"
-
+#include "InterpolationWidget.h"
 #include <QDockWidget>
 
 PointsFramework::PointsFramework(QWidget *parent)
@@ -35,6 +35,13 @@ void PointsFramework::createDockWidgets(){
 	controlDockWidget->setWidget(_pControlWidget);
 	addDockWidget(Qt::RightDockWidgetArea, controlDockWidget);
 
+
+	_pWidgetInterpolation = new InterpolationWidget();
+	QDockWidget *pDockWidgetInterpolation = new QDockWidget(tr("Interpolation"), this);
+	pDockWidgetInterpolation->setFeatures(features);
+	pDockWidgetInterpolation->setWidget(_pWidgetInterpolation);
+	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetInterpolation);
+
 }
 
 void PointsFramework::createConnections(){
@@ -59,6 +66,10 @@ void PointsFramework::createConnections(){
 
 	connect(_pControlWidget->ui.horizontalSliderLen, SIGNAL(valueChanged(int)), pWidget, SLOT(onSetSampleLen(int)));
 	connect(_pControlWidget->ui.horizontalSliderPeriod, SIGNAL(valueChanged(int)), pWidget, SLOT(onSetSamplePeriod(int)));
+
+	// interpolation widget
+	connect(_pWidgetInterpolation, SIGNAL(methodChanged(int)), pWidget, SLOT(updateMethod(int)));
+	connect(_pWidgetInterpolation, SIGNAL(sourceChanged(int)), pWidget, SLOT(updateSource(int)));
 }
 
 void PointsFramework::onGenerateRandomClicked(){

@@ -1,7 +1,6 @@
 #pragma once
 #include "ILayer.h"
 #include <vector>
-#include "MathTypes.h"
 
 /*
 	Layer to show the random points

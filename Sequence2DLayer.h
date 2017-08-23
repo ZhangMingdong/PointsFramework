@@ -1,9 +1,10 @@
 #pragma once
 #include "ILayer.h"
 #include <vector>
-#include "MathTypes.h"
 #include <QGLWidget>
 #include "RBFInterpolator.h"
+
+class TextureRenderer;
 /*
 	Layer to show the 2D sequence
 	Mingdong
@@ -19,18 +20,34 @@ public:
 	virtual void Draw();
 	// initialization
 	virtual void Initialize();
+
+
+	// set the interpolation method
+	virtual void SetMethod(int nMethod);
 private:
 	// 2D sequence
 	std::vector<DPoint3> _sequence;
-	std::vector<DPoint3> _sequenceResult;
 
-	// texture data and id
-	GLubyte* _dataTexture;
-	GLuint texID[1];
+
 	// length of the result
 	int _nResultLen = 100;
-
+	// radius of the result
+	double _dbRadius = 2;
+	// the interpolator
 	RBFInterpolator _interpolator;
+
+
+	// the texture renderer
+	TextureRenderer* _pTRenderer = NULL;
+
+	/*
+		interpolation method:
+			0:confidence ellipse
+			1:rbf
+			2:sd+rdf
+			3:kde
+	*/
+	int _nMethod = 0;
 protected:
 	// run radial distanc function interpolation
 	void runRDF();
