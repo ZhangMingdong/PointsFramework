@@ -70,6 +70,7 @@ void PointsFramework::createConnections(){
 	// interpolation widget
 	connect(_pWidgetInterpolation, SIGNAL(methodChanged(int)), pWidget, SLOT(updateMethod(int)));
 	connect(_pWidgetInterpolation, SIGNAL(sourceChanged(int)), pWidget, SLOT(updateSource(int)));
+	connect(_pWidgetInterpolation, SIGNAL(radiusChanged(double)), pWidget, SLOT(updateRadius(double)));
 }
 
 void PointsFramework::onGenerateRandomClicked(){

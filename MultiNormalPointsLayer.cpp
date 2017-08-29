@@ -14,7 +14,7 @@ MultiNormalPointsLayer::MultiNormalPointsLayer(int number, double mx, double my,
 
 	bool bMVN = true;
 	if (bMVN) {
-		double dbScale = 3;
+		double dbScale = 2;
 
 		GenerateNormalPoints(_points, number / _nCluster, mx - vx * dbScale, my - vy * dbScale, vx, vy);
 		GenerateNormalPoints(_points,number / _nCluster, mx - vx * dbScale, my + vy * dbScale, vx, vy);

@@ -2,6 +2,7 @@
 
 #include <QWidget>
 class QComboBox;
+class QDoubleSpinBox;
 
 /*
 	widget to set the parameter of the interpolation
@@ -20,6 +21,9 @@ private:
 	// control the generation of the source points
 	QComboBox *_pCombSource;
 
+	// spinbox of the radius
+	QDoubleSpinBox *_pSpinBoxR;
+
 private:
 	void createWidgets();
 	void createLayout();
@@ -28,9 +32,11 @@ private:
 private slots:
 	void updateMethod(int method);
 	void updateSource(int method);
+	void updateRadius(double r);
 signals:
 	void methodChanged(int method);
 	void sourceChanged(int method);
+	void radiusChanged(double r);
 
 
 };

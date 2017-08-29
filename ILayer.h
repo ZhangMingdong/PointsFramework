@@ -54,12 +54,16 @@ public:
 
 	// set the method to generate the source
 	virtual void SetSource(int nSource) {};
+	virtual void SetRadius(double r) { _dbPhiRadius = r; };
 public:
 	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
 
 protected:
 	// whether show background
 	bool _bShowBackground;
+
+	// radius for phi function
+	double _dbPhiRadius=1;
 
 protected:// drawing
 	void DrawPoint(const DPoint3& p);
@@ -84,4 +88,4 @@ public:
 };
 
 // phi function used in RBF with Gaussian kernel
-double funPhi(double r);
+double funPhi(double x,double r);

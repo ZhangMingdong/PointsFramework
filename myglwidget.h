@@ -232,6 +232,7 @@ public slots:
 	void onSetSamplePeriod(int nPeriod);
 	void updateMethod(int method);
 	void updateSource(int source);
+	void updateRadius(double r);
 };
 
 #endif // MYGLWIDGET_H

@@ -22,6 +22,8 @@ public:
 	virtual void SetMethod(int nMethod);
 	// set the method to generate the source
 	virtual void SetSource(int nSource);
+	// set the radius for phi function;
+	virtual void SetRadius(double r);
 protected:
 	// generate the texture by confidence ellipse
 	void generateTextureByConfidenceEllipse();
@@ -61,6 +63,10 @@ protected:
 
 	// generate dataset 4;
 	void generateDataset4();
+
+	// generate dataset 5;
+	// data as described in "Visualizing Confidence in Cluster-based Ensemble Weather Forecast Analyses"
+	void generateDataset5();
 protected:
 	// length of the result
 	int _nResultLen = 800;

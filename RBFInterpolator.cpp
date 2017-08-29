@@ -19,7 +19,8 @@ RBFInterpolator::~RBFInterpolator()
 }
 
 
-void RBFInterpolator::Build(const std::vector<DPoint3>& points, double (*pFunPhi)(double)) {
+void RBFInterpolator::Build(const std::vector<DPoint3>& points, double (*pFunPhi)(double, double), double r) {
+	_dbR = r;
 	_pFunPhi = pFunPhi;
 	// 1.calculation
 	int nLen = points.size();
@@ -35,7 +36,7 @@ void RBFInterpolator::Build(const std::vector<DPoint3>& points, double (*pFunPhi
 		{
 			double dbX = points[i].x - points[j].x;
 			double dbY = points[i].y - points[j].y;
-			(*_pDistance)[i][j] = (*pFunPhi)(sqrt(dbX*dbX + dbY*dbY));
+			(*_pDistance)[i][j] = (*pFunPhi)(sqrt(dbX*dbX + dbY*dbY),r);
 		}
 	}
 	GetMatrixInverse_2(*_pDistance, nLen, *_pDistanceR);
@@ -55,7 +56,7 @@ double RBFInterpolator::Calculate(double x, double y) {
 	{
 		double dbX = x - _points[k].x;
 		double dbY = y - _points[k].y;
-		z += (*_pW)[k][0] * (*_pFunPhi)(sqrt(dbX*dbX + dbY*dbY));
+		z += (*_pW)[k][0] * (*_pFunPhi)(sqrt(dbX*dbX + dbY*dbY),_dbR);
 	}
 	return z;
 }

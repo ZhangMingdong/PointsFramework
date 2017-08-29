@@ -77,13 +77,13 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 	return pLayer;
 }
 
-double funPhi(double r) {
+double funPhi(double x,double r) {
 //	return exp(-r*r );
 //	return exp(-r*r * 4);
 //	return exp(-r*r * 9);
 //	return exp(-r*r * 16);
 //	return exp(-r*r * 64);
-	return exp(-r*r * 256);
+	return exp(-x*x/(2*r*r));
 //	return exp(-r*r / 4);
 //	return exp(-r*r / 16);
 }

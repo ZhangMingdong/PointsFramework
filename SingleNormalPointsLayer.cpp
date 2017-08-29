@@ -20,6 +20,8 @@ inline double KernelFun(double para) {
 	return c_dbK*exp(-para*para / 2.0);
 }
 
+
+
 SingleNormalPointsLayer::SingleNormalPointsLayer(int number, double mx, double my, double vx, double vy):_pTRenderer(NULL)
 , _pCEllipse(NULL)
 {
@@ -117,14 +119,14 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 	// set the value of z to 1 of the sample points
 	for each (Point pt in _points)
 	{
-		_sequence.push_back(DPoint3(pt.x, pt.y, 5));
+		_sequence.push_back(DPoint3(pt.x, pt.y, pt.z));
 	}
 
 	// 1.build the interpolator
 	RBFInterpolator _interpolator;
-	_interpolator.Build(_sequence, funPhi);
+	_interpolator.Build(_sequence, funPhi,_dbPhiRadius);
 
-	ColorMap* colormap = ColorMap::GetInstance();
+	ColorMap* colormap = ColorMap::GetInstance(ColorMap::CP_RainBow);
 
 	// 2.generate result
 	_pTRenderer = new TextureRenderer(_nResultLen, _nResultLen);
@@ -318,6 +320,12 @@ void SingleNormalPointsLayer::SetSource(int nSource) {
 	doInterpolation();
 }
 
+void SingleNormalPointsLayer::SetRadius(double r)
+{
+	_dbPhiRadius = r;
+	doInterpolation();
+};
+
 // generate source points
 void SingleNormalPointsLayer::generatePoints() {
 	_points.clear();
@@ -336,6 +344,9 @@ void SingleNormalPointsLayer::generatePoints() {
 		break;
 	case 4:
 		generateDataset4();
+		break;
+	case 5:
+		generateDataset5();
 		break;
 	}
 	
@@ -430,6 +441,31 @@ void SingleNormalPointsLayer::generateDataset4() {
 
 	GenerateRandomPoints(_points, 10, 0, 0, 1);
 }
+
+void SingleNormalPointsLayer::generateDataset5() {
+	//*
+	double dbValue = 0;
+	double dbValue1 = 6.0;
+	double dbValue2 = 4.0;
+	double dbValue3 = 3.0;
+	// unique value with new position
+	DPoint3 seq[6] = {
+		DPoint3(-1,1,dbValue + dbValue1)
+		,DPoint3(-1,-1,dbValue - dbValue1)
+		,DPoint3(1,1,dbValue + dbValue2)
+		,DPoint3(1,-1,dbValue - dbValue2)
+		,DPoint3(1,0,dbValue + dbValue3)
+		,DPoint3(-1,0,dbValue - dbValue3)
+	};
+	//*/
+	int nLen = 6;
+	for (size_t i = 0; i < nLen; i++)
+	{
+		_points.push_back(seq[i]);
+	}
+}
+
+
 void SingleNormalPointsLayer::generateTextureByKDE_LinearKernel() {
 
 	for each (Point pt in _points)
@@ -466,7 +502,7 @@ void SingleNormalPointsLayer::generateTextureByKDE_LinearKernel() {
 					double disX = x - dbSampleX;
 					double disY = y - dbSampleY;
 					double dis2 = disX*disX + disY*disY;
-					double kb = b*funPhi(dis2 / b);
+					double kb = b*KernelFun(dis2 / b);
 					dbDensity += kb;
 				}
 			}

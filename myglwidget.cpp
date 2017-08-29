@@ -1181,3 +1181,8 @@ void MyGLWidget::updateSource(int source) {
 		_pLayer->SetSource(source);
 	updateGL();
 }
+void MyGLWidget::updateRadius(double r) {
+	if (_pLayer)
+		_pLayer->SetRadius(r);
+	updateGL();
+}

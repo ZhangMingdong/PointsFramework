@@ -52,7 +52,7 @@ void Sequence1DLayer::doRBF() {
 	{
 		for (size_t j = 0; j < nLen; j++)
 		{
-			disMatrix[i][j] = funPhi(abs(_sequence[i].x - _sequence[j].x));
+			disMatrix[i][j] = funPhi(abs(_sequence[i].x - _sequence[j].x),1);
 		}
 	}
 	for (size_t i = 0; i < nLen; i++)
@@ -72,14 +72,14 @@ void Sequence1DLayer::doRBF() {
 		double y = 0;
 		for (size_t j = 0; j < nLen; j++)
 		{
-			y += w[j][0] * funPhi(abs(x - _sequence[j].x));
+			y += w[j][0] * funPhi(abs(x - _sequence[j].x),1);
 		}
 		_sequenceResultRBF.push_back(DPoint3(x, y, 0));
 	}
 }
 
 const double c_dbK = 1.0 / sqrt(PI2d);
-double KernelFun(double para) {
+inline double KernelFun(double para) {
 	return c_dbK*exp(-para*para / 2.0);
 }
 
