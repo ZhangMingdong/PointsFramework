@@ -22,7 +22,7 @@ inline double KernelFun(double para) {
 
 
 
-SingleNormalPointsLayer::SingleNormalPointsLayer(int number, double mx, double my, double vx, double vy):_pTRenderer(NULL)
+SingleNormalPointsLayer::SingleNormalPointsLayer(int number):_pTRenderer(NULL)
 , _pCEllipse(NULL)
 {
 	_nSourceLen = number;

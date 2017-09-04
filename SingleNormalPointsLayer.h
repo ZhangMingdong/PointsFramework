@@ -12,7 +12,7 @@ class SingleNormalPointsLayer :
 	public NormalPointsLayer
 {
 public:
-	SingleNormalPointsLayer(int number, double mx, double my, double vx, double vy);
+	SingleNormalPointsLayer(int number);
 	virtual ~SingleNormalPointsLayer();
 public:
 	virtual void Draw();

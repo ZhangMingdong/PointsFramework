@@ -78,24 +78,48 @@ ColorMap* ColorMap::GetInstance(Enum_Color_Pallet cp){
 			_pInstance[cp]->_pColors = new MYGLColor[_pInstance[cp]->_nLen];
 
 
-			_pInstance[cp]->_pValues[0] = -7;
-			_pInstance[cp]->_pValues[1] = -5;
+			_pInstance[cp]->_pValues[0] = -9;
+			_pInstance[cp]->_pValues[1] = -6;
 			_pInstance[cp]->_pValues[2] = -3;
-			_pInstance[cp]->_pValues[3] = -1;
-			_pInstance[cp]->_pValues[4] = 1;
-			_pInstance[cp]->_pValues[5] = 3;
-			_pInstance[cp]->_pValues[6] = 5;
-			_pInstance[cp]->_pValues[7] = 7;
+			_pInstance[cp]->_pValues[3] = 0;
+			_pInstance[cp]->_pValues[4] = 3;
+			_pInstance[cp]->_pValues[5] = 6;
+			_pInstance[cp]->_pValues[6] = 9;
 
 			_pInstance[cp]->_pColors[0] = MYGLColor(87, 0, 255);
-			_pInstance[cp]->_pColors[1] = MYGLColor(43, 0, 255);
-			_pInstance[cp]->_pColors[2] = MYGLColor(0, 0, 255);
-			_pInstance[cp]->_pColors[3] = MYGLColor(0, 255, 255);
-			_pInstance[cp]->_pColors[4] = MYGLColor(0, 255, 0);
-			_pInstance[cp]->_pColors[5] = MYGLColor(255, 255, 0);
-			_pInstance[cp]->_pColors[6] = MYGLColor(255, 165, 0);
-			_pInstance[cp]->_pColors[7] = MYGLColor(255, 0, 0);
+			_pInstance[cp]->_pColors[1] = MYGLColor(0, 0, 255);
+			_pInstance[cp]->_pColors[2] = MYGLColor(0, 255, 255);
+			_pInstance[cp]->_pColors[3] = MYGLColor(0, 255, 0);
+			_pInstance[cp]->_pColors[4] = MYGLColor(255, 255, 0);
+			_pInstance[cp]->_pColors[5] = MYGLColor(255, 165, 0);
+			_pInstance[cp]->_pColors[6] = MYGLColor(255, 0, 0);
 			break;
+		case ColorMap::CP_12:
+			_pInstance[cp]->_nLen = 12;
+			_pInstance[cp]->_nStep = 1;					// for mean
+														// 	_nStep = 7;					// for variance
+			_pInstance[cp]->_pValues = new double[_pInstance[cp]->_nLen];
+			_pInstance[cp]->_pColors = new MYGLColor[_pInstance[cp]->_nLen];
+
+			for (size_t i = 0; i < _pInstance[cp]->_nLen; i++)
+			{
+				_pInstance[cp]->_pValues[i] = i;
+			}
+			
+			_pInstance[cp]->_pColors[0] = MYGLColor(255, 0, 0);
+			_pInstance[cp]->_pColors[1] = MYGLColor(0, 255, 0);
+			_pInstance[cp]->_pColors[2] = MYGLColor(0, 0, 255);
+			_pInstance[cp]->_pColors[3] = MYGLColor(255, 255, 0);
+			_pInstance[cp]->_pColors[4] = MYGLColor(0, 255, 255);
+			_pInstance[cp]->_pColors[5] = MYGLColor(255, 0, 255);
+			_pInstance[cp]->_pColors[6] = MYGLColor(128, 0, 0);
+			_pInstance[cp]->_pColors[7] = MYGLColor(0, 128, 0);
+			_pInstance[cp]->_pColors[8] = MYGLColor(0, 0, 128);
+			_pInstance[cp]->_pColors[9] = MYGLColor(128, 128, 0);
+			_pInstance[cp]->_pColors[10] = MYGLColor(0, 128, 128);
+			_pInstance[cp]->_pColors[11] = MYGLColor(128, 0, 128);
+			break;
+
 		case ColorMap::CP_Length:
 			break;
 		default:

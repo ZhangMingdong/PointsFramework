@@ -9,10 +9,14 @@ class MultiNormalPointsLayer :
 	public NormalPointsLayer
 {
 public:
-	MultiNormalPointsLayer(int number, double mx, double my, double vx, double vy);
+	MultiNormalPointsLayer(int number);
 	virtual ~MultiNormalPointsLayer();
 public:
 	virtual void Draw();
+	virtual void UpdateLayer();	
+	virtual void AddPoint(Point pt, bool bRight = false);
+	// clear the calculation and points for add points by hand
+	virtual void Clear();
 private:
 	// number of clusters
 	int _nCluster;

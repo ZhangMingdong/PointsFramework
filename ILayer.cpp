@@ -25,7 +25,7 @@ ILayer::~ILayer()
 {
 }
 
-ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double mx, double my, double vx, double vy) {
+ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints) {
 	ILayer* pLayer = NULL;
 	switch (type)
 	{
@@ -36,13 +36,13 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints, double
 		pLayer = new Sequence2DLayer();
 		break;
 	case ILayer::LT_Normal_Single:
-		pLayer = new SingleNormalPointsLayer(nPoints,mx,my,vx,vy);
+		pLayer = new SingleNormalPointsLayer(nPoints);
 		break;
 	case ILayer::LT_Normal_Multi:
-		pLayer = new MultiNormalPointsLayer(nPoints, mx, my, vx, vy);
+		pLayer = new MultiNormalPointsLayer(nPoints);
 		break;
 	case ILayer::LT_Normal_Blue:
-		pLayer = new BlueNoiseNormalPointsLayer(nPoints, mx, my, vx, vy);
+		pLayer = new BlueNoiseNormalPointsLayer(nPoints);
 		break;
 	case ILayer::LT_Random:
 		pLayer = new RandomPointsLayer(nPoints);

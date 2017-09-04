@@ -29,7 +29,7 @@ public:
 		, LT_DR
 		, LT_Data
 	};
-	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0, double mx=0, double my = 0, double vx = 0, double vy = 0);
+	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0);
 public:
 	virtual void Draw()=0;
 	// add a point
@@ -49,12 +49,19 @@ public:
 	// reset length of sample points and period of the function
 	virtual void Reset(int nLen, int nPeriod) {};
 
-	// set the interpolation method
+	// set the interpolation method/ clusterin gmethod
 	virtual void SetMethod(int nMethod) {};
 
 	// set the method to generate the source
 	virtual void SetSource(int nSource) {};
+
 	virtual void SetRadius(double r) { _dbPhiRadius = r; };
+
+
+	virtual void SetClusteringMethod(int method) { _nClusteringMethod = method; UpdateLayer();};
+	virtual void SetMinPts(int minPts) { _nMinPts = minPts; UpdateLayer();};
+
+	virtual void SetEps(double eps) { _dbEps = eps; UpdateLayer(); };
 public:
 	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
 
@@ -64,6 +71,10 @@ protected:
 
 	// radius for phi function
 	double _dbPhiRadius=1;
+
+	double _dbEps = 1;
+	int _nMinPts = 10;
+	int _nClusteringMethod = 0;
 
 protected:// drawing
 	void DrawPoint(const DPoint3& p);

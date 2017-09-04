@@ -4,10 +4,10 @@
 
 using namespace std;
 
-BlueNoiseNormalPointsLayer::BlueNoiseNormalPointsLayer(int number, double mx, double my, double vx, double vy)
-	:SingleNormalPointsLayer(number, mx, my, vx, vy)
+BlueNoiseNormalPointsLayer::BlueNoiseNormalPointsLayer(int number)
+	:SingleNormalPointsLayer(number)
 {
-	generateNormalPoints(number, mx, my, vx, vy);
+	generateNormalPoints(number, 0, 0, .4,.2);
 }
 
 

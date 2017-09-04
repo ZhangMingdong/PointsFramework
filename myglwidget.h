@@ -87,13 +87,13 @@ public:
 	// generate number blue noise points
 	void GenerateBlueNoise(int number);
 	// generate number blue noise points
-	void GenerateBlueNoiseNormal(int number, double mx, double my, double vx, double vy);
+	void GenerateBlueNoiseNormal(int number);
 	// generate multiple class blue noise points of the given number
 	void GenerateMulticlassBlueNoise(int number);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
-	void GenerateNormalPoints(int number,double mx,double my,double vx,double vy);
+	void GenerateNormalPoints(int number);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
-	void GenerateMVNPoints(int number, double mx, double my, double vx, double vy);
+	void GenerateMVNPoints(int number);
 	// generate a sequene
 	void GenerateSequence();
 	// generate a 2D sequene
@@ -224,6 +224,12 @@ private:
 	int _nSampleLen;
 	int _nSamplePeriod;
 
+	// for clustering
+	int _nClusteringMethod=0;
+	int _nMinPts=10;
+	double _dbEps = 1.0;
+
+
 
 public slots:
 	void onShowBackground(bool bChecked);
@@ -233,6 +239,10 @@ public slots:
 	void updateMethod(int method);
 	void updateSource(int source);
 	void updateRadius(double r);
+	// for clustering
+	void updateMinPts(int minPts);
+	void updateEps(double eps);
+	void updateClusteringMethod(int method);
 };
 
 #endif // MYGLWIDGET_H

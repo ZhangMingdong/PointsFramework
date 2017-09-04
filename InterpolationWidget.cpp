@@ -61,6 +61,7 @@ void InterpolationWidget::updateMethod(int method)
 {
 	emit methodChanged(method);
 }
+
 void InterpolationWidget::updateSource(int source)
 {
 	emit sourceChanged(source);

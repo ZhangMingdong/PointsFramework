@@ -1,5 +1,6 @@
 #include "pointsframework.h"
 #include "InterpolationWidget.h"
+#include "ClusteringWidget.h"
 #include <QDockWidget>
 
 PointsFramework::PointsFramework(QWidget *parent)
@@ -42,6 +43,12 @@ void PointsFramework::createDockWidgets(){
 	pDockWidgetInterpolation->setWidget(_pWidgetInterpolation);
 	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetInterpolation);
 
+	_pWidgetClustering = new ClusteringWidget();
+	QDockWidget *pDockWidgetClustering = new QDockWidget(tr("Clustering"), this);
+	pDockWidgetClustering->setFeatures(features);
+	pDockWidgetClustering->setWidget(_pWidgetClustering);
+	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetClustering);
+
 }
 
 void PointsFramework::createConnections(){
@@ -71,6 +78,12 @@ void PointsFramework::createConnections(){
 	connect(_pWidgetInterpolation, SIGNAL(methodChanged(int)), pWidget, SLOT(updateMethod(int)));
 	connect(_pWidgetInterpolation, SIGNAL(sourceChanged(int)), pWidget, SLOT(updateSource(int)));
 	connect(_pWidgetInterpolation, SIGNAL(radiusChanged(double)), pWidget, SLOT(updateRadius(double)));
+
+	// clustering widget
+
+	connect(_pWidgetClustering, SIGNAL(methodChanged(int)), pWidget, SLOT(updateClusteringMethod(int)));
+	connect(_pWidgetClustering, SIGNAL(minPtsChanged(int)), pWidget, SLOT(updateMinPts(int)));
+	connect(_pWidgetClustering, SIGNAL(epsChanged(double)), pWidget, SLOT(updateEps(double)));
 }
 
 void PointsFramework::onGenerateRandomClicked(){
@@ -107,7 +120,7 @@ void PointsFramework::onGenerateBlueNoiseNormalClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateBlueNoiseNormal(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->GenerateBlueNoiseNormal(_pControlWidget->ui.spinBoxNum->value());
 	int t = GetTickCount() - t1;
 	QString s1 = QStringLiteral("生成正态蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -127,13 +140,13 @@ void PointsFramework::onGenerateMulticlassBlueNoiseClicked() {
 }
 void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
-	pWidget->GenerateNormalPoints(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->GenerateNormalPoints(_pControlWidget->ui.spinBoxNum->value());
 	pWidget->updateGL();
 }
 
 void PointsFramework::onGenerateMultiNormalClicked() {
 	// generate normal points
-	pWidget->GenerateMVNPoints(_pControlWidget->ui.spinBoxNum->value(), 0, 0, .4, .2);
+	pWidget->GenerateMVNPoints(_pControlWidget->ui.spinBoxNum->value());
 	pWidget->updateGL();
 
 }

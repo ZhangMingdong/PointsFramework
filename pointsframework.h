@@ -7,6 +7,7 @@
 #include "pointscontrolwidget.h"
 
 class InterpolationWidget;
+class ClusteringWidget;
 
 class PointsFramework : public QMainWindow
 {
@@ -20,6 +21,7 @@ private:
 	MyGLWidget* pWidget;
 	PointsControlWidget* _pControlWidget;
 	InterpolationWidget* _pWidgetInterpolation;
+	ClusteringWidget* _pWidgetClustering;
 protected:
 	void createDockWidgets();
 	void createConnections();

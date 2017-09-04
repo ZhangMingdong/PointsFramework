@@ -246,6 +246,22 @@ void MyGLWidget::Draw()
 	if (_pLayer)
 		_pLayer->Draw();
 
+	glColor3f(0, 1.0, 0);
+	glBegin(GL_LINES);
+	glVertex2d(-1.0, -1.0);
+	glVertex2d(-1.0, 1.0);
+	glVertex2d(0.0, -1.0);
+	glVertex2d(0.0, 1.0);
+	glVertex2d(1.0, -1.0);
+	glVertex2d(1.0, 1.0);
+	glVertex2d(-1.0, -1.0);
+	glVertex2d(1.0, -1.0);
+	glVertex2d(-1.0, 0.0);
+	glVertex2d(1.0, 0.0);
+	glVertex2d(-1.0, 1.0);
+	glVertex2d(1.0, 1.0);
+	glEnd();
+
 
 	ReTransform();
 	OnPostRenderScene();
@@ -484,8 +500,7 @@ DistanceAndIndices MyGLWidget::CalcNearestPairOfPoints_DC(){
 // 生成number个随机点
 void MyGLWidget::GenerateRandomPoints(int number){
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Random
-		, _bShowBg, number);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random, _bShowBg, number);
 
 }
 
@@ -508,10 +523,10 @@ void MyGLWidget::GenerateBlueNoise(int number) {
 		, _bShowBg, number);
 }
 
-void MyGLWidget::GenerateBlueNoiseNormal(int number, double mx, double my, double vx, double vy) {
+void MyGLWidget::GenerateBlueNoiseNormal(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Blue
-		, _bShowBg, number, mx, my, vx, vy);
+		, _bShowBg, number);
 }
 
 void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
@@ -520,16 +535,16 @@ void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
 		, _bShowBg, number);
 }
 
-void MyGLWidget::GenerateNormalPoints(int number, double mx, double my, double vx, double vy) {
+void MyGLWidget::GenerateNormalPoints(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
-		, _bShowBg, number, mx, my, vx, vy);
+		, _bShowBg, number);
 }
 
-void MyGLWidget::GenerateMVNPoints(int number, double mx, double my, double vx, double vy) {
+void MyGLWidget::GenerateMVNPoints(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Multi
-		,_bShowBg, number, mx, my, vx, vy);
+		,_bShowBg, number);
 }
 
 // generate a sequene
@@ -555,9 +570,9 @@ void MyGLWidget::GenerateDataLayer() {
 // 开启\关闭手动选点
 void MyGLWidget::SetHandPoint(){
 	_bHandPoint = !_bHandPoint;
-	GenerateDuClassPoints();
-	if (_bHandPoint)
-	{
+//	GenerateDuClassPoints();
+	if (_bHandPoint&&_pLayer)
+	{		
 		_pLayer->Clear();
 	}
 	updateGL();
@@ -1176,13 +1191,37 @@ void MyGLWidget::updateMethod(int method) {
 		_pLayer->SetMethod(method);
 	updateGL();
 }
+
 void MyGLWidget::updateSource(int source) {
 	if (_pLayer)
 		_pLayer->SetSource(source);
 	updateGL();
 }
+
 void MyGLWidget::updateRadius(double r) {
 	if (_pLayer)
 		_pLayer->SetRadius(r);
+	updateGL();
+}
+
+
+void MyGLWidget::updateMinPts(int minPts) {
+	_nMinPts = minPts;
+	if (_pLayer)
+		_pLayer->SetMinPts(_nMinPts);
+	updateGL();
+}
+
+void MyGLWidget::updateEps(double eps) {
+	_dbEps = eps;
+	if (_pLayer)
+		_pLayer->SetEps(_dbEps);
+	updateGL();
+}
+
+void MyGLWidget::updateClusteringMethod(int method) {
+	_nClusteringMethod = method;
+	if (_pLayer)
+		_pLayer->SetClusteringMethod(method);
 	updateGL();
 }

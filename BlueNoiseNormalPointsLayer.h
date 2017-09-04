@@ -9,7 +9,7 @@ class BlueNoiseNormalPointsLayer :
 	public SingleNormalPointsLayer
 {
 public:
-	BlueNoiseNormalPointsLayer(int number, double mx, double my, double vx, double vy);
+	BlueNoiseNormalPointsLayer(int number);
 	virtual ~BlueNoiseNormalPointsLayer();
 protected:
 	// generate a list of points obey the normal distribution
