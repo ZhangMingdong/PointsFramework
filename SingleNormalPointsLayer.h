@@ -22,8 +22,9 @@ public:
 	virtual void SetMethod(int nMethod);
 	// set the method to generate the source
 	virtual void SetSource(int nSource);
-	// set the radius for phi function;
-	virtual void SetRadius(double r);
+
+	// update this layer, used for the display of classes in multiclass blue noise layer
+	virtual void UpdateLayer();
 protected:
 	// generate the texture by confidence ellipse
 	void generateTextureByConfidenceEllipse();
@@ -33,6 +34,9 @@ protected:
 
 	// generate texture using simplicial depth and rbf
 	void generateTextureBySimplicialDepth();
+
+	// calculate simplicial depth
+	void calculateSimplicialSepth(std::vector<DPoint3>& points);
 
 	/*
 		generate texture by kernel density estimation
@@ -67,18 +71,29 @@ protected:
 	// generate dataset 5;
 	// data as described in "Visualizing Confidence in Cluster-based Ensemble Weather Forecast Analyses"
 	void generateDataset5();
+
+
+	// generate dataset 6: MVN;
+	void generateDataset6();
+
+	// generate dataset 7: variance;
+	void generateDataset7();	
+	
+	// generate dataset 8: mean;
+	void generateDataset8();
+
+	// generate dataset 9: 3 Gaussian with different density;
+	void generateDataset9();
+
+	void generateDataset10();
+
+	// perform clustering
+	void clustering();
 protected:
-	// length of the result
-	int _nResultLen = 800;
-	// radius of the result
-	double _dbRadius = 4;
 	// the texture renderer
 	TextureRenderer* _pTRenderer;
 	// the confidence ellipse
 	ConfidenceEllipse* _pCEllipse;
-
-	// points add depth value
-	std::vector<DPoint3> _sequence;
 
 	/*
 		interpolation method:
@@ -102,5 +117,13 @@ protected:
 
 	// length of source points
 	int _nSourceLen = 0;
+
+protected:		// for clustering
+
+	// number of clusters
+	int _nCluster=4;
+	// four cluster
+	std::vector<std::vector<DPoint3> > _clusteredPoints;
+	
 };
 

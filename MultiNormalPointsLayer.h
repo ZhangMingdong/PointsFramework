@@ -14,13 +14,13 @@ public:
 public:
 	virtual void Draw();
 	virtual void UpdateLayer();	
-	virtual void AddPoint(Point pt, bool bRight = false);
+	virtual void AddPoint(DPoint3 pt, bool bRight = false);
 	// clear the calculation and points for add points by hand
 	virtual void Clear();
 private:
 	// number of clusters
 	int _nCluster;
 	// four cluster
-	std::vector<std::vector<Point> > _clusteredPoints;
+	std::vector<std::vector<DPoint3> > _clusteredPoints;
 };
 

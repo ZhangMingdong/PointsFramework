@@ -10,11 +10,11 @@
 class ConfidenceEllipse
 {
 public:
-	ConfidenceEllipse(std::vector<Point> vecPts);
+	ConfidenceEllipse(std::vector<DPoint3> vecPts);
 	ConfidenceEllipse(std::vector<LabeledPoint> vecPts);
 	virtual ~ConfidenceEllipse();
 	// calculate alpha value of a given point
-	double CalculateAlpha(Point pt);
+	double CalculateAlpha(DPoint3 pt);
 protected:
 	int _nRow;
 	int _nCol=2;

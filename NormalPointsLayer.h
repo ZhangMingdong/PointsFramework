@@ -15,9 +15,10 @@ public:
 public:
 	virtual void Draw();
 protected:
-	// Point list
-	std::vector<Point> _points;
-	// the points list of the covering result
-	std::vector<Point> _pointsResult;
+	// DPoint3 list
+	std::vector<DPoint3> _points;
+	// grouped raw points
+	std::vector<std::vector<DPoint3> > _groupedPoints;
+
 };
 

@@ -2,6 +2,8 @@
 #include "InterpolationWidget.h"
 #include "ClusteringWidget.h"
 #include <QDockWidget>
+#include "DisplayWidget.h"
+#include "ControlWidget.h"
 
 PointsFramework::PointsFramework(QWidget *parent)
 	: QMainWindow(parent)
@@ -49,6 +51,18 @@ void PointsFramework::createDockWidgets(){
 	pDockWidgetClustering->setWidget(_pWidgetClustering);
 	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetClustering);
 
+	_pWidgetDisplay = new DisplayWidget();
+	QDockWidget *pDockWidgetDisplay = new QDockWidget(tr("Display"), this);
+	pDockWidgetDisplay->setFeatures(features);
+	pDockWidgetDisplay->setWidget(_pWidgetDisplay);
+	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetDisplay);
+
+	_pWidgetControl = new ControlWidget();
+	QDockWidget *pDockWidgetControl = new QDockWidget(tr("Control"), this);
+	pDockWidgetControl->setFeatures(features);
+	pDockWidgetControl->setWidget(_pWidgetControl);
+	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetControl);
+
 }
 
 void PointsFramework::createConnections(){
@@ -80,10 +94,17 @@ void PointsFramework::createConnections(){
 	connect(_pWidgetInterpolation, SIGNAL(radiusChanged(double)), pWidget, SLOT(updateRadius(double)));
 
 	// clustering widget
-
 	connect(_pWidgetClustering, SIGNAL(methodChanged(int)), pWidget, SLOT(updateClusteringMethod(int)));
 	connect(_pWidgetClustering, SIGNAL(minPtsChanged(int)), pWidget, SLOT(updateMinPts(int)));
 	connect(_pWidgetClustering, SIGNAL(epsChanged(double)), pWidget, SLOT(updateEps(double)));
+
+	// display widget
+	connect(_pWidgetDisplay, SIGNAL(pointSizeChanged(double)), pWidget, SLOT(updatePointSize(double)));
+
+	// control
+	connect(_pWidgetControl, SIGNAL(clusteringChanged(bool)), pWidget, SLOT(onClustering(bool)));
+	connect(_pWidgetControl, SIGNAL(interpolationChanged(bool)), pWidget, SLOT(onInterpolation(bool)));
+	connect(_pWidgetControl, SIGNAL(sdChanged(bool)), pWidget, SLOT(onSD(bool)));
 }
 
 void PointsFramework::onGenerateRandomClicked(){

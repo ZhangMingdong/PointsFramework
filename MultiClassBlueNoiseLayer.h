@@ -18,12 +18,12 @@ protected:
 	// generate the points
 	virtual void generatePoints(int nPoints);
 private:
-	// another Point list
-	std::vector<Point> _points2;
+	// another DPoint3 list
+	std::vector<DPoint3> _points2;
 	// which classes to show
 	int _nClassShow;
 
 	// array of the point list
-	std::vector<std::vector<Point>> _vecPoints;
+	std::vector<std::vector<DPoint3>> _vecPoints;
 };
 

@@ -44,11 +44,11 @@ void Sequence2DLayer::Sequence2DLayer::Draw() {
 
 
 		// draw field
-		if (_bShowBackground) {
-			float _fLeft = -_dbRadius;
-			float _fRight = _dbRadius;
-			float _fBottom = -_dbRadius;
-			float _fTop = _dbRadius;
+		if (_pSetting->_bShowBg) {
+			float _fLeft = -_pSetting->_dbRadius;
+			float _fRight = _pSetting->_dbRadius;
+			float _fBottom = -_pSetting->_dbRadius;
+			float _fTop = _pSetting->_dbRadius;
 			_pTRenderer->Draw(_fLeft, _fRight, _fTop, _fBottom);
 		}
 	}
@@ -123,18 +123,18 @@ void Sequence2DLayer::runRDF() {
 }
 
 void Sequence2DLayer::generateTexture() {
-	_pTRenderer = new TextureRenderer(_nResultLen, _nResultLen);
+	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
 	ColorMap* colormap = ColorMap::GetInstance();
 	// 2.generate result
-	double dbStep = _dbRadius * 2 / _nResultLen;
-	for (size_t i = 0; i < _nResultLen; i++)
+	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
+	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
 	{
-		for (size_t j = 0; j < _nResultLen; j++)
+		for (size_t j = 0; j < _pSetting->_nResultLen; j++)
 		{
-			double x = -_dbRadius + dbStep*j;
-			double y = -_dbRadius + dbStep*i;
+			double x = -_pSetting->_dbRadius + dbStep*j;
+			double y = -_pSetting->_dbRadius + dbStep*i;
 
-			int nIndex = i*_nResultLen + j;
+			int nIndex = i*_pSetting->_nResultLen + j;
 			MYGLColor color = colormap->GetColor(_interpolator.Calculate(x, y));
 			GLubyte bufData[4] = { color._rgb[0]
 				, color._rgb[1]

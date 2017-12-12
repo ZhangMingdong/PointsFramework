@@ -32,6 +32,11 @@ void InterpolationWidget::createWidgets() {
 	_pCombSource->addItem("Dataset3", 3);
 	_pCombSource->addItem("Dataset4", 4);
 	_pCombSource->addItem("Dataset5", 5);
+	_pCombSource->addItem("Dataset6(MVN)", 6);
+	_pCombSource->addItem("Dataset7(Var)", 7);
+	_pCombSource->addItem("Dataset8(Mean)", 8);
+	_pCombSource->addItem("Dataset9(3 Gaussian with different density)", 9);
+	_pCombSource->addItem("Dataset10", 10);
 
 	_pSpinBoxR = new QDoubleSpinBox;
 	_pSpinBoxR->setRange(0.1, 1.0);

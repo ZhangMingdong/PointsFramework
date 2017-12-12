@@ -8,6 +8,8 @@
 
 class InterpolationWidget;
 class ClusteringWidget;
+class DisplayWidget;
+class ControlWidget;
 
 class PointsFramework : public QMainWindow
 {
@@ -22,6 +24,8 @@ private:
 	PointsControlWidget* _pControlWidget;
 	InterpolationWidget* _pWidgetInterpolation;
 	ClusteringWidget* _pWidgetClustering;
+	DisplayWidget* _pWidgetDisplay;
+	ControlWidget* _pWidgetControl;
 protected:
 	void createDockWidgets();
 	void createConnections();

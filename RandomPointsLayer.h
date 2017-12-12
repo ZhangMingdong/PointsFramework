@@ -15,16 +15,15 @@ public:
 	virtual ~RandomPointsLayer();
 public:
 	virtual void Draw();
-	virtual void AddPoint(Point pt, bool bRight = false);
+	virtual void AddPoint(DPoint3 pt, bool bRight = false);
 	virtual DistanceAndIndices Calculate(bool bDC);
 	virtual void Clear();
 protected:
-	// Point list
-	std::vector<Point> _points;
+	// DPoint3 list
+	std::vector<DPoint3> _points;
 	// another point list
-	std::vector<Point> _pointsR;
-	// the points list of the covering result
-	std::vector<Point> _pointsResult;
+	std::vector<DPoint3> _pointsR;
+
 	// Ids of the nearest pair of points and their distance
 	DistanceAndIndices _result;
 	// if already calculated

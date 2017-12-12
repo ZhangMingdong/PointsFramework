@@ -10,6 +10,7 @@
 
 #include "ColorMap.h"
 
+
 MultiNormalPointsLayer::MultiNormalPointsLayer(int number):_nCluster(0)
 {
 	_nCluster = 4;
@@ -21,7 +22,7 @@ MultiNormalPointsLayer::MultiNormalPointsLayer(int number):_nCluster(0)
 	// 1.generate points
 	bool bMVN = true;
 	if (bMVN) {
-		double dbScale = 5;
+		double dbScale = 2;
 
 		GenerateNormalPoints(_points, number / _nCluster, mx - vx * dbScale, my - vy * dbScale, vx, vy);
 		GenerateNormalPoints(_points,number / _nCluster, mx - vx * dbScale, my + vy * dbScale, vx, vy);
@@ -49,6 +50,7 @@ MultiNormalPointsLayer::~MultiNormalPointsLayer()
 }
 
 void MultiNormalPointsLayer::Draw() {
+	glPointSize(_pSetting->_dbPointSize);
 	// 2.draw clustered points
 	if (_clusteredPoints.size()>0)
 	{
@@ -76,7 +78,7 @@ void MultiNormalPointsLayer::Draw() {
 		}
 	}
 	// 1.draw raw points
-	if (_bShowBackground) {
+	if (_pSetting->_bShowBg) {
 		glColor3f(.9, .9, .9);
 		glBegin(GL_POINTS);
 		for (size_t i = 0, length = _points.size(); i < length; i++)
@@ -98,7 +100,7 @@ void MultiNormalPointsLayer::UpdateLayer() {
 	int number = _points.size();
 
 	CLUSTER::Clustering* pClusterer = NULL;
-	switch (_nClusteringMethod)
+	switch (_pSetting->_nClusteringMethod)
 	{
 	case 0:
 		_nCluster = 4;
@@ -111,7 +113,7 @@ void MultiNormalPointsLayer::UpdateLayer() {
 	case 2:
 		{
 			CLUSTER::DBSCANClustering* pSBSCAN = new CLUSTER::DBSCANClustering();
-			pSBSCAN->SetDBSCANParams(_nMinPts, _dbEps);
+			pSBSCAN->SetDBSCANParams(_pSetting->_nMinPts, _pSetting->_dbEps);
 			pClusterer = pSBSCAN;
 		}
 		break;
@@ -132,7 +134,7 @@ void MultiNormalPointsLayer::UpdateLayer() {
 	_clusteredPoints.clear();
 	for (size_t i = 0; i < _nCluster; i++)
 	{
-		_clusteredPoints.push_back(std::vector<Point>());
+		_clusteredPoints.push_back(std::vector<DPoint3>());
 	}
 	for (size_t i = 0; i < number; i++)
 	{
@@ -151,9 +153,10 @@ void MultiNormalPointsLayer::UpdateLayer() {
 	delete arrLabel;
 }
 
-void MultiNormalPointsLayer::AddPoint(Point pt, bool bRight) {
+void MultiNormalPointsLayer::AddPoint(DPoint3 pt, bool bRight) {
 	_points.push_back(pt);
 }
+
 // clear the calculation and points for add points by hand
 void MultiNormalPointsLayer::Clear() {
 	_points.clear();

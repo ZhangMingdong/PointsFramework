@@ -8,7 +8,9 @@
 #include <gl/GLU.h>
 
 
+
 class ILayer;
+class LayerSetting;
 
 class MyGLWidget : public QGLWidget
 {
@@ -218,19 +220,9 @@ public:
 	void DrawRect3D(const DPoint3& pt1, const DPoint3& pt2);
 private:
 	ILayer *_pLayer;	// current layer
-	bool _bShowBg;		// whether show background
 
-	// for sampling
-	int _nSampleLen;
-	int _nSamplePeriod;
-
-	// for clustering
-	int _nClusteringMethod=0;
-	int _nMinPts=10;
-	double _dbEps = 1.0;
-
-
-
+	// setting for the layers
+	LayerSetting* _pLayerSetting = NULL;
 public slots:
 	void onShowBackground(bool bChecked);
 	void onUpdateLayer();
@@ -243,6 +235,12 @@ public slots:
 	void updateMinPts(int minPts);
 	void updateEps(double eps);
 	void updateClusteringMethod(int method);
+	// for display
+	void updatePointSize(double ps);
+	// for control
+	void onClustering(bool b);
+	void onInterpolation(bool b);
+	void onSD(bool b);
 };
 
 #endif // MYGLWIDGET_H

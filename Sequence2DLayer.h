@@ -29,10 +29,8 @@ private:
 	std::vector<DPoint3> _sequence;
 
 
-	// length of the result
-	int _nResultLen = 100;
-	// radius of the result
-	double _dbRadius = 2;
+
+
 	// the interpolator
 	RBFInterpolator _interpolator;
 

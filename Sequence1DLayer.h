@@ -18,13 +18,13 @@ public:
 	virtual void Reset(int nLen, int nPeriod);
 private:
 	// the original sequence
-	std::vector<Point> _sequence;
+	std::vector<DPoint3> _sequence;
 	// RBF interpolation result of the sequence
-	std::vector<Point> _sequenceResultRBF;
+	std::vector<DPoint3> _sequenceResultRBF;
 	// Lagrangian interpolation result of the sequence
-	std::vector<Point> _sequenceResultLagrangian;
+	std::vector<DPoint3> _sequenceResultLagrangian;
 	// KDE interpolation result of the sequence
-	std::vector<Point> _sequenceResultKDE;
+	std::vector<DPoint3> _sequenceResultKDE;
 
 
 	std::vector<double> a, b;

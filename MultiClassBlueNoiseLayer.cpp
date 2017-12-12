@@ -95,7 +95,7 @@ void MultiClassBlueNoiseLayer::generatePoints(int nPoints) {
 		for (size_t i = 0; i < nClass; i++)
 		{
 			// vector for this class
-			std::vector<Point> points;
+			std::vector<DPoint3> points;
 			//		int nLen1 = _points.size();
 			int nGeneratedPoints = 0;					// number of generated points
 			int nCount = 0;								// count the darting times

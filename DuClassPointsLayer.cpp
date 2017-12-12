@@ -53,7 +53,7 @@ void DuClassPointsLayer::Draw() {
 	update the parateters
 	nClass=1/-1;
 */
-void updateW(double* pW, Point pt, int nClass,double dbDelta,double dbLambda) {
+void updateW(double* pW, DPoint3 pt, int nClass,double dbDelta,double dbLambda) {
 	double dbBias = pW[0] * pt.x + pW[1] * pt.y + pW[2] - nClass*dbDelta;
 	if (nClass*dbBias<0)
 	{
@@ -72,12 +72,12 @@ void DuClassPointsLayer::UpdateLayer() {
 	{
 		for (size_t j = 0,length=_points.size(); j < length; j++)
 		{
-			Point pt = _points[j];
+			DPoint3 pt = _points[j];
 			updateW(_arrW, pt, 1, dbDelta, dbLambda);
 		}
 		for (size_t j = 0, length = _pointsR.size(); j < length; j++)
 		{
-			Point pt = _pointsR[j];
+			DPoint3 pt = _pointsR[j];
 			updateW(_arrW, pt, -1, dbDelta, dbLambda);
 		}
 	}
@@ -88,7 +88,7 @@ void DuClassPointsLayer::Clear() {
 	_pointsR.clear();
 }
 
-void DuClassPointsLayer::AddPoint(Point pt, bool bRight) {
+void DuClassPointsLayer::AddPoint(DPoint3 pt, bool bRight) {
 	if (bRight)
 	{
 		_pointsR.push_back(pt);

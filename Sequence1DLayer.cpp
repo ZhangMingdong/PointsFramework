@@ -9,7 +9,7 @@
 #include <gl/GLU.h>
 #include "MathFunction.h"
 
-void forwardDFT(const std::vector<Point> s, int nLen, std::vector<double>& a, std::vector<double>& b)
+void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, std::vector<double>& b)
 {
 	// note: this code is not optimised at all, written for clarity not speed.
 	for (int k = 0; k <= nLen / 2; ++k) {
@@ -127,11 +127,11 @@ void Sequence1DLayer::doLagrangian() {
 		double y = 0;
 		for (size_t j = 0; j < nLen; j++)
 		{
-			Point ptj = _sequence[j];
+			DPoint3 ptj = _sequence[j];
 			double l = 1;
 			for (size_t k = 0; k < nLen; k++)
 			{
-				Point ptk = _sequence[k];
+				DPoint3 ptk = _sequence[k];
 				if (k != j) {
 					l *= (x-ptk.x) / (ptj.x-ptk.x);
 				}

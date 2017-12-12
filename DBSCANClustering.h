@@ -5,21 +5,39 @@
 // 2017/05/26
 // ============================================================
 #pragma once
-#include "Clustering.h"
+#include "DensityBasedClustering.h"
 namespace CLUSTER {
-	class DBSCANClustering : public Clustering
+	class DBSCANClustering : public DensityBasedClustering
 	{
 	public:
 		DBSCANClustering();
 		virtual ~DBSCANClustering();
-	private:
-		// clustering parameters
-		int _nMinPts=100;
-		double _dbEps=.5;
+
+
+
 	protected:
-		virtual void doCluster();
-	public:		
-		virtual void SetDBSCANParams(int minPts, double eps) { _nMinPts = minPts; _dbEps = eps; };
+		// implementation of dbscan algorithm
+		virtual void run();
+		/* 
+			expand form a unclassified point, 
+			input: the index of the point to expand, the curent cluster id
+			return the state of this point
+		*/
+		int expand(unsigned int index, unsigned int cluster_id);
+
+		// spread the cluster id for this index
+		int spread(
+			unsigned int index,
+			epsilon_neighbours_t *seeds,
+			unsigned int cluster_id);
+
+
+
+
+		// get the weight of its neighbors
+		double getNeighborWeight(unsigned uiIndex,epsilon_neighbours_t* neighbors);
+
+
 	};
 
 }

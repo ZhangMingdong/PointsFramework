@@ -12,12 +12,12 @@
 #include "SpiralPointsLayer.h"
 #include "DRLayer.h"
 #include "DataLayer.h"
+#include "LayerSetting.h"
 
 #include <random>
 using namespace std;
 
-ILayer::ILayer():_bShowBackground(false)
-{
+ILayer::ILayer(){
 }
 
 
@@ -25,7 +25,7 @@ ILayer::~ILayer()
 {
 }
 
-ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints) {
+ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int nPoints) {
 	ILayer* pLayer = NULL;
 	switch (type)
 	{
@@ -70,7 +70,7 @@ ILayer* ILayer::CreateLayer(EnumLayerType type,bool bShowBg, int nPoints) {
 	}
 	if (pLayer) {
 
-		pLayer->_bShowBackground = bShowBg;
+		pLayer->_pSetting = pSetting;
 		pLayer->Initialize();
 	}
 	
@@ -130,7 +130,7 @@ void ILayer::DrawCircle(DPoint3 center, double radius)
 }
 
 
-bool ILayer::distanceCheck(const Point& pt, const std::vector<Point>& list, double dis) {
+bool ILayer::distanceCheck(const DPoint3& pt, const std::vector<DPoint3>& list, double dis) {
 	int nLen = list.size();
 	for (size_t i = 0; i < nLen; i++)
 	{
@@ -143,7 +143,7 @@ bool ILayer::distanceCheck(const Point& pt, const std::vector<Point>& list, doub
 	return true;
 }
 
-void ILayer::GenerateNormalPoints(std::vector<Point>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX, double dbBiasY) {
+void ILayer::GenerateNormalPoints(std::vector<DPoint3>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX, double dbBiasY) {
 	//default_random_engine generator;//如果用这个默认的引擎，每次生成的随机序列是相同的。
 	random_device rd;
 	mt19937 gen(rd());
@@ -161,7 +161,7 @@ void ILayer::GenerateNormalPoints(std::vector<Point>& vecPts,int number, double 
 
 
 // generate a list of points obey the random distribution
-void ILayer::GenerateRandomPoints(std::vector<Point>& vecPts, int number, double x, double y, double r) {
+void ILayer::GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x, double y, double r) {
 	for (int i = 0; i < number; i++)
 	{
 		double randomR = rand() / (double)RAND_MAX*r;

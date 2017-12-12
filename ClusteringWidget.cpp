@@ -23,6 +23,7 @@ void ClusteringWidget::createWidgets() {
 	_pCombMethod->addItem("AHC", 0);
 	_pCombMethod->addItem("K-Means", 1);
 	_pCombMethod->addItem("DBSCAN", 2);
+	_pCombMethod->addItem("OPTICS", 3);
 
 	_pSpinBoxMinPts = new QSpinBox;
 	_pSpinBoxMinPts->setRange(1,1000);
@@ -31,11 +32,13 @@ void ClusteringWidget::createWidgets() {
 	_pSpinBoxMinPts->setSingleStep(1);
 
 	_pSpinBoxEps = new QDoubleSpinBox;
+//	_pSpinBoxEps->setRange(0.01, 1.0);
+//	_pSpinBoxEps->setSingleStep(0.01);
 	_pSpinBoxEps->setRange(0.1, 1.0);
+	_pSpinBoxEps->setSingleStep(0.1);
 	_pSpinBoxEps->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 	_pSpinBoxEps->setValue(1.0);
-	_pSpinBoxEps->setSingleStep(0.1);
-	_pSpinBoxEps->setDecimals(1);
+	_pSpinBoxEps->setDecimals(2);
 }
 
 void ClusteringWidget::createLayout() {

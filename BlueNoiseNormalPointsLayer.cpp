@@ -37,7 +37,7 @@ void BlueNoiseNormalPointsLayer::generateNormalPoints(int number, double mx, dou
 	{
 		double x = normalx(gen);
 		double y = normaly(gen);
-		Point newPt(DPoint3(x, y, 0));
+		DPoint3 newPt(DPoint3(x, y, 0));
 		if (distanceCheck(newPt,_points,dbDis))
 		{
 			_points.push_back(DPoint3(x, y, 0));

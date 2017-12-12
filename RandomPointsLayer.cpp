@@ -13,7 +13,7 @@ double calcDis(DPoint3 pt1, DPoint3 pt2) {
 }
 
 // 按照Y坐标快排
-void QsortY(Point* pts, int low, int high)
+void QsortY(DPoint3* pts, int low, int high)
 {
 	if (low >= high)
 	{
@@ -21,7 +21,7 @@ void QsortY(Point* pts, int low, int high)
 	}
 	int first = low;
 	int last = high;
-	Point key = pts[first];/*用字表的第一个记录作为枢轴*/
+	DPoint3 key = pts[first];/*用字表的第一个记录作为枢轴*/
 	while (first<last)
 	{
 		while (first<last&&pts[last].y >= key.y)
@@ -37,7 +37,7 @@ void QsortY(Point* pts, int low, int high)
 }
 
 // 按照X坐标快排
-void QsortX(Point* pts, int low, int high)
+void QsortX(DPoint3* pts, int low, int high)
 {
 	if (low >= high)
 	{
@@ -45,7 +45,7 @@ void QsortX(Point* pts, int low, int high)
 	}
 	int first = low;
 	int last = high;
-	Point key = pts[first];/*用字表的第一个记录作为枢轴*/
+	DPoint3 key = pts[first];/*用字表的第一个记录作为枢轴*/
 	while (first<last)
 	{
 		while (first<last&&pts[last].x >= key.x)
@@ -63,7 +63,7 @@ void QsortX(Point* pts, int low, int high)
 // 计算ptsX中下标从low到high之间最短距离的点对
 // 返回其距离，index1，index2分别返回两个点的索引
 // ptsY为辅助空间
-double calcShortestDistance(const Point* ptsX, Point* ptsY, int low, int high, int &index1, int &index2)
+double calcShortestDistance(const DPoint3* ptsX, DPoint3* ptsY, int low, int high, int &index1, int &index2)
 {
 	double dis = 100000;
 	int size = high - low + 1;
@@ -205,8 +205,8 @@ DistanceAndIndices RandomPointsLayer::Calculate(bool bDC) {
 	if (bDC)
 	{
 		// 1.将点列置入临时缓冲区，并设置序号(n)
-		Point* pTempX = new Point[nLen];
-		Point* pTempY = new Point[nLen];
+		DPoint3* pTempX = new DPoint3[nLen];
+		DPoint3* pTempY = new DPoint3[nLen];
 		for (int i = 0; i<nLen; i++)
 		{
 			pTempX[i] = _points[i];
@@ -252,7 +252,7 @@ void RandomPointsLayer::Clear() {
 }
 
 
-void RandomPointsLayer::AddPoint(Point pt, bool bRight) {
+void RandomPointsLayer::AddPoint(DPoint3 pt, bool bRight) {
 	if (bRight)
 	{
 		_pointsR.push_back(pt);

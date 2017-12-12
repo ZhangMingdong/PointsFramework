@@ -2,7 +2,7 @@
 
 #include "MathFunction.h"
 
-ConfidenceEllipse::ConfidenceEllipse(std::vector<Point> vecPts):_nRow(vecPts.size()),_nCol(2)
+ConfidenceEllipse::ConfidenceEllipse(std::vector<DPoint3> vecPts):_nRow(vecPts.size()),_nCol(2)
 {
 	_pD = new Array2D<double>(_nRow, _nCol);
 	_pCM = new Array2D<double>(_nCol, _nCol);
@@ -77,7 +77,7 @@ ConfidenceEllipse::~ConfidenceEllipse()
 }
 
 
-double ConfidenceEllipse::CalculateAlpha(Point pt) {
+double ConfidenceEllipse::CalculateAlpha(DPoint3 pt) {
 
 	Array2D<double> m0(1, 2);
 	Array2D<double> m1(2, 1);

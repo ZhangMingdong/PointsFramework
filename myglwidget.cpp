@@ -9,6 +9,7 @@
 
 
 #include "ILayer.h"
+#include "LayerSetting.h"
 
 #include <assert.h>
 #include <fstream>
@@ -35,9 +36,7 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 //	, m_clearColor(.6, .6, .4, 1.0)
 	, m_clearColor(0, 0, 0, 1.0)
 	, _pLayer(0)
-	, _bShowBg(false)
-	, _nSampleLen(10)
-	, _nSamplePeriod(1)
+
 {
 	OnCreate();
 	SetPointSize(2.0f);
@@ -49,10 +48,14 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	m_dbZFar = 1500.0;
 	m_nClientH = m_nClientW = 1;
 
+	_pLayerSetting = new LayerSetting();
+
 }
 
 MyGLWidget::~MyGLWidget()
 {
+	delete _pLayerSetting;
+
 	Release();
 
 }
@@ -232,6 +235,9 @@ void MyGLWidget::Release()
 {
 	OnDestroy();
 }
+const double SQRT_3 = 1.732;
+const double arrX[6] = { 2,1,-1,-2,-1,1 };
+const double arrY[6] = { 0,SQRT_3 ,SQRT_3 ,0,-SQRT_3 ,-SQRT_3 };
 
 void MyGLWidget::Draw()
 {
@@ -243,24 +249,80 @@ void MyGLWidget::Draw()
 	// 	drawCoords();
 
 
+	// a circle
+	if(false)
+	{
+		double dbRadius = .019;
+		double dbRadiusII = (dbRadius + .001)*SQRT_3;
+		glBegin(GL_POLYGON);
+		for (size_t i = 0; i < 6; i++)
+		{
+			glVertex2f(dbRadius*arrX[i], dbRadius*arrY[i]);
+		}
+		glEnd();
+		for (size_t j = 0; j < 6; j++)
+		{
+			double dbX = arrY[j] * dbRadiusII;
+			double dbY = arrX[j] * dbRadiusII;
+			glBegin(GL_POLYGON);
+			for (size_t i = 0; i < 6; i++)
+			{
+				glVertex2f(dbX + dbRadius*arrX[i], dbY + dbRadius*arrY[i]);
+			}
+			glEnd();
+
+		}
+	}
+
+	// a table
+	if(true)
+	{
+		double dbRadius = .017;
+		double dbRadiusII = .02;
+		int nWidth = 20;
+		int nHeight = 20;
+		for (size_t i = 0; i < nHeight; i++)
+		{
+			for (size_t j = 0; j < nWidth; j++) {
+				double dbX = j * 3 * dbRadiusII;
+				double dbY = i*dbRadiusII * 2 * SQRT_3;
+				if (j%2)
+				{
+					dbY += dbRadiusII*SQRT_3;
+				}
+				glBegin(GL_POLYGON);
+				for (size_t iP = 0; iP < 6; iP++)
+				{
+					glVertex2f(dbX + dbRadius*arrX[iP], dbY + dbRadius*arrY[iP]);
+				}
+				glEnd();
+
+			}
+		}
+	}
+
+
 	if (_pLayer)
 		_pLayer->Draw();
 
-	glColor3f(0, 1.0, 0);
-	glBegin(GL_LINES);
-	glVertex2d(-1.0, -1.0);
-	glVertex2d(-1.0, 1.0);
-	glVertex2d(0.0, -1.0);
-	glVertex2d(0.0, 1.0);
-	glVertex2d(1.0, -1.0);
-	glVertex2d(1.0, 1.0);
-	glVertex2d(-1.0, -1.0);
-	glVertex2d(1.0, -1.0);
-	glVertex2d(-1.0, 0.0);
-	glVertex2d(1.0, 0.0);
-	glVertex2d(-1.0, 1.0);
-	glVertex2d(1.0, 1.0);
-	glEnd();
+	bool bDrawGrid = false;
+	if (bDrawGrid) {
+		glColor3f(0, 1.0, 0);
+		glBegin(GL_LINES);
+		glVertex2d(-1.0, -1.0);
+		glVertex2d(-1.0, 1.0);
+		glVertex2d(0.0, -1.0);
+		glVertex2d(0.0, 1.0);
+		glVertex2d(1.0, -1.0);
+		glVertex2d(1.0, 1.0);
+		glVertex2d(-1.0, -1.0);
+		glVertex2d(1.0, -1.0);
+		glVertex2d(-1.0, 0.0);
+		glVertex2d(1.0, 0.0);
+		glVertex2d(-1.0, 1.0);
+		glVertex2d(1.0, 1.0);
+		glEnd();
+	}
 
 
 	ReTransform();
@@ -500,7 +562,7 @@ DistanceAndIndices MyGLWidget::CalcNearestPairOfPoints_DC(){
 // 生成number个随机点
 void MyGLWidget::GenerateRandomPoints(int number){
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Random, _bShowBg, number);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random, _pLayerSetting, number);
 
 }
 
@@ -508,64 +570,64 @@ void MyGLWidget::GenerateDuClassPoints() {
 
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Dual
-		, _bShowBg);
+		, _pLayerSetting);
 }
 
 void MyGLWidget::GenerateSpiralPoints() {
 
 	if (_pLayer) delete _pLayer;	
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Spiral , _bShowBg);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Spiral , _pLayerSetting);
 }
 
 void MyGLWidget::GenerateBlueNoise(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue
-		, _bShowBg, number);
+		, _pLayerSetting, number);
 }
 
 void MyGLWidget::GenerateBlueNoiseNormal(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Blue
-		, _bShowBg, number);
+		, _pLayerSetting, number);
 }
 
 void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue_Mult
-		, _bShowBg, number);
+		, _pLayerSetting, number);
 }
 
 void MyGLWidget::GenerateNormalPoints(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
-		, _bShowBg, number);
+		, _pLayerSetting, number);
 }
 
 void MyGLWidget::GenerateMVNPoints(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Multi
-		,_bShowBg, number);
+		, _pLayerSetting, number);
 }
 
 // generate a sequene
 void MyGLWidget::GenerateSequence() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_1D, _bShowBg);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_1D, _pLayerSetting);
 }
 
 // generate a sequene
 void MyGLWidget::GenerateSequence2D() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_2D, _bShowBg);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Sequence_2D, _pLayerSetting);
 }
 
 void MyGLWidget::GenerateDR() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_DR, _bShowBg);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_DR, _pLayerSetting);
 }
 void MyGLWidget::GenerateDataLayer() {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Data, _bShowBg);
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Data, _pLayerSetting);
 }
 // 开启\关闭手动选点
 void MyGLWidget::SetHandPoint(){
@@ -815,7 +877,7 @@ void MyGLWidget::ZoomFitWrold(double e, double n, double w, double s)
 
 	char c[50];
 	sprintf(c, "ClientW:%d\nClientH:%d\n", m_nClientW, m_nClientH);
-	//Reset Eye Point
+	//Reset Eye DPoint3
 	m_pt3Eye = DPoint3((e + w) / 2, (n + s) / 2, m_pt3Eye.z);
 
 	//Get the Key factor(width or height which present a larger area)
@@ -1160,9 +1222,9 @@ void MyGLWidget::DrawRect3D(const DPoint3& pt1, const DPoint3& pt2)
 }
 
 void MyGLWidget::onShowBackground(bool bChecked) {
-	_bShowBg = bChecked;
-	if (_pLayer)
-		_pLayer->ShowBackground(bChecked);
+	_pLayerSetting->_bShowBg = bChecked;
+	//if (_pLayer)
+	//	_pLayer->ShowBackground(bChecked);
 	updateGL();
 }
 
@@ -1173,16 +1235,16 @@ void MyGLWidget::onUpdateLayer() {
 }
 
 void MyGLWidget::onSetSampleLen(int nLen) {
-	_nSampleLen = nLen;
+	_pLayerSetting->_nSampleLen = nLen;
 	if (_pLayer)
-		_pLayer->Reset(_nSampleLen, _nSamplePeriod);
+		_pLayer->Reset(_pLayerSetting->_nSampleLen, _pLayerSetting->_nSamplePeriod);
 	updateGL();
 }
 
 void MyGLWidget::onSetSamplePeriod(int nPeriod) {
-	_nSamplePeriod = nPeriod;
+	_pLayerSetting->_nSamplePeriod = nPeriod;
 	if (_pLayer)
-		_pLayer->Reset(_nSampleLen, _nSamplePeriod);
+		_pLayer->Reset(_pLayerSetting->_nSampleLen, _pLayerSetting->_nSamplePeriod);
 	updateGL();
 }
 
@@ -1199,29 +1261,51 @@ void MyGLWidget::updateSource(int source) {
 }
 
 void MyGLWidget::updateRadius(double r) {
+	_pLayerSetting->_dbRadius = r;
 	if (_pLayer)
-		_pLayer->SetRadius(r);
+		_pLayer->UpdateLayer();
 	updateGL();
 }
 
 
 void MyGLWidget::updateMinPts(int minPts) {
-	_nMinPts = minPts;
+	_pLayerSetting->_nMinPts = minPts;
 	if (_pLayer)
-		_pLayer->SetMinPts(_nMinPts);
+		_pLayer->UpdateLayer();
 	updateGL();
 }
 
 void MyGLWidget::updateEps(double eps) {
-	_dbEps = eps;
+	_pLayerSetting->_dbEps = eps;
 	if (_pLayer)
-		_pLayer->SetEps(_dbEps);
+		_pLayer->UpdateLayer();
 	updateGL();
 }
 
 void MyGLWidget::updateClusteringMethod(int method) {
-	_nClusteringMethod = method;
+	_pLayerSetting->_nClusteringMethod = method;
 	if (_pLayer)
-		_pLayer->SetClusteringMethod(method);
+		_pLayer->UpdateLayer();
 	updateGL();
+}
+
+
+void MyGLWidget::updatePointSize(double ps) {
+	_pLayerSetting->_dbPointSize = ps;
+
+	updateGL();
+}
+
+
+void MyGLWidget::onClustering(bool b) {
+	_pLayerSetting->_bClustering = b;
+	qDebug() << "onClustering";
+}
+void MyGLWidget::onInterpolation(bool b) {
+	_pLayerSetting->_bInterpolation = b;
+	qDebug() << "onInterpolation";
+}
+void MyGLWidget::onSD(bool b) {
+	_pLayerSetting->_bSD = b;
+	qDebug() << "onInterpolation";
 }

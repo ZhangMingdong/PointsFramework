@@ -2,7 +2,7 @@
 #include <MathTypes.hpp>
 
 
-
+#include "LayerSetting.h"
 /*
 	Interface of layer
 	Mingdong
@@ -29,11 +29,11 @@ public:
 		, LT_DR
 		, LT_Data
 	};
-	static ILayer* CreateLayer(EnumLayerType type,bool bShowBg,int nPoints=0);
+	static ILayer* CreateLayer(EnumLayerType type,const LayerSetting* pSetting,int nPoints=0);
 public:
 	virtual void Draw()=0;
 	// add a point
-	virtual void AddPoint(Point pt, bool bRight = false) {};
+	virtual void AddPoint(DPoint3 pt, bool bRight = false) {};
 	// calculate the nearest points pair
 	virtual DistanceAndIndices Calculate(bool bDC) {
 		return DistanceAndIndices();
@@ -55,17 +55,19 @@ public:
 	// set the method to generate the source
 	virtual void SetSource(int nSource) {};
 
-	virtual void SetRadius(double r) { _dbPhiRadius = r; };
+//	virtual void SetRadius(double r) { _dbPhiRadius = r; };
 
 
-	virtual void SetClusteringMethod(int method) { _nClusteringMethod = method; UpdateLayer();};
-	virtual void SetMinPts(int minPts) { _nMinPts = minPts; UpdateLayer();};
+//	virtual void SetClusteringMethod(int method) { _nClusteringMethod = method; UpdateLayer();};
+//	virtual void SetMinPts(int minPts) { _nMinPts = minPts; UpdateLayer();};
 
-	virtual void SetEps(double eps) { _dbEps = eps; UpdateLayer(); };
+//	virtual void SetEps(double eps) { _dbEps = eps; UpdateLayer(); };
 public:
-	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
+//	void ShowBackground(bool bShow) { _bShowBackground = bShow; }
+//	void SetPointSize(double ps) { _dbPointSize = ps; }
 
 protected:
+	/*
 	// whether show background
 	bool _bShowBackground;
 
@@ -75,6 +77,12 @@ protected:
 	double _dbEps = 1;
 	int _nMinPts = 10;
 	int _nClusteringMethod = 0;
+
+	// size of the point
+	double _dbPointSize = 1.0;
+	*/
+	// setting
+	const LayerSetting *_pSetting = NULL;
 
 protected:// drawing
 	void DrawPoint(const DPoint3& p);
@@ -86,15 +94,15 @@ protected:// drawing
 	void DrawCircle(DPoint3 center, double radius);
 
 	// return true if the distance between pt and every points in list are all larger than dis
-	bool distanceCheck(const Point& pt, const std::vector<Point>& list, double dis);
+	bool distanceCheck(const DPoint3& pt, const std::vector<DPoint3>& list, double dis);
 
 public:
 	// generate a list of points obey the normal distribution
-	static void GenerateNormalPoints(std::vector<Point>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX = 0, double dbBiasY = 0);
+	static void GenerateNormalPoints(std::vector<DPoint3>& vecPts,int number, double mx, double my, double vx, double vy, double dbBiasX = 0, double dbBiasY = 0);
 
 
 	// generate a list of points obey the random distribution
-	static void GenerateRandomPoints(std::vector<Point>& vecPts, int number, double x,double y,double r);
+	static void GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x,double y,double r);
 
 };
 

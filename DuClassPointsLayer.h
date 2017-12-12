@@ -11,15 +11,15 @@ public:
 	DuClassPointsLayer();
 	virtual ~DuClassPointsLayer();
 	virtual void Draw();
-	virtual void AddPoint(Point pt, bool bRight = false);
+	virtual void AddPoint(DPoint3 pt, bool bRight = false);
 	virtual void Clear();
 	virtual void UpdateLayer();
 private:
 
-	// Point list
-	std::vector<Point> _points;
+	// DPoint3 list
+	std::vector<DPoint3> _points;
 	// another point list
-	std::vector<Point> _pointsR;
+	std::vector<DPoint3> _pointsR;
 	// the parameter vector
 	double _arrW[3];
 };

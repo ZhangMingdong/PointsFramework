@@ -112,7 +112,7 @@ void SpiralPointsLayer::generateSpiralPoints() {
 
 void SpiralPointsLayer::generateMultiNormalPoints() {
 	
-	std::vector<Point> pts[3];
+	std::vector<DPoint3> pts[3];
 	double arrMX[3] = { -1,1,0 };
 	double arrMY[3] = { 1,1,-1 };
 	double arrDX[3] = { .5,.5,.5 };
@@ -120,7 +120,7 @@ void SpiralPointsLayer::generateMultiNormalPoints() {
 	for (size_t i = 0; i < 3; i++)
 	{
 		GenerateNormalPoints(pts[i], _nPointPerClass, arrMX[i], arrMY[i], arrDX[i], arrDY[i]);
-		for each (Point pt in pts[i])
+		for each (DPoint3 pt in pts[i])
 		{
 			_vecPoints.push_back(LabeledPoint(pt.x,pt.y,i));
 		}
