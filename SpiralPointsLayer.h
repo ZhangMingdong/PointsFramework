@@ -6,7 +6,7 @@
 #include "IMyClassifier.h"
 class BPNeuralNetwork;
 class LabeledVector;
-
+class TextureRenderer;
 
 /*
 	Layer to show the spiral points and the softmax and ann classifier
@@ -32,6 +32,7 @@ private:
 	std::vector<LabeledPoint> _vecPoints;
 	// points and labels of the result
 	std::vector<LabeledPoint> _vecResultPt;
+	std::vector<ColoredPoint> _vecResultPtColored;
 
 	// points of hidden layers
 	std::vector<LabeledPoint> _vecHiddenlayerPt;
@@ -79,6 +80,8 @@ private:
 
 	// generate points of the hidden layer
 	void generateHiddenLayerPoints();
-
+protected:
+	// the texture renderer
+	TextureRenderer* _pTRenderer = NULL;
 };
 

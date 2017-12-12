@@ -183,6 +183,9 @@ void L3AnnClassifier::trainStep(double dbStepSize, double dbReg) {
 }
 
 
+void L3AnnClassifier::CalcScores(const double* X, double* arrScores) {
+
+}
 int L3AnnClassifier::CalcLabel(const double* X) {
 	MyMatrix score(1, _nClass);
 	MyMatrix input(1, _nD);

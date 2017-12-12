@@ -29,6 +29,8 @@ public:
 	void Train(const MyMatrix* pInput, const int* pLabel);
 	// calculate the label of point
 	int CalcLabel(const double* X);
+	// calculate the scores of a point
+	virtual void CalcScores(const double* X, double* arrScores);
 	// get the nIndex column of the hidden layer
 	virtual void GetHiddenLayer(int nIndex, double* _arrBuf);
 private:

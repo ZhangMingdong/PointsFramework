@@ -275,7 +275,7 @@ void MyGLWidget::Draw()
 	}
 
 	// a table
-	if(true)
+	if(false)
 	{
 		double dbRadius = .017;
 		double dbRadiusII = .02;

@@ -18,8 +18,6 @@ Sequence2DLayer::Sequence2DLayer()
 
 Sequence2DLayer::~Sequence2DLayer()
 {
-
-
 	if (_pTRenderer) delete[] _pTRenderer;
 }
 

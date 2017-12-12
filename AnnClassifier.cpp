@@ -138,6 +138,38 @@ void AnnClassifier::trainStep(double dbStepSize, double dbReg) {
 }
 
 
+void AnnClassifier::CalcScores(const double* X,double* arrScores) {
+	MyMatrix score(1, _nClass);
+	MyMatrix input(1, _nD);
+	for (size_t i = 0; i < _nD; i++)
+	{
+		input.SetValue(0, i, X[i]);
+	}
+	MyMatrix hidden(1, _nHidden);
+	hidden.Formula(&input, _pW1, _pB1);
+	hidden.TrimNegative();
+	score.Formula(&hidden, _pW2, _pB2);
+
+	double dbSum = 0;
+	double dbMin = 10000;
+	for (size_t i = 0; i < _nClass; i++)
+	{
+		arrScores[i]= score.GetValue(0, i);
+		if (arrScores[i]<dbMin)
+		{
+			dbMin = arrScores[i];
+		}
+	}
+	for (size_t i = 0; i < _nClass; i++)
+	{
+		arrScores[i] -= dbMin;
+		dbSum += arrScores[i];
+	}
+	for (size_t i = 0; i < _nClass; i++)
+	{
+		arrScores[i] /= dbSum;
+	}
+}
 int AnnClassifier::CalcLabel(const double* X) {
 	MyMatrix score(1, _nClass);
 	MyMatrix input(1, _nD);

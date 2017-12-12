@@ -94,6 +94,9 @@ void SoftMaxClassifier::trainStep(double dbStepSize, double dbReg) {
 }
 
 
+void SoftMaxClassifier::CalcScores(const double* X, double* arrScores) {
+
+}
 int SoftMaxClassifier::CalcLabel(const double* X) {
 	MyMatrix score(1, _nClass);
 	MyMatrix input(1, _nD);
