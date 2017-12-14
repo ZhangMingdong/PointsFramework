@@ -23,8 +23,9 @@
 
 
 const double c_dbK = 1.0 / sqrt(PI2d);
+const double c_dbEpsilon = 1;
 inline double KernelFun(double para) {
-	return c_dbK*exp(-para*para / 2.0);
+	return c_dbK*exp(-para*para / 2.0/c_dbEpsilon/c_dbEpsilon);
 }
 
 SingleNormalPointsLayer::SingleNormalPointsLayer(int number):_pTRenderer(NULL)
@@ -142,19 +143,20 @@ void SingleNormalPointsLayer::generateTextureByConfidenceEllipse() {
 			double y = -_pSetting->_dbRadius + j*0.01;
 
 			double alpha = _pCEllipse->CalculateAlpha(DPoint3(x, y, 0));
+			cout << alpha << endl;
 			double dbOpacity = 1 - alpha / 5.0;
 			if (dbOpacity < 0) dbOpacity = 0;
 
 
 			int nIndex = j*_pSetting->_nResultLen + i;
 
-			//GLubyte bufData[4] = { (GLubyte)255, (GLubyte)255, 0, (GLubyte)(dbOpacity * 255) };
+			GLubyte bufData[4] = { (GLubyte)255, (GLubyte)255, 0, (GLubyte)(dbOpacity * 255) };
 
-			MYGLColor color = colormap->GetColor(dbOpacity*6);
-			GLubyte bufData[4] = { color._rgb[0]
-				, color._rgb[1]
-				, color._rgb[2]
-				, (GLubyte)255 };
+//			MYGLColor color = colormap->GetColor(dbOpacity*6);
+//			GLubyte bufData[4] = { color._rgb[0]
+//				, color._rgb[1]
+//				, color._rgb[2]
+//				, (GLubyte)255 };
 
 			_pTRenderer->SetTextureData(nIndex, bufData);
 		}
@@ -163,12 +165,11 @@ void SingleNormalPointsLayer::generateTextureByConfidenceEllipse() {
 }
 
 void SingleNormalPointsLayer::generateTextureByRBF() {
+	// 0.set the value of z to 1 of the sample points
 	vector<DPoint3> sequence;
-	vector<DPoint3> sequenceResult;
-	// set the value of z to 1 of the sample points
 	for each (DPoint3 pt in _points)
 	{
-		sequence.push_back(DPoint3(pt.x, pt.y, pt.z));
+		sequence.push_back(DPoint3(pt.x, pt.y, 1));
 	}
 
 	// 1.build the interpolator
@@ -177,9 +178,9 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 
 	ColorMap* colormap = ColorMap::GetInstance(ColorMap::CP_RainBow);
 
-	// 2.generate result
+	// 2.create a new instance for the renderer
 	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
-	// 2.generate result
+	// 3.generate the renderer
 	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
 	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
 	{
@@ -187,23 +188,15 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 		{
 			double x = -_pSetting->_dbRadius + dbStep*j;
 			double y = -_pSetting->_dbRadius + dbStep*i;
-
+			// for each grid point(x,y)
 			int nIndex = i*_pSetting->_nResultLen + j;
-
-			/*
-			// not use color map
-			GLubyte bufData[4] = { (GLubyte)255
-				, 0
-				, 0
-				, (GLubyte)(_interpolator.Calculate(x, y)*255) };
-				*/
-			MYGLColor color = colormap->GetColor(_interpolator.Calculate(x, y));
+			double dbResult = _interpolator.Calculate(x, y);
+			MYGLColor color = colormap->GetColor(dbResult);
 			GLubyte bufData[4] = { color._rgb[0]
 				, color._rgb[1]
 				, color._rgb[2]
 				, (GLubyte)255 };
 			_pTRenderer->SetTextureData(nIndex, bufData);
-
 		}
 	}
 	_pTRenderer->GenerateTexture();
@@ -212,9 +205,9 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 void SingleNormalPointsLayer::generateTextureByKDE() {
 	ColorMap* colormap = ColorMap::GetInstance();
 
-	// 2.generate result
+	// 1.Create an instance of the texture renderer
 	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
-	// 2.generate result
+	// 2.generate texture data
 	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
 	int nLen = _points.size();
 	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
@@ -224,22 +217,24 @@ void SingleNormalPointsLayer::generateTextureByKDE() {
 			double x = -_pSetting->_dbRadius + dbStep*j;
 			double y = -_pSetting->_dbRadius + dbStep*i;
 
+			// for every grid points (x,y)
+
 			int nIndex = i*_pSetting->_nResultLen + j;
 			double dbDensity = 0.0;
-			double b = .08;
+			double B = .05;
 			// calculate the effection for each point
 			for each (DPoint3 pt in _points)
 			{
-				double disX = x - pt.x;
-				double disY = y - pt.y;
-				double dis2 = disX*disX + disY*disY;
-				double kb = b*KernelFun(dis2/b);
+				double dbX = x - pt.x;
+				double dbY = y - pt.y;
+				double dbR = sqrt(dbX*dbX + dbY*dbY);
+				double kb = KernelFun(dbR/B)/B;
 				dbDensity += kb;
 			}
 			dbDensity /= nLen;
-
+			dbDensity *= 20;
 //			dbDensity *= 300;	// scaled by 6
-			dbDensity = sqrt(dbDensity * 10000);
+//			dbDensity = sqrt(dbDensity * 100);
 //			if(dbDensity>0.00001) cout << dbDensity << endl;
 			MYGLColor color = colormap->GetColor(dbDensity);
 			GLubyte bufData[4] = { color._rgb[0]

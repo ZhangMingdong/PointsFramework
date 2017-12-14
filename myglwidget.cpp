@@ -579,22 +579,19 @@ void MyGLWidget::GenerateSpiralPoints() {
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Spiral , _pLayerSetting);
 }
 
-void MyGLWidget::GenerateBlueNoise(int number) {
+void MyGLWidget::GenerateBlueNoise(int number, int nClass) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue
-		, _pLayerSetting, number);
+		, _pLayerSetting, number, nClass);
 }
 
 void MyGLWidget::GenerateBlueNoiseNormal(int number) {
 	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Blue
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue_Mult
 		, _pLayerSetting, number);
 }
 
-void MyGLWidget::GenerateMulticlassBlueNoise(int number) {
-	if (_pLayer) delete _pLayer;
-	_pLayer = ILayer::CreateLayer(ILayer::LT_Random_Blue_Mult
-		, _pLayerSetting, number);
+void MyGLWidget::GenerateMulticlassBlueNoise(int number, int nClass) {
 }
 
 void MyGLWidget::GenerateNormalPoints(int number) {

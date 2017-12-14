@@ -119,7 +119,7 @@ void PointsFramework::onGenerateBlueNoiseClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateBlueNoise(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateBlueNoise(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
 	int t = GetTickCount() - t1; 
 	QString s1 = QStringLiteral("生成蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -128,7 +128,6 @@ void PointsFramework::onGenerateBlueNoiseClicked() {
 }
 void PointsFramework::onGenerateSpiralClicked() {
 	// generate normal points
-
 	long t1 = GetTickCount();
 	pWidget->GenerateSpiralPoints();
 	int t = GetTickCount() - t1;
@@ -152,7 +151,7 @@ void PointsFramework::onGenerateMulticlassBlueNoiseClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateMulticlassBlueNoise(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateMulticlassBlueNoise(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
 	int t = GetTickCount() - t1; 
 	QString s1 = QStringLiteral("生成多组蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);

@@ -66,10 +66,10 @@ SpiralPointsLayer::~SpiralPointsLayer()
 
 void SpiralPointsLayer::generatePoints() {
 //	generateSpiralPoints();
-	generateCircularPoints();
+//	generateCircularPoints();
 //	generateMultiNormalPoints();
 //	generateRectangularGridPoints();
-//	generateCircularGridPoints();
+	generateCircularGridPoints();
 
 	_nPoints = _vecPoints.size();
 

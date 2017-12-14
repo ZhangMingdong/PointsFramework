@@ -17,9 +17,11 @@ public:
 public:
 	virtual void Draw();
 	// initialization
+
 	virtual void Initialize();
 	// set the interpolation method
 	virtual void SetMethod(int nMethod);
+
 	// set the method to generate the source
 	virtual void SetSource(int nSource);
 
@@ -91,9 +93,9 @@ protected:
 	void clustering();
 protected:
 	// the texture renderer
-	TextureRenderer* _pTRenderer;
+	TextureRenderer* _pTRenderer=NULL;
 	// the confidence ellipse
-	ConfidenceEllipse* _pCEllipse;
+	ConfidenceEllipse* _pCEllipse=NULL;
 
 	/*
 		interpolation method:

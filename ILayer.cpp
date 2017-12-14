@@ -6,7 +6,6 @@
 #include "MultiNormalPointsLayer.h"
 #include "RandomPointsLayer.h"
 #include "BlueNoiseLayer.h"
-#include "MulticlassBlueNoiseLayer.h"
 #include "BlueNoiseNormalPointsLayer.h"
 #include "DuClassPointsLayer.h"
 #include "SpiralPointsLayer.h"
@@ -25,7 +24,7 @@ ILayer::~ILayer()
 {
 }
 
-ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int nPoints) {
+ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int nPoints,int nClass) {
 	ILayer* pLayer = NULL;
 	switch (type)
 	{
@@ -48,10 +47,9 @@ ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int
 		pLayer = new RandomPointsLayer(nPoints);
 		break;
 	case ILayer::LT_Random_Blue:
-		pLayer = new BlueNoiseLayer(nPoints);
+		pLayer = new BlueNoiseLayer(nPoints, nClass);
 		break;
 	case ILayer::LT_Random_Blue_Mult:
-		pLayer = new MultiClassBlueNoiseLayer(nPoints);
 		break;
 	case ILayer::LT_Dual:
 		pLayer = new DuClassPointsLayer();

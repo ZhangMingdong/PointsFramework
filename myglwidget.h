@@ -87,11 +87,11 @@ public:
 	// generate sparial points
 	void GenerateSpiralPoints();
 	// generate number blue noise points
-	void GenerateBlueNoise(int number);
+	void GenerateBlueNoise(int number, int nClass);
 	// generate number blue noise points
 	void GenerateBlueNoiseNormal(int number);
 	// generate multiple class blue noise points of the given number
-	void GenerateMulticlassBlueNoise(int number);
+	void GenerateMulticlassBlueNoise(int number,int nClass);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateNormalPoints(int number);
 	// generate number points according to Normal(mx,my,vx,vy) distribution

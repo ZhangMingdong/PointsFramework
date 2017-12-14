@@ -29,7 +29,7 @@ public:
 		, LT_DR
 		, LT_Data
 	};
-	static ILayer* CreateLayer(EnumLayerType type,const LayerSetting* pSetting,int nPoints=0);
+	static ILayer* CreateLayer(EnumLayerType type,const LayerSetting* pSetting,int nPoints=0,int nClass=1);
 public:
 	virtual void Draw()=0;
 	// add a point
