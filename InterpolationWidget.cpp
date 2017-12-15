@@ -23,6 +23,7 @@ void InterpolationWidget::createWidgets() {
 	_pCombMethod->addItem("RBF+Simplicial Depth", 2);
 	_pCombMethod->addItem("Kernel Density Estimation", 3);
 	_pCombMethod->addItem("Linear Kernel KDE", 4);
+	_pCombMethod->addItem("Shepard's Interpolation", 5);
 
 
 	_pCombSource = new QComboBox;

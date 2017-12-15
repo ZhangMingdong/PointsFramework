@@ -24,7 +24,7 @@ private:
 	TNT::Array2D<double>* _pDistanceR = NULL;	// reverse of distance matrix
 	TNT::Array2D<double>* _pF = NULL;			// array of f (kernel function)
 	TNT::Array2D<double>* _pW = NULL;			// array of w (weight)
-	double(*_pFunPhi)(double,double) = NULL;		// the phi function
+	double(*_pFunPhi)(double,double) = NULL;	// the phi function
 	std::vector<DPoint3> _points;				// the points
 
 	double _dbR=1;								// r used in the phi function

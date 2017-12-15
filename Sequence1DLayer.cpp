@@ -8,6 +8,7 @@
 #include <QGLWidget>
 #include <gl/GLU.h>
 #include "MathFunction.h"
+#include "RBFInterpolator.h"
 
 void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, std::vector<double>& b)
 {
@@ -38,16 +39,18 @@ Sequence1DLayer::Sequence1DLayer():_dbLeft(-2),_dbRight(2)
 	doRBF();		
 	doLagrangian();
 	doKDE();
+	doShepards();
 }
 
 void Sequence1DLayer::doRBF() {
 	int nLen = _sequence.size();
 	// 1.calculation
-
-	Array2D<double> disMatrix = Array2D<double>(nLen, nLen);	// distance matrix
-	Array2D<double> disMatrix_r = Array2D<double>(nLen, nLen);	// reverse of distance matrix
+	Array2D<double> disMatrix = Array2D<double>(nLen, nLen);		// distance matrix
+	Array2D<double> disMatrix_r = Array2D<double>(nLen, nLen);		// reverse of distance matrix
 	Array2D<double> f = Array2D<double>(nLen, 1);					// array of f
 	Array2D<double> w = Array2D<double>(nLen, 1);					// array of w
+
+	// calculate distance matrix
 	for (size_t i = 0; i < nLen; i++)
 	{
 		for (size_t j = 0; j < nLen; j++)
@@ -84,59 +87,64 @@ inline double KernelFun(double para) {
 }
 
 void Sequence1DLayer::doKDE() {
-	// whether using original KDE or method in "Interactive Visualization of Streaming Data with Kernel Density Estimation"
-	bool bOriginal = false;	
-
-	int nLen = _sequence.size();
-	// 1.calculation
-	// 2.generate result
-	int nResultLen = 101;
-	double dbStep = (_dbRight - _dbLeft) / (nResultLen - 1);
-	int n = _sequence.size();
-	double h = _dbH;
-	for (size_t i = 0; i < nResultLen; i++)
+	double dbStep = (_dbRight - _dbLeft) / (_nResultLen - 1);
+	double dbB = 1.0/_dbH;
+	for (size_t i = 0; i < _nResultLen; i++)
 	{
 		double x = _dbLeft + dbStep*i;
 		double y = 0;
-		if (bOriginal) {
-			for (size_t j = 0; j < n; j++)
-			{
-				y += KernelFun((x - _sequence[j].x) / h);
-			}
-			y /= (n*h);
-		} 
-		else {
-			for (size_t j = 0; j < n; j++)
-			{
-				y += _sequence[j].y*KernelFun((x - _sequence[j].x) / h);
-			}
-			y /= h;
+		// the base, as the number of points
+		double dbBase = 0.0;
+		for (DPoint3 pt : _sequence) {
+			dbBase += pt.y;
+			y += pt.y*KernelFun((x - pt.x) / dbB) / dbB;
 		}
+		y /= dbBase;
+
 		_sequenceResultKDE.push_back(DPoint3(x, y, 0));
+	}
+}
+
+void Sequence1DLayer::doShepards() {
+	double dbStep = (_dbRight - _dbLeft) / (_nResultLen - 1);
+	double dbB = 1.0 / _dbH;
+	for (size_t i = 0; i < _nResultLen; i++)
+	{
+		double x = _dbLeft + dbStep*i;
+		double y = 0;
+		double dbP = _dbH;
+		double dbDisSum = 0;
+		for (DPoint3 pt : _sequence) {
+			double dbDis = pow(abs(x - pt.x),-dbP);
+			dbDisSum += dbDis;
+			y += dbDis*pt.y;
+		}
+		y /= dbDisSum;
+
+		_sequenceResultShepards.push_back(DPoint3(x, y, 0));
 	}
 }
 
 void Sequence1DLayer::doLagrangian() {
 	int nLen = _sequence.size();
-	// 2.generate result
-	int nResultLen = 101;
-	double dbStep = (_dbRight - _dbLeft) / (nResultLen - 1);
-	for (size_t i = 0; i < nResultLen; i++)
+	// 2.generate result_nResultLen
+	double dbStep = (_dbRight - _dbLeft) / (_nResultLen - 1);
+	for (size_t i = 0; i < _nResultLen; i++)
 	{
 		double x = _dbLeft + dbStep*i;
 		double y = 0;
-		for (size_t j = 0; j < nLen; j++)
+		for (DPoint3& ptj : _sequence)
 		{
-			DPoint3 ptj = _sequence[j];
 			double l = 1;
-			for (size_t k = 0; k < nLen; k++)
+			for (DPoint3& ptk : _sequence)
 			{
-				DPoint3 ptk = _sequence[k];
-				if (k != j) {
-					l *= (x-ptk.x) / (ptj.x-ptk.x);
+				if (! (ptj == ptk)) 
+				{
+					l *= (x - ptk.x) / (ptj.x - ptk.x);
 				}
 			}
 			y += ptj.y*l;
+
 		}
 		_sequenceResultLagrangian.push_back(DPoint3(x, y, 0));
 	}
@@ -147,6 +155,17 @@ Sequence1DLayer::~Sequence1DLayer()
 }
 
 void Sequence1DLayer::Draw() {
+	// draw points
+	glPointSize(_pSetting->_dbPointSize);
+
+	glBegin(GL_POINTS);
+	for (DPoint3 pt : _sequence)
+	{
+		glVertex3d(pt.x, pt.y, pt.z);
+	}
+	glEnd();
+
+	/*
 	// draw polyline
 	glColor3f(0, 1, 1);
 	int nSeqLen = _sequence.size();
@@ -156,6 +175,7 @@ void Sequence1DLayer::Draw() {
 		glVertex3d(_sequence[i].x, _sequence[i].y, _sequence[i].z);
 	}
 	glEnd();
+
 	// draw RBF results
 	glColor3f(1, 0, 0);
 	int nSeqResultLen = _sequenceResultRBF.size();
@@ -167,7 +187,7 @@ void Sequence1DLayer::Draw() {
 	glEnd();
 
 	// draw Lagrangian results
-	glColor3f(1, 1, 0);
+	glColor3f(0, 1, 0);
 	nSeqResultLen = _sequenceResultLagrangian.size();
 	glBegin(GL_LINE_STRIP);
 	for (size_t i = 0; i < nSeqResultLen; i++)
@@ -177,13 +197,25 @@ void Sequence1DLayer::Draw() {
 	glEnd();
 
 	// draw KDE results
-	glColor3f(1, 0, 1);
+	glColor3f(0, 0, 1);
 	nSeqResultLen = _sequenceResultKDE.size();
 	glBegin(GL_LINE_STRIP);
 	for (size_t i = 0; i < nSeqResultLen; i++)
 	{
 		glVertex3d(_sequenceResultKDE[i].x, _sequenceResultKDE[i].y, _sequenceResultKDE[i].z);
 
+	}
+	glEnd();
+
+	*/
+
+
+	// draw Shepards results
+	glColor3f(1, 0, 1);
+	glBegin(GL_LINE_STRIP);
+	for (DPoint3 pt : _sequenceResultShepards)
+	{
+		glVertex3d(pt.x, pt.y, 0);
 	}
 	glEnd();
 }
@@ -241,6 +273,7 @@ void Sequence1DLayer::Reset(int nLen, int nPeriod) {
 	_sequenceResultRBF.clear();
 	_sequenceResultLagrangian.clear();
 	_sequenceResultKDE.clear();
+	_sequenceResultShepards.clear();
 
 	generateSequence(nLen, nPeriod);
 	if (!c_bFFT) {
@@ -248,6 +281,7 @@ void Sequence1DLayer::Reset(int nLen, int nPeriod) {
 		doLagrangian();
 		_dbH = nPeriod;
 		doKDE();
+		doShepards();
 	}
 
 }

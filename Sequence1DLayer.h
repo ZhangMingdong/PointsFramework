@@ -26,6 +26,9 @@ private:
 	// KDE interpolation result of the sequence
 	std::vector<DPoint3> _sequenceResultKDE;
 
+	// 
+	std::vector<DPoint3> _sequenceResultShepards;
+
 
 	std::vector<double> a, b;
 	// left and right position
@@ -37,13 +40,21 @@ private:
 private:
 	// do RBF interpolation
 	void doRBF();
-	// do Lagrangian interpolation
+	/*
+		do Lagrangian interpolation
+		<<fundamentals of Numerical Analysis>>, P185
+	*/
 	void doLagrangian();
 	// do kernel density estimation 
 	void doKDE();
+
+	void doShepards();
 protected:
 	// generate the sequence
 	virtual void generateSequence(int nLen=10, int nPeriod=1);
+private:
+	// length of the result sequence
+	int _nResultLen = 101;
 
 };
 

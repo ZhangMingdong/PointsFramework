@@ -117,7 +117,7 @@ void SingleNormalPointsLayer::Draw() {
 	}
 
 
-	if (_pSetting->_bShowBg) {
+	if (_pSetting->_bShowBg&&_pTRenderer) {
 		float _fLeft = -_pSetting->_dbRadius;
 		float _fRight = _pSetting->_dbRadius;
 		float _fBottom = -_pSetting->_dbRadius;
@@ -135,28 +135,30 @@ void SingleNormalPointsLayer::generateTextureByConfidenceEllipse() {
 	ColorMap* colormap = ColorMap::GetInstance();
 	// 2.generate texture
 	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
+	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
+	int nLen = _points.size();
 	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
 	{
-		double x = -_pSetting->_dbRadius + i*0.01;
 		for (size_t j = 0; j < _pSetting->_nResultLen; j++)
 		{
-			double y = -_pSetting->_dbRadius + j*0.01;
+			double x = -_pSetting->_dbRadius + dbStep*j;
+			double y = -_pSetting->_dbRadius + dbStep*i;
+			// for each grid point (x,y)
 
+			// calculate the confidence value alpha
 			double alpha = _pCEllipse->CalculateAlpha(DPoint3(x, y, 0));
-			cout << alpha << endl;
+			// map the alpha value to opacity [0~1]
 			double dbOpacity = 1 - alpha / 5.0;
 			if (dbOpacity < 0) dbOpacity = 0;
+			int nIndex = i*_pSetting->_nResultLen + j;
 
+//			GLubyte bufData[4] = { (GLubyte)255, (GLubyte)255, 0, (GLubyte)(dbOpacity * 255) };
 
-			int nIndex = j*_pSetting->_nResultLen + i;
-
-			GLubyte bufData[4] = { (GLubyte)255, (GLubyte)255, 0, (GLubyte)(dbOpacity * 255) };
-
-//			MYGLColor color = colormap->GetColor(dbOpacity*6);
-//			GLubyte bufData[4] = { color._rgb[0]
-//				, color._rgb[1]
-//				, color._rgb[2]
-//				, (GLubyte)255 };
+			MYGLColor color = colormap->GetColor(dbOpacity*6);
+			GLubyte bufData[4] = { color._rgb[0]
+				, color._rgb[1]
+				, color._rgb[2]
+				, (GLubyte)255 };
 
 			_pTRenderer->SetTextureData(nIndex, bufData);
 		}
@@ -191,6 +193,8 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 			// for each grid point(x,y)
 			int nIndex = i*_pSetting->_nResultLen + j;
 			double dbResult = _interpolator.Calculate(x, y);
+			dbResult *= 5;
+//			cout << dbResult << endl;
 			MYGLColor color = colormap->GetColor(dbResult);
 			GLubyte bufData[4] = { color._rgb[0]
 				, color._rgb[1]
@@ -233,10 +237,56 @@ void SingleNormalPointsLayer::generateTextureByKDE() {
 			}
 			dbDensity /= nLen;
 			dbDensity *= 20;
-//			dbDensity *= 300;	// scaled by 6
-//			dbDensity = sqrt(dbDensity * 100);
-//			if(dbDensity>0.00001) cout << dbDensity << endl;
 			MYGLColor color = colormap->GetColor(dbDensity);
+			GLubyte bufData[4] = { color._rgb[0]
+				, color._rgb[1]
+				, color._rgb[2]
+				, (GLubyte)255 };
+			_pTRenderer->SetTextureData(nIndex, bufData);
+
+		}
+	}
+	_pTRenderer->GenerateTexture();
+}
+
+void SingleNormalPointsLayer::generateTextureByShepards() {
+	ColorMap* colormap = ColorMap::GetInstance();
+
+	// 1.Create an instance of the texture renderer
+	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
+	// 2.generate texture data
+	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
+	int nLen = _points.size();
+	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
+	{
+		for (size_t j = 0; j < _pSetting->_nResultLen; j++)
+		{
+			double x = -_pSetting->_dbRadius + dbStep*j;
+			double y = -_pSetting->_dbRadius + dbStep*i;
+
+			// for every grid points (x,y)
+
+			int nIndex = i*_pSetting->_nResultLen + j;
+			double dbP = 1.0;
+			double dbF = 1.0;	// function value of each point
+			vector<double> vecDis;
+			double dbDisSum = 0;
+			for (DPoint3 pt : _points) {
+				double dbX = x - pt.x;
+				double dbY = y - pt.y;
+
+				double dbDis = pow(sqrt(dbX*dbX + dbY*dbY), dbP);
+				vecDis.push_back(dbDis);
+				dbDisSum += dbDis;
+			}
+			double dbResult = 0;
+			for (int k = 0, len = _points.size(); k < len; k++) {
+				DPoint3 pt = _points[k];
+				dbResult += vecDis[k] * dbF;
+			}
+			dbResult /= dbDisSum;
+			cout << dbResult << endl;
+			MYGLColor color = colormap->GetColor(dbResult);
 			GLubyte bufData[4] = { color._rgb[0]
 				, color._rgb[1]
 				, color._rgb[2]
@@ -448,6 +498,9 @@ void SingleNormalPointsLayer::doInterpolation() {
 		break;
 	case 4:
 		generateTextureByKDE_LinearKernel();
+		break;
+	case 5:
+		generateTextureByShepards();
 		break;
 	}
 }

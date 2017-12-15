@@ -41,6 +41,12 @@ protected:
 	void calculateSimplicialSepth(std::vector<DPoint3>& points);
 
 	/*
+		using Shepard's interpolation
+		Scattered Data Interpolation for Computer Graphics, 2.1
+	*/
+	void generateTextureByShepards();
+
+	/*
 		generate texture by kernel density estimation
 		4.1 from "Splatterplots: Overcoming Overdraw in Scatter Plots"
 	*/
