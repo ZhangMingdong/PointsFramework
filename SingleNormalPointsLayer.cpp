@@ -252,6 +252,8 @@ void SingleNormalPointsLayer::generateTextureByKDE() {
 void SingleNormalPointsLayer::generateTextureByShepards() {
 	ColorMap* colormap = ColorMap::GetInstance();
 
+	double dbMax = 10000000;
+	double dbMin = .0000001;
 	// 1.Create an instance of the texture renderer
 	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
 	// 2.generate texture data
@@ -270,21 +272,21 @@ void SingleNormalPointsLayer::generateTextureByShepards() {
 			double dbP = 1.0;
 			double dbF = 1.0;	// function value of each point
 			vector<double> vecDis;
-			double dbDisSum = 0;
+			double dbWSum = 0;
 			for (DPoint3 pt : _points) {
 				double dbX = x - pt.x;
 				double dbY = y - pt.y;
-
-				double dbDis = pow(sqrt(dbX*dbX + dbY*dbY), dbP);
-				vecDis.push_back(dbDis);
-				dbDisSum += dbDis;
+				double dbDis = sqrt(dbX*dbX + dbY*dbY);
+				double dbW = (dbDis>dbMin) ? pow(dbDis, -dbP) : dbMax;
+				vecDis.push_back(dbW);
+				dbWSum += dbW;
 			}
 			double dbResult = 0;
 			for (int k = 0, len = _points.size(); k < len; k++) {
 				DPoint3 pt = _points[k];
 				dbResult += vecDis[k] * dbF;
 			}
-			dbResult /= dbDisSum;
+			dbResult /= dbWSum;
 			cout << dbResult << endl;
 			MYGLColor color = colormap->GetColor(dbResult);
 			GLubyte bufData[4] = { color._rgb[0]

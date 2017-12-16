@@ -9,6 +9,7 @@
 #include <gl/GLU.h>
 #include "MathFunction.h"
 #include "RBFInterpolator.h"
+#include "Interpolater1D.h"
 
 void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, std::vector<double>& b)
 {
@@ -106,23 +107,19 @@ void Sequence1DLayer::doKDE() {
 }
 
 void Sequence1DLayer::doShepards() {
+	Interpolater1D* pInterpolater=Interpolater1D::CreateInterpolater(Interpolater1D::IT_Shepards,_sequence, _dbH);
+
 	double dbStep = (_dbRight - _dbLeft) / (_nResultLen - 1);
 	double dbB = 1.0 / _dbH;
 	for (size_t i = 0; i < _nResultLen; i++)
 	{
 		double x = _dbLeft + dbStep*i;
-		double y = 0;
-		double dbP = _dbH;
-		double dbDisSum = 0;
-		for (DPoint3 pt : _sequence) {
-			double dbDis = pow(abs(x - pt.x),-dbP);
-			dbDisSum += dbDis;
-			y += dbDis*pt.y;
-		}
-		y /= dbDisSum;
+		double y = pInterpolater->Interpolate(x);
 
 		_sequenceResultShepards.push_back(DPoint3(x, y, 0));
 	}
+
+	delete pInterpolater;
 }
 
 void Sequence1DLayer::doLagrangian() {
