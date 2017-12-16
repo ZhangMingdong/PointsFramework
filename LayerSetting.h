@@ -41,6 +41,6 @@ public:
 
 
 	// radius for phi function
-	double _dbPhiRadius = 1;
+	double _dbPhiRadius = .1;
 };
 

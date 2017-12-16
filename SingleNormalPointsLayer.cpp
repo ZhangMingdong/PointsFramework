@@ -176,7 +176,9 @@ void SingleNormalPointsLayer::generateTextureByRBF() {
 
 	// 1.build the interpolator
 	RBFInterpolator _interpolator;
-	_interpolator.Build(sequence, funPhi, _pSetting->_dbPhiRadius);
+//	_interpolator.Build(sequence, funPhi, _pSetting->_dbPhiRadius);
+	double dbPhiRadius = 1.0 / _pSetting->_nSamplePeriod;
+	_interpolator.Build(sequence, funPhi, dbPhiRadius);
 
 	ColorMap* colormap = ColorMap::GetInstance(ColorMap::CP_RainBow);
 

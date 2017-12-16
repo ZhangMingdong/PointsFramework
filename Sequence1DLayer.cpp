@@ -172,6 +172,7 @@ void Sequence1DLayer::Draw() {
 		glVertex3d(_sequence[i].x, _sequence[i].y, _sequence[i].z);
 	}
 	glEnd();
+	*/
 
 	// draw RBF results
 	glColor3f(1, 0, 0);
@@ -204,7 +205,6 @@ void Sequence1DLayer::Draw() {
 	}
 	glEnd();
 
-	*/
 
 
 	// draw Shepards results

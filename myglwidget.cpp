@@ -1240,8 +1240,12 @@ void MyGLWidget::onSetSampleLen(int nLen) {
 
 void MyGLWidget::onSetSamplePeriod(int nPeriod) {
 	_pLayerSetting->_nSamplePeriod = nPeriod;
-	if (_pLayer)
+	if (_pLayer) {
 		_pLayer->Reset(_pLayerSetting->_nSampleLen, _pLayerSetting->_nSamplePeriod);
+		_pLayer->UpdateLayer();
+
+	}
+	
 	updateGL();
 }
 

@@ -4,6 +4,9 @@
 
 #include "Interpolater1D.h"
 
+/*
+	interpolate 1d sequence using shepard's method
+*/
 class Interpolater1DShepards:public Interpolater1D
 {
 public:

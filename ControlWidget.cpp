@@ -22,7 +22,7 @@ void ControlWidget::createWidgets() {
 
 	_pCheckBoxInterpolation = new QCheckBox;
 	_pCheckBoxInterpolation->setText("Interpolation");
-	_pCheckBoxInterpolation->setChecked(true);
+//	_pCheckBoxInterpolation->setChecked(true);
 
 	_pCheckBoxSD = new QCheckBox;
 	_pCheckBoxSD->setText("Simplicial Depth");
