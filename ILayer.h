@@ -28,6 +28,7 @@ public:
 		, LT_Spiral
 		, LT_DR
 		, LT_Data
+		, LT_Time_Series
 	};
 	static ILayer* CreateLayer(EnumLayerType type,const LayerSetting* pSetting,int nPoints=0,int nClass=1);
 public:
@@ -95,6 +96,12 @@ protected:// drawing
 
 	// return true if the distance between pt and every points in list are all larger than dis
 	bool distanceCheck(const DPoint3& pt, const std::vector<DPoint3>& list, double dis);
+
+	// generate a normal sequence
+	std::vector<double> generateNormalSequence(int nLen, double dbM, double dbV);
+
+	// generate a random sequence
+	std::vector<double> generateRandomSequence(int nLen, double dbRange);
 
 public:
 	// generate a list of points obey the normal distribution

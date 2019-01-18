@@ -94,7 +94,8 @@ protected:
 	void generateDataset9();
 
 	void generateDataset10();
-
+	// sine
+	void generateDataset11();
 	// perform clustering
 	void clustering();
 protected:

@@ -34,7 +34,9 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, m_sPolyStyle(0)
 	, m_pt3Eye(0.0, 0.0, 4.0)
 //	, m_clearColor(.6, .6, .4, 1.0)
-	, m_clearColor(0, 0, 0, 1.0)
+//	, m_clearColor(1.0, 1.0, 1.0, 1.0)
+	, m_clearColor(0,0,0,0)
+//	, m_clearColor(.5,.5,.5, 1.0)
 	, _pLayer(0)
 
 {
@@ -94,6 +96,8 @@ void MyGLWidget::initializeGL()
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_FLAT);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
 
 }
 
@@ -441,7 +445,7 @@ void MyGLWidget::OnMouseMove(int x, int y)
 }
 void MyGLWidget::OnMouseWheel(short zDelta)
 {
-	ZoomDelta(zDelta> 0 ? 0.1 : -0.1);
+	ZoomDelta(zDelta> 0 ? 0.03 : -0.03);
 }
 void MyGLWidget::OnSize(int cx, int cy)
 {
@@ -591,7 +595,10 @@ void MyGLWidget::GenerateBlueNoiseNormal(int number) {
 		, _pLayerSetting, number);
 }
 
-void MyGLWidget::GenerateMulticlassBlueNoise(int number, int nClass) {
+void MyGLWidget::GenerateTimeSeries(int number, int nClass) {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Time_Series
+		, _pLayerSetting, number);
 }
 
 void MyGLWidget::GenerateNormalPoints(int number) {
@@ -1309,4 +1316,23 @@ void MyGLWidget::onInterpolation(bool b) {
 void MyGLWidget::onSD(bool b) {
 	_pLayerSetting->_bSD = b;
 	qDebug() << "onInterpolation";
+}
+
+
+void MyGLWidget::onRBF(bool bState) {
+	_pLayerSetting->_b1DRBF = bState;
+	updateGL();
+}
+void MyGLWidget::onLagrangian(bool bState) {
+	_pLayerSetting->_b1DLagrangian = bState;
+	updateGL();
+}
+void MyGLWidget::onKDE(bool bState) {
+	_pLayerSetting->_b1DKDE = bState;
+	updateGL();
+}
+void MyGLWidget::onShepard(bool bState) {
+	_pLayerSetting->_b1DShepard = bState;
+	updateGL();
+
 }

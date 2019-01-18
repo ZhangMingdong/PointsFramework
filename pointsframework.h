@@ -10,6 +10,7 @@ class InterpolationWidget;
 class ClusteringWidget;
 class DisplayWidget;
 class ControlWidget;
+class Sequence1DWidget;
 
 class PointsFramework : public QMainWindow
 {
@@ -26,6 +27,7 @@ private:
 	ClusteringWidget* _pWidgetClustering;
 	DisplayWidget* _pWidgetDisplay;
 	ControlWidget* _pWidgetControl;
+	Sequence1DWidget* _pWidgetSequence1D;
 protected:
 	void createDockWidgets();
 	void createConnections();
@@ -33,7 +35,7 @@ public slots:
 	void onGenerateNormalClicked();
 	void onGenerateBlueNoiseClicked();
 	void onGenerateBlueNoiseNormalClicked();
-	void onGenerateMulticlassBlueNoiseClicked();
+	void onGenerateTimeSeriesClicked();
 	void onGenerateRandomClicked();
 	void onGenerateMultiNormalClicked();
 	void onGenerateSequenceClicked();

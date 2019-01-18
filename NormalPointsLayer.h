@@ -20,5 +20,8 @@ protected:
 	// grouped raw points
 	std::vector<std::vector<DPoint3> > _groupedPoints;
 
+	bool* _arrEdge=NULL;	// if there's a edge between two points
+	void buildEdgeMatrix();	// build the edge matrix based on the points
+
 };
 

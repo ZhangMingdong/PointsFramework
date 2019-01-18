@@ -8,8 +8,16 @@
 
 #include <QGLWidget>
 #include <gl/GLU.h>
-#include "MathFunction.h"
+#include <MathTypes.hpp>
 #include "TextureRenderer.h"
+
+#include <fstream>
+
+#include <QDebug>
+
+
+bool g_bShowData = true;
+bool g_bShowPersonActivity = true;
 
 Sequence2DLayer::Sequence2DLayer()
 {
@@ -19,9 +27,18 @@ Sequence2DLayer::Sequence2DLayer()
 Sequence2DLayer::~Sequence2DLayer()
 {
 	if (_pTRenderer) delete[] _pTRenderer;
+
+	if (glIsList(_gllist))
+		glDeleteLists(_gllist, 1);
 }
 
 void Sequence2DLayer::Sequence2DLayer::Draw() {
+	if (g_bShowData) {
+
+		if (glIsList(_gllist))
+			glCallList(_gllist);
+		return;
+	}
 	// draw 2d sequence
 	int nSeqLen2D = _sequence.size();
 	if (nSeqLen2D>0)
@@ -52,7 +69,112 @@ void Sequence2DLayer::Sequence2DLayer::Draw() {
 	}
 }
 
+vector<string> split(string strtem, char a)
+{
+	vector<string> strvec;
+
+	string::size_type pos1, pos2;
+	pos2 = strtem.find(a);
+	pos1 = 0;
+	while (string::npos != pos2)
+	{
+		strvec.push_back(strtem.substr(pos1, pos2 - pos1));
+
+		pos1 = pos2 + 1;
+		pos2 = strtem.find(a, pos1);
+	}
+	strvec.push_back(strtem.substr(pos1));
+	return strvec;
+}
+
 void Sequence2DLayer::Initialize() {
+	if (g_bShowPersonActivity) {
+		// read trajectories
+		ifstream trjInput("F:/Data/Person Activity/ConfLongDemo_JSI.txt");
+		float colors[3][3] = {
+			{.97,.62,.2}
+			,{.68,.22,.27}
+			,{.13,.37,.67}
+		};
+
+		string strLine;
+		while (getline(trjInput, strLine)) {
+			vector<string> vStr = split(strLine, ',');
+			int nLabel = -1;
+			if (vStr[7] == "sitting") nLabel = 0;
+			else if (vStr[7] == "standing up from lying") nLabel = 1;
+			else if (vStr[7] == "walking") nLabel = 2;
+			if (nLabel > -1) {
+				_vecPersonActivity.push_back(LabeledPoint(stod(vStr[4]), stod(vStr[5]), nLabel));
+			}
+		}
+		// initialize the display list
+
+		_gllist = glGenLists(1);	// generate the display lists
+		glNewList(_gllist, GL_COMPILE);
+		glBegin(GL_POINTS);
+		/*
+		for (size_t i = 0, length = _vecPersonActivity.size(); i < length; i++)
+		{
+			glColor3fv(colors[_vecPersonActivity[i]._nLabel]);
+			glVertex2f(_vecPersonActivity[i]._arrCoord[0], _vecPersonActivity[i]._arrCoord[1]);
+		}*/
+		for (int label = 2; label >=0; label--) {
+			glColor3fv(colors[label]);
+			for (size_t i = 0, length = _vecPersonActivity.size(); i < length; i++)
+			{
+				if(_vecPersonActivity[i]._nLabel==label)
+					glVertex2f(_vecPersonActivity[i]._arrCoord[0], _vecPersonActivity[i]._arrCoord[1]);
+			}
+		}
+		glEnd();
+		glEndList();
+		return;
+
+	}
+	if (g_bShowData) {
+		// read trajectories
+		ifstream trjInput("../data/trajectory.txt");
+		int nLen;
+		trjInput >> nLen;
+		qDebug() << nLen;
+		nLen = 1000;
+		for (size_t i = 0; i < nLen; i++)
+		{
+			vector<DPoint3> trj;
+			int l;
+			int id;
+			trjInput >> id >> l;
+			for (size_t j = 0; j < l; j++)
+			{
+				int t;
+				double x, y;
+				trjInput >> t >> x >> y;
+				trj.push_back(DPoint3(x / 10000.0, y / 10000.0 - 6, 0));
+			}
+			_vecTrj.push_back(trj);
+		}
+
+		// initialize the display list
+
+		_gllist = glGenLists(1);	// generate the display lists
+		glNewList(_gllist, GL_COMPILE);
+		glColor4f(0, 0, 1, .5);
+		for (size_t i = 0, length = _vecTrj.size(); i < length; i++)
+		{
+			glBegin(GL_LINE_STRIP);
+			for (size_t j = 0, len2 = _vecTrj[i].size(); j < len2; j++)
+			{
+				glVertex2d(_vecTrj[i][j].x, _vecTrj[i][j].y);
+			}
+			glEnd();
+		}
+		glEndList();
+		return;
+
+	}
+
+
 	_sequence.clear();
 	// 0.generation
 

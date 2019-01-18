@@ -11,6 +11,8 @@
 #include "SpiralPointsLayer.h"
 #include "DRLayer.h"
 #include "DataLayer.h"
+#include "TimeSeriesLayer.h"
+
 #include "LayerSetting.h"
 
 #include <random>
@@ -62,6 +64,9 @@ ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int
 		break;
 	case ILayer::LT_Data:
 		pLayer = new DataLayer();
+		break;
+	case ILayer::LT_Time_Series:
+		pLayer = new TimeSeriesLayer();
 		break;
 	default:
 		break;
@@ -157,6 +162,30 @@ void ILayer::GenerateNormalPoints(std::vector<DPoint3>& vecPts,int number, doubl
 	}
 }
 
+// generate a normal sequence
+vector<double> ILayer::generateNormalSequence(int nLen, double dbM, double dbV) {
+	//default_random_engine generator;//如果用这个默认的引擎，每次生成的随机序列是相同的。
+	random_device rd;
+	mt19937 gen(rd());
+	//normal(0,1)中0为均值，1为方差
+	normal_distribution<double> normal(dbM,dbV);
+	vector<double> vecResult;
+	for (int i = 0; i < nLen; i++)
+	{
+		vecResult.push_back(normal(gen));
+	}
+	return vecResult;
+}
+
+
+std::vector<double> ILayer::generateRandomSequence(int nLen, double dbRange) {
+	vector<double> vecResult;
+	for (int i = 0; i < nLen; i++)
+	{
+		vecResult.push_back(rand() / (double)RAND_MAX*dbRange);
+	}
+	return vecResult;
+}
 
 // generate a list of points obey the random distribution
 void ILayer::GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x, double y, double r) {

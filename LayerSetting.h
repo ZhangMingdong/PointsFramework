@@ -42,5 +42,12 @@ public:
 
 	// radius for phi function
 	double _dbPhiRadius = .1;
+
+	//== for 1D sequence==
+	bool _b1DRBF = true;
+	bool _b1DLagrangian = true;
+	bool _b1DKDE = true;
+	bool _b1DShepard = true;
+	//== ~for 1D sequence==
 };
 

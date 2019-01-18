@@ -7,7 +7,7 @@
 
 #include "jama_eig.h"
 
-#include "MathFunction.h"
+#include <MathTypes.hpp>
 #include "RBFInterpolator.h"
 #include "AHCClustering.h"
 #include "KMeansClustering.h"
@@ -41,6 +41,22 @@ SingleNormalPointsLayer::~SingleNormalPointsLayer()
 }
 
 void SingleNormalPointsLayer::Draw() {
+	// draw grid lines
+	if (false) {
+		double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
+		glColor4f(1, 1, 1, .5);
+		glBegin(GL_LINES);
+		for (size_t i = 0; i <= _pSetting->_nResultLen; i++)
+		{
+			glVertex2d(-_pSetting->_dbRadius, -_pSetting->_dbRadius + i * dbStep);
+			glVertex2d(_pSetting->_dbRadius, -_pSetting->_dbRadius + i * dbStep);
+			glVertex2d(-_pSetting->_dbRadius + i * dbStep, -_pSetting->_dbRadius);
+			glVertex2d(-_pSetting->_dbRadius + i * dbStep, _pSetting->_dbRadius);
+		}
+		glEnd();
+
+	}
+
 	glPointSize(_pSetting->_dbPointSize);
 
 	if (_pSetting->_bClustering)
@@ -124,6 +140,21 @@ void SingleNormalPointsLayer::Draw() {
 		float _fTop = _pSetting->_dbRadius;
 		_pTRenderer->Draw(_fLeft, _fRight, _fTop, _fBottom);
 	}
+
+	// draw edge
+	glBegin(GL_LINES);
+	int nPoints = _points.size();
+	for (size_t i = 0; i < nPoints; i++)
+	{
+		for (size_t j = 0; j < i; j++)
+		{
+			if (_arrEdge[j*nPoints + i]) {
+				glVertex2d(_points[i].x, _points[i].y);
+				glVertex2d(_points[j].x, _points[j].y);
+			}
+		}
+	}
+	glEnd();
 
 
 }
@@ -228,6 +259,7 @@ void SingleNormalPointsLayer::generateTextureByKDE() {
 			int nIndex = i*_pSetting->_nResultLen + j;
 			double dbDensity = 0.0;
 			double B = .05;
+			B = 1.0 / _pSetting->_nSamplePeriod;
 			// calculate the effection for each point
 			for each (DPoint3 pt in _points)
 			{
@@ -425,6 +457,7 @@ void SingleNormalPointsLayer::generatePoints() {
 	switch (_nSource) {
 	case 0:
 		GenerateNormalPoints(_points, _nSourceLen, 0, 0, .4, .2, .2, .4);
+		buildEdgeMatrix();
 		break;
 	case 1:
 		generateDataset1();
@@ -457,6 +490,9 @@ void SingleNormalPointsLayer::generatePoints() {
 		break;
 	case 10:
 		generateDataset10();
+		break;
+	case 11:
+		generateDataset11();
 		break;
 	}
 
@@ -694,13 +730,22 @@ void SingleNormalPointsLayer::generateDataset10() {
 
 
 }
+
+void SingleNormalPointsLayer::generateDataset11() {
+
+
+
+
+}
+
 void SingleNormalPointsLayer::generateTextureByKDE_LinearKernel() {
 	ColorMap* colormap = ColorMap::GetInstance();
 
-	// 2.generate result
+	// 1.create instance for the renderer
 	_pTRenderer = new TextureRenderer(_pSetting->_nResultLen, _pSetting->_nResultLen);
 	// 2.generate result
 	double dbStep = _pSetting->_dbRadius * 2 / _pSetting->_nResultLen;
+
 	int nLen = _points.size();
 	for (size_t i = 0; i < _pSetting->_nResultLen; i++)
 	{
@@ -708,11 +753,13 @@ void SingleNormalPointsLayer::generateTextureByKDE_LinearKernel() {
 		{
 			double x = -_pSetting->_dbRadius + dbStep*j;
 			double y = -_pSetting->_dbRadius + dbStep*i;
+			// for each point (x,y)
 
 			int nIndex = i*_pSetting->_nResultLen + j;
 			double dbDensity = 0.0;
-			double b = 2;
-			int nSampleLen = 10;
+			double b = 1.0/_pSetting->_nSamplePeriod;
+			b = b*b;
+			int nSampleLen = 100;
 			// calculate the effection for each point
 			for (size_t k = 1; k < nLen; k++)
 			{
@@ -723,8 +770,8 @@ void SingleNormalPointsLayer::generateTextureByKDE_LinearKernel() {
 
 					double disX = x - dbSampleX;
 					double disY = y - dbSampleY;
-					double dis2 = disX*disX + disY*disY;
-					double kb = b*KernelFun(dis2 / b);
+					double dis2 = sqrt(disX*disX + disY*disY);
+					double kb = KernelFun(dis2 / b)/b;
 					dbDensity += kb;
 				}
 			}

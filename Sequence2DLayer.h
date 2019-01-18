@@ -28,9 +28,6 @@ private:
 	// 2D sequence
 	std::vector<DPoint3> _sequence;
 
-
-
-
 	// the interpolator
 	RBFInterpolator _interpolator;
 
@@ -51,5 +48,11 @@ protected:
 	void runRDF();
 	// generate the texture for opengl
 	void generateTexture();
+private:
+	// trajectories
+	std::vector<std::vector<DPoint3>> _vecTrj;
+	std::vector<LabeledPoint> _vecPersonActivity;
+	// display index
+	GLuint _gllist;                           
 };
 

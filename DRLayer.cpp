@@ -1,9 +1,19 @@
+
 #include "DRLayer.h"
 #include <QGLWidget>
 #include <gl/GLU.h>
+
+
+
 #include <fstream>
 
 #include "MyPCA.h"
+
+#include <vector>
+#include <iostream>
+
+const bool c_bWater = false;			// using water data
+const bool c_bNormalize = true;	// if normalize the data
 
 using namespace std;
 
@@ -21,8 +31,16 @@ int String2Label(string str) {
 
 DRLayer::DRLayer()
 {
-	readData();
-	regularize2();
+	if (c_bWater) {
+		readWaterData();
+		_nAttributes = 17;
+	}
+	else {
+		readData();
+		_nAttributes = 4;
+	}
+
+	if (c_bNormalize)regularize2();
 	runDR();
 }
 
@@ -33,12 +51,14 @@ DRLayer::~DRLayer()
 
 void DRLayer::Draw() {
 	// draw the spiral points
-	double colors[3][3] = {
+	double colors[][3] = {
 		{ 1,0,0 }
 		,{ 0,1,0 }
 		,{ 0,0,1 }
+		,{ 1,1,0 }
+		,{ 0,1,1 }
 	};
-	glPointSize(10.0f);
+	glPointSize(4.0f);
 	glBegin(GL_POINTS);
 	for each (LabeledPoint pt in _vecPoints)
 	{
@@ -88,22 +108,41 @@ void DRLayer::readData() {
 	}
 }
 
+
+void DRLayer::readWaterData() {
+	ifstream input("../Data/water.csv");
+	while (!input.eof())
+	{
+		char c;
+		RawData dataitem;
+		for (size_t i = 0; i < _nAttributes; i++)
+		{
+			input >> dataitem._arrBuf[i] >> c;
+		}
+		string strLabel;
+		input >> strLabel;
+		dataitem._nLabel = strLabel.c_str()[0]-'A';
+		//if (dataitem._nLabel == 2) continue;
+		_vecRaw.push_back(dataitem);
+	}
+}
+
 void DRLayer::runDR() {
-//	usingFirst2D();
-	usingPCA();
+	usingFirst2D();
+//	usingPCA();
+//	usingMDS();
 }
 
 void DRLayer::usingFirst2D() {
 	for each (RawData dataitem in _vecRaw)
 	{
-		LabeledPoint pt(dataitem._arrBuf[0], dataitem._arrBuf[1], dataitem._nLabel);
+		LabeledPoint pt(dataitem._arrBuf[0], dataitem._arrBuf[1]/2, dataitem._nLabel);
 		_vecPoints.push_back(pt);
 	}
 }
 
-
 void DRLayer::usingPCA() {
-	int mI = 4;
+	int mI = _nAttributes;
 	int mO = 2;
 	int n = _vecRaw.size();
 	double* arrInput = new double[mI*n];
@@ -129,7 +168,6 @@ void DRLayer::usingPCA() {
 	delete[] arrInput;
 	delete[] arrOutput;
 }
-
 
 void DRLayer::regularize1() {
 	double arrMean[4];	// range of the properties
@@ -172,11 +210,10 @@ void DRLayer::regularize1() {
 	}
 }
 
-
 void DRLayer::regularize2() {
-	double arrMean[4];	// range of the properties
-	double arrVar[4];	
-	for (size_t i = 0; i < 4; i++)
+	double arrMean[17];	// range of the properties
+	double arrVar[17];
+	for (size_t i = 0; i < _nAttributes; i++)
 	{
 		arrMean[i] = 0;
 		arrVar[i] = 0;
@@ -184,32 +221,32 @@ void DRLayer::regularize2() {
 	// calculate mean
 	for each (RawData dataitem in _vecRaw)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < _nAttributes; i++)
 		{
 			arrMean[i] += dataitem._arrBuf[i];
 		}
 	}
-	for (size_t i = 0; i < 4; i++)
+	for (size_t i = 0; i < _nAttributes; i++)
 	{
 		arrMean[i] /= _vecRaw.size();
 	}
 	// calculate variance
 	for each (RawData dataitem in _vecRaw)
 	{
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < _nAttributes; i++)
 		{
 			double dbVar = dataitem._arrBuf[i] - arrMean[i];
 			arrVar[i] += dbVar*dbVar;
 		}
 	}
-	for (size_t i = 0; i < 4; i++)
+	for (size_t i = 0; i < _nAttributes; i++)
 	{
 		arrVar[i] /= _vecRaw.size();
 	}
 
 	for (size_t i = 0, length = _vecRaw.size(); i < length; i++)
 	{
-		for (size_t j = 0; j < 4; j++)
+		for (size_t j = 0; j < _nAttributes; j++)
 		{
 			_vecRaw[i]._arrBuf[j] = (_vecRaw[i]._arrBuf[j] - arrMean[j]) / sqrt(arrVar[j]);
 		}

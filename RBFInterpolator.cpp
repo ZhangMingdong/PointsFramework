@@ -2,8 +2,9 @@
 
 
 #include "jama_eig.h"
+#include <MyPCA.h>
 
-#include "MathFunction.h"
+#include <MathTypes.hpp>
 
 RBFInterpolator::RBFInterpolator()
 {
@@ -39,14 +40,14 @@ void RBFInterpolator::Build(const std::vector<DPoint3>& points, double (*pFunPhi
 			(*_pDistance)[i][j] = (*pFunPhi)(sqrt(dbX*dbX + dbY*dbY),r);
 		}
 	}
-	GetMatrixInverse_2(*_pDistance, nLen, *_pDistanceR);
+	PCA::GetMatrixInverse_2(*_pDistance, nLen, *_pDistanceR);
 	// initialize the vector of f
 	for (size_t i = 0; i < nLen; i++)
 	{
 		(*_pF)[i][0] = points[i].z;
 	}
 	// calculate vector of w
-	multiply(*_pDistanceR, *_pF, *_pW);
+	PCA::multiply(*_pDistanceR, *_pF, *_pW);
 }
 
 double RBFInterpolator::Calculate(double x, double y) {

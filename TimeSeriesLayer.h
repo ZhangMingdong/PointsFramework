@@ -2,16 +2,16 @@
 #include "ILayer.h"
 #include <vector>
 /*
-	Layer to show the 1D sequence
-	Mingdong
-	2017/06/21
+Layer to show the 1D sequence
+Mingdong
+2017/06/21
 */
-class Sequence1DLayer :
+class TimeSeriesLayer :
 	public ILayer
 {
 public:
-	Sequence1DLayer();
-	virtual ~Sequence1DLayer();
+	TimeSeriesLayer();
+	virtual ~TimeSeriesLayer();
 public:
 	virtual void Draw();
 	// reset length of sample points and period of the function
@@ -36,8 +36,8 @@ private:
 	// do RBF interpolation
 	void doRBF();
 	/*
-		do Lagrangian interpolation
-		<<fundamentals of Numerical Analysis>>, P185
+	do Lagrangian interpolation
+	<<fundamentals of Numerical Analysis>>, P185
 	*/
 	void doLagrangian();
 	// do kernel density estimation 
@@ -47,11 +47,18 @@ private:
 	void doShepards();
 protected:
 	// generate the sequence
-	virtual void generateSequence(int nLen=10, int nPeriod=1);
-	void generateSinCurve();
+	virtual void generateSequence(int nLen = 10, int nPeriod = 1);
 private:
 	// length of the result sequence
 	int _nResultLen = 101;
 
+	int _nLen = 200;
+	double _dbStep = .05;
+	double _dbRange = 1;
+private:
+	// a short sin sequence with noise and outlier
+	void generateSeq1();
+	// a dense sin sequence
+	void generateSeq2();
 };
 

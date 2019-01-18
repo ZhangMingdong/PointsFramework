@@ -7,9 +7,13 @@
 
 #include <QGLWidget>
 #include <gl/GLU.h>
-#include "MathFunction.h"
+#include <MathTypes.hpp>
 #include "RBFInterpolator.h"
 #include "Interpolater1D.h"
+
+#include <MyPCA.h>
+
+const bool g_bShowSinCurve = true;		// show sin curve
 
 void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, std::vector<double>& b)
 {
@@ -33,9 +37,13 @@ const bool c_bFFT = false;
 
 Sequence1DLayer::Sequence1DLayer():_dbLeft(-2),_dbRight(2)
 {
+	if (g_bShowSinCurve) {
+		generateSinCurve();
+		return;
+	}
 	// 1.generate the original sequence
 	generateSequence();
-//	return;
+
 	// 2.do interpolation	
 	doRBF();		
 	doLagrangian();
@@ -63,9 +71,9 @@ void Sequence1DLayer::doRBF() {
 	{
 		f[i][0] = _sequence[i].y;
 	}
-	GetMatrixInverse_2(disMatrix, nLen, disMatrix_r);
+	PCA::GetMatrixInverse_2(disMatrix, nLen, disMatrix_r);
 
-	multiply(disMatrix_r, f, w);
+	PCA::multiply(disMatrix_r, f, w);
 
 	// 2.generate result
 	int nResultLen = 101;
@@ -89,7 +97,7 @@ inline double KernelFun(double para) {
 
 void Sequence1DLayer::doKDE() {
 	double dbStep = (_dbRight - _dbLeft) / (_nResultLen - 1);
-	double dbB = 1.0/_dbH;
+	//double dbB = 1.0/_dbH;
 	for (size_t i = 0; i < _nResultLen; i++)
 	{
 		double x = _dbLeft + dbStep*i;
@@ -98,9 +106,9 @@ void Sequence1DLayer::doKDE() {
 		double dbBase = 0.0;
 		for (DPoint3 pt : _sequence) {
 			dbBase += pt.y;
-			y += pt.y*KernelFun((x - pt.x) / dbB) / dbB;
+			y += pt.y*KernelFun((x - pt.x) / _dbH) / _dbH;
 		}
-		y /= dbBase;
+		//y /= dbBase;
 
 		_sequenceResultKDE.push_back(DPoint3(x, y, 0));
 	}
@@ -152,10 +160,24 @@ Sequence1DLayer::~Sequence1DLayer()
 }
 
 void Sequence1DLayer::Draw() {
+	if (g_bShowSinCurve) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE); // GL_ONE_MINUS_SRC_ALPHA
+		glColor4f(0, 0, 1, .4);
+		glBegin(GL_LINE_STRIP);
+		for (DPoint3 pt : _sequence)
+		{
+			glVertex3d(pt.x, pt.y, pt.z);
+		}
+		glEnd();
+		return;
+	}
 	// draw points
+	glLineWidth(2.0);
 	glPointSize(_pSetting->_dbPointSize);
 
 	glBegin(GL_POINTS);
+	glColor3f(0, 0, 0);
 	for (DPoint3 pt : _sequence)
 	{
 		glVertex3d(pt.x, pt.y, pt.z);
@@ -175,46 +197,58 @@ void Sequence1DLayer::Draw() {
 	*/
 
 	// draw RBF results
-	glColor3f(1, 0, 0);
-	int nSeqResultLen = _sequenceResultRBF.size();
-	glBegin(GL_LINE_STRIP);
-	for (size_t i = 0; i < nSeqResultLen; i++)
+	if (_pSetting->_b1DRBF)
 	{
-		glVertex3d(_sequenceResultRBF[i].x, _sequenceResultRBF[i].y, _sequenceResultRBF[i].z);
+		glColor3f(1, 0, 0);
+		int nSeqResultLen = _sequenceResultRBF.size();
+		glBegin(GL_LINE_STRIP);
+		for (size_t i = 0; i < nSeqResultLen; i++)
+		{
+			glVertex3d(_sequenceResultRBF[i].x, _sequenceResultRBF[i].y, _sequenceResultRBF[i].z);
+		}
+		glEnd();
 	}
-	glEnd();
 
 	// draw Lagrangian results
-	glColor3f(0, 1, 0);
-	nSeqResultLen = _sequenceResultLagrangian.size();
-	glBegin(GL_LINE_STRIP);
-	for (size_t i = 0; i < nSeqResultLen; i++)
+	if (_pSetting->_b1DLagrangian)
 	{
-		glVertex3d(_sequenceResultLagrangian[i].x, _sequenceResultLagrangian[i].y, _sequenceResultLagrangian[i].z);
+		glColor3f(0, 1, 0);
+		int nSeqResultLen = _sequenceResultLagrangian.size();
+		glBegin(GL_LINE_STRIP);
+		for (size_t i = 0; i < nSeqResultLen; i++)
+		{
+			glVertex3d(_sequenceResultLagrangian[i].x, _sequenceResultLagrangian[i].y, _sequenceResultLagrangian[i].z);
+		}
+		glEnd();
+
 	}
-	glEnd();
 
 	// draw KDE results
-	glColor3f(0, 0, 1);
-	nSeqResultLen = _sequenceResultKDE.size();
-	glBegin(GL_LINE_STRIP);
-	for (size_t i = 0; i < nSeqResultLen; i++)
+	if (_pSetting->_b1DKDE)
 	{
-		glVertex3d(_sequenceResultKDE[i].x, _sequenceResultKDE[i].y, _sequenceResultKDE[i].z);
+		glColor3f(0, 0, 1);
+		int nSeqResultLen = _sequenceResultKDE.size();
+		glBegin(GL_LINE_STRIP);
+		for (size_t i = 0; i < nSeqResultLen; i++)
+		{
+			glVertex3d(_sequenceResultKDE[i].x, _sequenceResultKDE[i].y, _sequenceResultKDE[i].z);
 
+		}
+		glEnd();
 	}
-	glEnd();
 
-
-
-	// draw Shepards results
-	glColor3f(1, 0, 1);
-	glBegin(GL_LINE_STRIP);
-	for (DPoint3 pt : _sequenceResultShepards)
+	if (_pSetting->_b1DShepard)
 	{
-		glVertex3d(pt.x, pt.y, 0);
+		// draw Shepards results
+		glColor3f(1, 0, 1);
+		glBegin(GL_LINE_STRIP);
+		for (DPoint3 pt : _sequenceResultShepards)
+		{
+			glVertex3d(pt.x, pt.y, 0);
+		}
+		glEnd();
 	}
-	glEnd();
+
 }
 
 void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
@@ -240,30 +274,150 @@ void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
 	else
 	{
 		// 0.generation
-		DPoint3 seq[10] = {
-			DPoint3(-2, -.2, 0)
-			,DPoint3(-1.6, -0.6, 0)
-			,DPoint3(-1.2, 0, 0)
-			,DPoint3(-0.8, .3, 0)
-			,DPoint3(-0.1, .5, 0)
-			,DPoint3(-0.0, .7, 0)
-			,DPoint3(0.4, .9, 0)
-			,DPoint3(0.6, .5, 0)
-			,DPoint3(1.2, .3, 0)
-			,DPoint3(1.6, .0, 0)
-		};
-		int nLen = 10;
-		for (size_t i = 0; i < nLen; i++)
-		{
-			//		double x = i;
-			//		double y = MyRandom()*4-2;
-			//		_sequence.push_back(DPoint3(x, y, 0));
-			_sequence.push_back(seq[i]);
-			//		_sequenceResult.push_back(DPoint3(seq[i].x, -seq[i].y,0));
+		bool bMeteorology = true;
+		if (bMeteorology) {
+			DPoint3 seq[50] = {
+			 DPoint3(-27.923, 1, 0)
+			,DPoint3(-27.6692, 1, 0)
+			,DPoint3(-27.1323, 1, 0)
+			,DPoint3(-24.8325, 1, 0)
+			,DPoint3(-23.7652, 1, 0)
+			,DPoint3(-23.6984, 1, 0)
+			,DPoint3(-23.644, 1, 0)
+			,DPoint3(-23.6091, 1, 0)
+			,DPoint3(-22.5672, 1, 0)
+			,DPoint3(-22.5358, 1, 0)
+			,DPoint3(-22.288, 1, 0)
+			,DPoint3(-21.6435, 1, 0)
+			,DPoint3(-21.5908, 1, 0)
+			,DPoint3(-21.1062, 1, 0)
+			,DPoint3(-21.0533, 1, 0)
+			,DPoint3(-20.7104, 1, 0)
+			,DPoint3(-20.5877, 1, 0)
+			,DPoint3(-20.4705, 1, 0)
+			,DPoint3(-20.3387, 1, 0)
+			,DPoint3(-20.2206, 1, 0)
+			,DPoint3(-20.1547, 1, 0)
+			,DPoint3(-20.0691, 1, 0)
+			,DPoint3(-20.0486, 1, 0)
+			,DPoint3(-19.9927, 1, 0)
+			,DPoint3(-19.9756, 1, 0)
+			,DPoint3(-19.9017, 1, 0)
+			,DPoint3(-19.8974, 1, 0)
+			,DPoint3(-19.863, 1, 0)
+			,DPoint3(-19.8376, 1, 0)
+			,DPoint3(-19.6602, 1, 0)
+			,DPoint3(-19.4625, 1, 0)
+			,DPoint3(-19.3066, 1, 0)
+			,DPoint3(-19.0843, 1, 0)
+			,DPoint3(-18.9663, 1, 0)
+			,DPoint3(-18.862, 1, 0)
+			,DPoint3(-18.7484, 1, 0)
+			,DPoint3(-17.6952, 1, 0)
+			,DPoint3(-17.4865, 1, 0)
+			,DPoint3(-17.2073, 1, 0)
+			,DPoint3(-17.0683, 1, 0)
+			,DPoint3(-16.9874, 1, 0)
+			,DPoint3(-15.82, 1, 0)
+			,DPoint3(-14.8912, 1, 0)
+			,DPoint3(-14.8891, 1, 0)
+			,DPoint3(-13.9065, 1, 0)
+			,DPoint3(-13.5025, 1, 0)
+			,DPoint3(-11.1557, 1, 0)
+			,DPoint3(-7.55242, 1, 0)
+			,DPoint3(-1.48875, 1, 0)
+			,DPoint3(-0.897352, 1, 0)
+			};
+			int nLen = 50;
+			for (size_t i = 0; i < nLen; i++)
+			{
+				_sequence.push_back(seq[i]);
+			}
+
+			_dbLeft = -30;
+			_dbRight = 0;
+			_nResultLen = 1000;
+		}
+		else {
+			DPoint3 seq[10] = {
+				DPoint3(-2, -.2, 0)
+				,DPoint3(-1.6, -0.6, 0)
+				,DPoint3(-1.2, 0, 0)
+				,DPoint3(-0.8, .3, 0)
+				,DPoint3(-0.1, .5, 0)
+				,DPoint3(-0.0, .7, 0)
+				,DPoint3(0.4, .9, 0)
+				,DPoint3(0.6, .5, 0)
+				,DPoint3(1.2, .3, 0)
+				,DPoint3(1.6, .0, 0)
+			};
+			int nLen = 10;
+			for (size_t i = 0; i < nLen; i++)
+			{
+				_sequence.push_back(seq[i]);
+			}
 		}
 	}
 
 }
+
+void Sequence1DLayer::generateSinCurve() {
+	double x = 0;
+	while (x < 1000 * PId) {
+		double y = sin(x);
+		_sequence.push_back(DPoint3(x/300.0, y, 0));
+		x += .001;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Sequence1DLayer::Reset(int nLen, int nPeriod) {
 	_sequence.clear();

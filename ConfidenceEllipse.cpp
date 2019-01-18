@@ -1,6 +1,13 @@
 #include "ConfidenceEllipse.h"
 
-#include "MathFunction.h"
+#include <MathTypes.hpp>
+#include <tnt_array2d.h>
+
+#include <MyPCA.h>
+
+
+using namespace TNT;
+//using namespace JAMA;
 
 ConfidenceEllipse::ConfidenceEllipse(std::vector<DPoint3> vecPts):_nRow(vecPts.size()),_nCol(2)
 {
@@ -29,10 +36,10 @@ ConfidenceEllipse::ConfidenceEllipse(std::vector<DPoint3> vecPts):_nRow(vecPts.s
 
 
 	// 2.compute covariance matrix
-	compute_covariance_matrix(*_pD, *_pCM);
+	PCA::compute_covariance_matrix(*_pD, *_pCM);
 
 	// 3.compute the reverse matrix of covariance
-	GetMatrixInverse(*_pCM, _nCol, *_pCMR);
+	PCA::GetMatrixInverse(*_pCM, _nCol, *_pCMR);
 }
 
 ConfidenceEllipse::ConfidenceEllipse(std::vector<LabeledPoint> vecPts) :_nRow(vecPts.size()), _nCol(2)
@@ -62,10 +69,10 @@ ConfidenceEllipse::ConfidenceEllipse(std::vector<LabeledPoint> vecPts) :_nRow(ve
 
 
 	// 2.compute covariance matrix
-	compute_covariance_matrix(*_pD, *_pCM);
+	PCA::compute_covariance_matrix(*_pD, *_pCM);
 
 	// 3.compute the reverse matrix of covariance
-	GetMatrixInverse(*_pCM, _nCol, *_pCMR);
+	PCA::GetMatrixInverse(*_pCM, _nCol, *_pCMR);
 }
 
 
@@ -86,8 +93,8 @@ double ConfidenceEllipse::CalculateAlpha(DPoint3 pt) {
 
 	m0[0][0] = m1[0][0] = pt.x - _dbMeanX;
 	m0[0][1] = m1[1][0] = pt.y - _dbMeanY;
-	multiply(m0, *_pCMR, m);
-	multiply(m, m1, mr);
+	PCA::multiply(m0, *_pCMR, m);
+	PCA::multiply(m, m1, mr);
 	double alpha = sqrt(mr[0][0]);
 	return alpha;
 }

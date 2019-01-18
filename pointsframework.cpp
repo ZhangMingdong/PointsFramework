@@ -4,6 +4,7 @@
 #include <QDockWidget>
 #include "DisplayWidget.h"
 #include "ControlWidget.h"
+#include "Sequence1DWidget.h"
 
 PointsFramework::PointsFramework(QWidget *parent)
 	: QMainWindow(parent)
@@ -45,6 +46,12 @@ void PointsFramework::createDockWidgets(){
 	pDockWidgetInterpolation->setWidget(_pWidgetInterpolation);
 	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetInterpolation);
 
+	_pWidgetSequence1D = new Sequence1DWidget();
+	QDockWidget *pDockWidgetSequence1D = new QDockWidget(tr("Sequence1D"), this);
+	pDockWidgetSequence1D->setFeatures(features);
+	pDockWidgetSequence1D->setWidget(_pWidgetSequence1D);
+	addDockWidget(Qt::LeftDockWidgetArea, pDockWidgetSequence1D);
+
 	_pWidgetClustering = new ClusteringWidget();
 	QDockWidget *pDockWidgetClustering = new QDockWidget(tr("Clustering"), this);
 	pDockWidgetClustering->setFeatures(features);
@@ -72,7 +79,7 @@ void PointsFramework::createConnections(){
 	connect(_pControlWidget->ui.pushButtonGenerateBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSpiral, SIGNAL(pressed()), this, SLOT(onGenerateSpiralClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateBlueNoiseNormal, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseNormalClicked()));
-	connect(_pControlWidget->ui.pushButtonGenerateMulticlassBlueNoise, SIGNAL(pressed()), this, SLOT(onGenerateMulticlassBlueNoiseClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateTimeSeries, SIGNAL(pressed()), this, SLOT(onGenerateTimeSeriesClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
@@ -105,6 +112,14 @@ void PointsFramework::createConnections(){
 	connect(_pWidgetControl, SIGNAL(clusteringChanged(bool)), pWidget, SLOT(onClustering(bool)));
 	connect(_pWidgetControl, SIGNAL(interpolationChanged(bool)), pWidget, SLOT(onInterpolation(bool)));
 	connect(_pWidgetControl, SIGNAL(sdChanged(bool)), pWidget, SLOT(onSD(bool)));
+
+	// sequence 1D
+	connect(_pWidgetSequence1D, SIGNAL(RBFChanged(bool)), pWidget, SLOT(onRBF(bool)));
+	connect(_pWidgetSequence1D, SIGNAL(LagrangianChanged(bool)), pWidget, SLOT(onLagrangian(bool)));
+	connect(_pWidgetSequence1D, SIGNAL(KDEChanged(bool)), pWidget, SLOT(onKDE(bool)));
+	connect(_pWidgetSequence1D, SIGNAL(ShepardChanged(bool)), pWidget, SLOT(onShepard(bool)));
+
+
 }
 
 void PointsFramework::onGenerateRandomClicked(){
@@ -147,13 +162,13 @@ void PointsFramework::onGenerateBlueNoiseNormalClicked() {
 
 	pWidget->updateGL();
 }
-void PointsFramework::onGenerateMulticlassBlueNoiseClicked() {
+void PointsFramework::onGenerateTimeSeriesClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateMulticlassBlueNoise(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
+	pWidget->GenerateTimeSeries(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
 	int t = GetTickCount() - t1; 
-	QString s1 = QStringLiteral("生成多组蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
+	QString s1 = QStringLiteral("生成时序数据。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
 
 	pWidget->updateGL();

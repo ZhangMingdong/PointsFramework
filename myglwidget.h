@@ -90,8 +90,8 @@ public:
 	void GenerateBlueNoise(int number, int nClass);
 	// generate number blue noise points
 	void GenerateBlueNoiseNormal(int number);
-	// generate multiple class blue noise points of the given number
-	void GenerateMulticlassBlueNoise(int number,int nClass);
+	// generate time series data
+	void GenerateTimeSeries(int number,int nClass);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateNormalPoints(int number);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
@@ -241,6 +241,11 @@ public slots:
 	void onClustering(bool b);
 	void onInterpolation(bool b);
 	void onSD(bool b);
+	// for 1d sequence
+	void onRBF(bool bState);
+	void onLagrangian(bool bState);
+	void onKDE(bool bState);
+	void onShepard(bool bState);
 };
 
 #endif // MYGLWIDGET_H
