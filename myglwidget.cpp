@@ -250,7 +250,7 @@ void MyGLWidget::Draw()
 	Transform();
 	SetPolygonStyle(1);		//fill
 	// »æÖÆ×ø±êÏµ
-	// 	drawCoords();
+	//drawCoords();
 
 
 	// a circle
@@ -1335,4 +1335,17 @@ void MyGLWidget::onShepard(bool bState) {
 	_pLayerSetting->_b1DShepard = bState;
 	updateGL();
 
+}
+
+void MyGLWidget::onUpdateData(int nData) {
+	qDebug() << "update Data" << nData;
+	_pLayerSetting->_enumData = (LayerSetting::MyEnum_Data)nData;
+}
+
+
+void MyGLWidget::onUpdateH(int nH) {
+	qDebug() << "update H" << nH;
+	_pLayerSetting->_nH = nH;
+	_pLayer->UpdateLayer();
+	updateGL();
 }

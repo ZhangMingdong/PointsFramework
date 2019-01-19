@@ -1,6 +1,8 @@
 #pragma once
 #include "ILayer.h"
 #include <vector>
+class TextureRenderer;
+
 // iris data
 struct RawData
 {
@@ -20,26 +22,22 @@ public:
 	virtual ~DRLayer();
 public:
 	virtual void Draw();
+	virtual void Initialize();
+	virtual void UpdateLayer();
 protected:	
-	void readData();		// read the data point
-	void readWaterData();	// read water data points
-	// run the dimensionality reduction algorithm 
-	void runDR();
-	// use the first two dimension to reduction, just as a contrast
-	void usingFirst2D();
-	// using pca to do reduction
-	void usingPCA();
-	// using mds to do reduction
-	void usingMDS();
-	// regularize the raw data to [0,1], (x-median)/median
-	void regularize1();
-	// (x-mean)/vairance
-	void regularize2();
-protected:
-	// points
-	std::vector<LabeledPoint> _vecPoints;
-	// raw data
-	std::vector<RawData> _vecRaw;
-	int _nAttributes = 17;						// number of attributes
+	void readIrisData();	// read the iris
+	void readWaterData();	// read water data points	
+	void runDR();			// run the dimensionality reduction algorithm 	
+	void usingFirst2D();	// use the first two dimension to reduction, just as a contrast	
+	void usingPCA();		// using pca to do reduction	
+	void usingMDS();		// using mds to do reduction	
+	void regularize1();		// regularize the raw data to [0,1], (x-median)/median
+	void regularize2();		// (x-mean)/vairance
+	void generateTextureByKDE();	// generate texture by KDE
+protected:	
+	std::vector<LabeledPoint> _vecPoints;		// points	
+	std::vector<RawData> _vecRaw;				// raw data
+	int _nAttributes = 0;						// number of attributes
+	TextureRenderer* _pTRenderer = NULL;		// the texture renderer
 };
 

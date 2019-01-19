@@ -39,6 +39,7 @@ void ClusteringWidget::createWidgets() {
 	_pSpinBoxEps->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 	_pSpinBoxEps->setValue(1.0);
 	_pSpinBoxEps->setDecimals(2);
+
 }
 
 void ClusteringWidget::createLayout() {

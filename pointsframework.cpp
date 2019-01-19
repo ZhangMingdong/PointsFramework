@@ -6,6 +6,8 @@
 #include "ControlWidget.h"
 #include "Sequence1DWidget.h"
 
+#include<QDebug>
+
 PointsFramework::PointsFramework(QWidget *parent)
 	: QMainWindow(parent)
 {
@@ -112,6 +114,9 @@ void PointsFramework::createConnections(){
 	connect(_pWidgetControl, SIGNAL(clusteringChanged(bool)), pWidget, SLOT(onClustering(bool)));
 	connect(_pWidgetControl, SIGNAL(interpolationChanged(bool)), pWidget, SLOT(onInterpolation(bool)));
 	connect(_pWidgetControl, SIGNAL(sdChanged(bool)), pWidget, SLOT(onSD(bool)));
+
+	connect(_pWidgetControl, SIGNAL(dataChanged(int)), pWidget, SLOT(onUpdateData(int)));
+	connect(_pWidgetControl, SIGNAL(hChanged(int)), pWidget, SLOT(onUpdateH(int)));
 
 	// sequence 1D
 	connect(_pWidgetSequence1D, SIGNAL(RBFChanged(bool)), pWidget, SLOT(onRBF(bool)));

@@ -49,5 +49,17 @@ public:
 	bool _b1DKDE = true;
 	bool _b1DShepard = true;
 	//== ~for 1D sequence==
+
+
+	int _nH = 1;		// h parameter for kde
+
+	enum MyEnum_Data
+	{
+		data_normal
+		, data_iris
+		, data_water
+	};
+
+	MyEnum_Data _enumData = data_normal;
 };
 

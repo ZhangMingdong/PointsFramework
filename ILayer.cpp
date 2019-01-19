@@ -18,6 +18,7 @@
 #include <random>
 using namespace std;
 
+
 ILayer::ILayer(){
 }
 
@@ -26,7 +27,7 @@ ILayer::~ILayer()
 {
 }
 
-ILayer* ILayer::CreateLayer(EnumLayerType type, const LayerSetting* pSetting,int nPoints,int nClass) {
+ILayer* ILayer::CreateLayer(EnumLayerType type, LayerSetting* pSetting,int nPoints,int nClass) {
 	ILayer* pLayer = NULL;
 	switch (type)
 	{
@@ -198,3 +199,4 @@ void ILayer::GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, doub
 		vecPts.push_back(DPoint3(randomX, randomY, 0));
 	}
 }
+

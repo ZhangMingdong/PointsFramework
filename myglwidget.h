@@ -246,6 +246,10 @@ public slots:
 	void onLagrangian(bool bState);
 	void onKDE(bool bState);
 	void onShepard(bool bState);
+
+
+	void onUpdateData(int);
+	void onUpdateH(int);
 };
 
 #endif // MYGLWIDGET_H

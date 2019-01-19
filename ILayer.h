@@ -30,7 +30,7 @@ public:
 		, LT_Data
 		, LT_Time_Series
 	};
-	static ILayer* CreateLayer(EnumLayerType type,const LayerSetting* pSetting,int nPoints=0,int nClass=1);
+	static ILayer* CreateLayer(EnumLayerType type, LayerSetting* pSetting,int nPoints=0,int nClass=1);
 public:
 	virtual void Draw()=0;
 	// add a point
@@ -83,7 +83,7 @@ protected:
 	double _dbPointSize = 1.0;
 	*/
 	// setting
-	const LayerSetting *_pSetting = NULL;
+	LayerSetting *_pSetting = NULL;
 
 protected:// drawing
 	void DrawPoint(const DPoint3& p);
@@ -110,6 +110,8 @@ public:
 
 	// generate a list of points obey the random distribution
 	static void GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x,double y,double r);
+
+
 
 };
 
