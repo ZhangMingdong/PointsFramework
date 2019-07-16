@@ -329,6 +329,20 @@ void MyGLWidget::Draw()
 	}
 
 
+	if (m_bRBtnDown) {
+		DPoint3 pt1, pt2;
+		ScreenToWorld(m_ptLBtnDown, pt1);
+		ScreenToWorld(m_ptMouseCurrent, pt2);
+
+		qDebug() << "r down" << m_ptLBtnDown.x << m_ptLBtnDown.y << m_ptMouseCurrent.x << m_ptMouseCurrent.y;
+		glBegin(GL_LINES);
+		glVertex2d(pt1.x, pt1.y);
+		glVertex2d(pt2.x, pt2.y);
+		glEnd();
+	}
+
+
+
 	ReTransform();
 	OnPostRenderScene();
 }
@@ -420,6 +434,7 @@ void MyGLWidget::OnMouseMove(int x, int y)
 			strDir << dir;
 			strDis << nDis;
 			m_strDisDir = strDis.str() + "¹«Àï/" + strDir.str() + "¶È";
+
 		}
 		break;
 	default:
@@ -431,6 +446,7 @@ void MyGLWidget::OnMouseMove(int x, int y)
 		else if (m_bRBtnDown)
 		{
 //			ScreenRoll(y - m_ptMouseCurrent.y, x - m_ptMouseCurrent.x);
+
 		}
 		else if (m_bMBtnDown)
 		{
