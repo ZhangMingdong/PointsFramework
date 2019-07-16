@@ -13,7 +13,9 @@
 
 #include <MyPCA.h>
 
-const bool g_bShowSinCurve = true;		// show sin curve
+#include <QDebug>
+
+const bool g_bShowSinCurve = false;		// show sin curve
 
 void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, std::vector<double>& b)
 {
@@ -33,17 +35,13 @@ void forwardDFT(const std::vector<DPoint3> s, int nLen, std::vector<double>& a, 
 	}
 }
 
-const bool c_bFFT = false;
+const bool c_bFFT = true;
 
-Sequence1DLayer::Sequence1DLayer():_dbLeft(-2),_dbRight(2)
+Sequence1DLayer::Sequence1DLayer()
 {
-	if (g_bShowSinCurve) {
-		generateSinCurve();
-		return;
-	}
 	// 1.generate the original sequence
 	generateSequence();
-
+	
 	// 2.do interpolation	
 	doRBF();		
 	doLagrangian();
@@ -106,7 +104,8 @@ void Sequence1DLayer::doKDE() {
 		double dbBase = 0.0;
 		for (DPoint3 pt : _sequence) {
 			dbBase += pt.y;
-			y += pt.y*KernelFun((x - pt.x) / _dbH) / _dbH;
+			//y += pt.y*KernelFun((x - pt.x) / _dbH) / _dbH;
+			y += KernelFun((x - pt.x) / _dbH) / _dbH;
 		}
 		//y /= dbBase;
 
@@ -235,6 +234,31 @@ void Sequence1DLayer::Draw() {
 
 		}
 		glEnd();
+
+
+		// draw percentage
+		bool bDrawKDEPercentage = true;
+		if (bDrawKDEPercentage) {
+			double dbSum = 0;
+			bool bHalf = false;
+			int nCurrentThresholdIndex = 0;
+			double dbThreshold = (nSeqResultLen - 1) / 8.0;
+			for (size_t i = 0; i < nSeqResultLen; i++)
+			{
+				dbSum += _sequenceResultKDE[i].y;
+				if (dbSum> nCurrentThresholdIndex*dbThreshold)
+				{
+					glBegin(GL_LINES);
+					glVertex3d(_sequenceResultKDE[i].x, _sequenceResultKDE[i].y, _sequenceResultKDE[i].z);
+					glVertex3d(_sequenceResultKDE[i].x, 0, _sequenceResultKDE[i].z);
+					glEnd();
+					nCurrentThresholdIndex++;
+				}
+
+				
+
+			}
+		}
 	}
 
 	if (_pSetting->_b1DShepard)
@@ -252,7 +276,11 @@ void Sequence1DLayer::Draw() {
 }
 
 void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
-	if (c_bFFT) {
+
+	if (g_bShowSinCurve) {
+		generateSinCurve();		
+	}
+	else if (c_bFFT) {
 		nLen *= 10;
 		// generate a sine wave
 		double dbScope = 4;
@@ -277,56 +305,56 @@ void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
 		bool bMeteorology = true;
 		if (bMeteorology) {
 			DPoint3 seq[50] = {
-			 DPoint3(-27.923, 1, 0)
-			,DPoint3(-27.6692, 1, 0)
-			,DPoint3(-27.1323, 1, 0)
-			,DPoint3(-24.8325, 1, 0)
-			,DPoint3(-23.7652, 1, 0)
-			,DPoint3(-23.6984, 1, 0)
-			,DPoint3(-23.644, 1, 0)
-			,DPoint3(-23.6091, 1, 0)
-			,DPoint3(-22.5672, 1, 0)
-			,DPoint3(-22.5358, 1, 0)
-			,DPoint3(-22.288, 1, 0)
-			,DPoint3(-21.6435, 1, 0)
-			,DPoint3(-21.5908, 1, 0)
-			,DPoint3(-21.1062, 1, 0)
-			,DPoint3(-21.0533, 1, 0)
-			,DPoint3(-20.7104, 1, 0)
-			,DPoint3(-20.5877, 1, 0)
-			,DPoint3(-20.4705, 1, 0)
-			,DPoint3(-20.3387, 1, 0)
-			,DPoint3(-20.2206, 1, 0)
-			,DPoint3(-20.1547, 1, 0)
-			,DPoint3(-20.0691, 1, 0)
-			,DPoint3(-20.0486, 1, 0)
-			,DPoint3(-19.9927, 1, 0)
-			,DPoint3(-19.9756, 1, 0)
-			,DPoint3(-19.9017, 1, 0)
-			,DPoint3(-19.8974, 1, 0)
-			,DPoint3(-19.863, 1, 0)
-			,DPoint3(-19.8376, 1, 0)
-			,DPoint3(-19.6602, 1, 0)
-			,DPoint3(-19.4625, 1, 0)
-			,DPoint3(-19.3066, 1, 0)
-			,DPoint3(-19.0843, 1, 0)
-			,DPoint3(-18.9663, 1, 0)
-			,DPoint3(-18.862, 1, 0)
-			,DPoint3(-18.7484, 1, 0)
-			,DPoint3(-17.6952, 1, 0)
-			,DPoint3(-17.4865, 1, 0)
-			,DPoint3(-17.2073, 1, 0)
-			,DPoint3(-17.0683, 1, 0)
-			,DPoint3(-16.9874, 1, 0)
-			,DPoint3(-15.82, 1, 0)
-			,DPoint3(-14.8912, 1, 0)
-			,DPoint3(-14.8891, 1, 0)
-			,DPoint3(-13.9065, 1, 0)
-			,DPoint3(-13.5025, 1, 0)
-			,DPoint3(-11.1557, 1, 0)
-			,DPoint3(-7.55242, 1, 0)
-			,DPoint3(-1.48875, 1, 0)
-			,DPoint3(-0.897352, 1, 0)
+			 DPoint3(-27.923, 0, 0)
+			,DPoint3(-27.6692, 0, 0)
+			,DPoint3(-27.1323, 0, 0)
+			,DPoint3(-24.8325, 0, 0)
+			,DPoint3(-23.7652, 0, 0)
+			,DPoint3(-23.6984, 0, 0)
+			,DPoint3(-23.644, 0, 0)
+			,DPoint3(-23.6091, 0, 0)
+			,DPoint3(-22.5672, 0, 0)
+			,DPoint3(-22.5358, 0, 0)
+			,DPoint3(-22.288, 0, 0)
+			,DPoint3(-21.6435, 0, 0)
+			,DPoint3(-21.5908, 0, 0)
+			,DPoint3(-21.1062, 0, 0)
+			,DPoint3(-21.0533, 0, 0)
+			,DPoint3(-20.7104, 0, 0)
+			,DPoint3(-20.5877, 0, 0)
+			,DPoint3(-20.4705, 0, 0)
+			,DPoint3(-20.3387, 0, 0)
+			,DPoint3(-20.2206, 0, 0)
+			,DPoint3(-20.1547, 0, 0)
+			,DPoint3(-20.0691, 0, 0)
+			,DPoint3(-20.0486, 0, 0)
+			,DPoint3(-19.9927, 0, 0)
+			,DPoint3(-19.9756, 0, 0)
+			,DPoint3(-19.9017, 0, 0)
+			,DPoint3(-19.8974, 0, 0)
+			,DPoint3(-19.863, 0, 0)
+			,DPoint3(-19.8376, 0, 0)
+			,DPoint3(-19.6602, 0, 0)
+			,DPoint3(-19.4625, 0, 0)
+			,DPoint3(-19.3066, 0, 0)
+			,DPoint3(-19.0843, 0, 0)
+			,DPoint3(-18.9663, 0, 0)
+			,DPoint3(-18.862, 0, 0)
+			,DPoint3(-18.7484, 0, 0)
+			,DPoint3(-17.6952, 0, 0)
+			,DPoint3(-17.4865, 0, 0)
+			,DPoint3(-17.2073, 0, 0)
+			,DPoint3(-17.0683, 0, 0)
+			,DPoint3(-16.9874, 0, 0)
+			,DPoint3(-15.82, 0, 0)
+			,DPoint3(-14.8912, 0, 0)
+			,DPoint3(-14.8891, 0, 0)
+			,DPoint3(-13.9065, 0, 0)
+			,DPoint3(-13.5025, 0, 0)
+			,DPoint3(-11.1557, 0, 0)
+			,DPoint3(-7.55242, 0, 0)
+			,DPoint3(-1.48875, 0, 0)
+			,DPoint3(-0.897352, 0, 0)
 			};
 			int nLen = 50;
 			for (size_t i = 0; i < nLen; i++)
@@ -334,8 +362,8 @@ void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
 				_sequence.push_back(seq[i]);
 			}
 
-			_dbLeft = -30;
-			_dbRight = 0;
+			_dbLeft = -40;
+			_dbRight = 10;
 			_nResultLen = 1000;
 		}
 		else {
@@ -363,61 +391,19 @@ void Sequence1DLayer::generateSequence(int nLen, int nPeriod) {
 
 void Sequence1DLayer::generateSinCurve() {
 	double x = 0;
+	/*
 	while (x < 1000 * PId) {
 		double y = sin(x);
 		_sequence.push_back(DPoint3(x/300.0, y, 0));
 		x += .001;
+	}*/
+	while (x < 10 * PId) {
+		double y = sin(x);
+		_sequence.push_back(DPoint3(x / 3.0, y, 0));
+		x += .1;
 	}
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void Sequence1DLayer::Reset(int nLen, int nPeriod) {
 	_sequence.clear();

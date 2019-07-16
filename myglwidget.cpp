@@ -35,8 +35,8 @@ MyGLWidget::MyGLWidget(QWidget *parent)
 	, m_pt3Eye(0.0, 0.0, 4.0)
 //	, m_clearColor(.6, .6, .4, 1.0)
 //	, m_clearColor(1.0, 1.0, 1.0, 1.0)
-	, m_clearColor(0,0,0,0)
-//	, m_clearColor(.5,.5,.5, 1.0)
+//	, m_clearColor(1,1,1,1)
+	, m_clearColor(.1,.1,.1, 1.0)
 	, _pLayer(0)
 
 {

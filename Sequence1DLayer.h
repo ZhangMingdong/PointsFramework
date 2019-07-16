@@ -28,10 +28,12 @@ private:
 	// result of Shepard's interpolation
 	std::vector<DPoint3> _sequenceResultShepards;
 	// left and right position
-	double _dbLeft;
-	double _dbRight;
+	double _dbLeft=-4;
+	double _dbRight=4;
 	// parameter h of kde
 	double _dbH = 1.0;
+	// length of the result sequence
+	int _nResultLen = 201;
 private:
 	// do RBF interpolation
 	void doRBF();
@@ -49,9 +51,6 @@ protected:
 	// generate the sequence
 	virtual void generateSequence(int nLen=10, int nPeriod=1);
 	void generateSinCurve();
-private:
-	// length of the result sequence
-	int _nResultLen = 101;
 
 };
 

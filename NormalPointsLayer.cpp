@@ -18,7 +18,7 @@ void NormalPointsLayer::Draw() {
 
 }
 
-const int g_nNeighbors = 5;
+const int g_nNeighbors = 4;
 
 void NormalPointsLayer::buildEdgeMatrix() {
 	if (_arrEdge) delete[]_arrEdge;

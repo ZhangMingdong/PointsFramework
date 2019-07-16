@@ -111,6 +111,9 @@ public:
 	// generate a list of points obey the random distribution
 	static void GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x,double y,double r);
 
+public:
+	
+
 
 
 };
