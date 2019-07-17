@@ -19,6 +19,7 @@ public:
 		LT_Sequence_1D
 		, LT_Sequence_2D
 		, LT_Normal_Single
+		, LT_Grid
 		, LT_Normal_Multi
 		, LT_Normal_Blue
 		, LT_Random
@@ -112,7 +113,8 @@ public:
 	static void GenerateRandomPoints(std::vector<DPoint3>& vecPts, int number, double x,double y,double r);
 
 public:
-	
+	// mouse event, word point
+	virtual void OnMouse(DPoint3 pt) {};
 
 
 

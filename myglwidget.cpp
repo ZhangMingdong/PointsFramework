@@ -278,7 +278,7 @@ void MyGLWidget::Draw()
 		}
 	}
 
-	// a table
+	// 六边形网格绘制
 	if(false)
 	{
 		double dbRadius = .017;
@@ -330,15 +330,18 @@ void MyGLWidget::Draw()
 
 
 	if (m_bRBtnDown) {
-		DPoint3 pt1, pt2;
-		ScreenToWorld(m_ptLBtnDown, pt1);
-		ScreenToWorld(m_ptMouseCurrent, pt2);
+		// 绘制鼠标圆和半径
+		if (false) {
+			DPoint3 pt1, pt2;
+			ScreenToWorld(m_ptLBtnDown, pt1);
+			ScreenToWorld(m_ptMouseCurrent, pt2);
+			DrawCircle(pt1, (pt2 - pt1).norm());
 
-		qDebug() << "r down" << m_ptLBtnDown.x << m_ptLBtnDown.y << m_ptMouseCurrent.x << m_ptMouseCurrent.y;
-		glBegin(GL_LINES);
-		glVertex2d(pt1.x, pt1.y);
-		glVertex2d(pt2.x, pt2.y);
-		glEnd();
+			glBegin(GL_LINES);
+			glVertex2d(pt1.x, pt1.y);
+			glVertex2d(pt2.x, pt2.y);
+			glEnd();
+		}
 	}
 
 
@@ -458,6 +461,14 @@ void MyGLWidget::OnMouseMove(int x, int y)
 	m_ptMouseCurrent.x = x;
 	m_ptMouseCurrent.y = y;
 
+	// for layer interaction
+	{
+		DPoint3 pt1;
+		ScreenToWorld(IPoint2(x, y), pt1);
+		if (_pLayer)
+			_pLayer->OnMouse(pt1);
+	}
+
 }
 void MyGLWidget::OnMouseWheel(short zDelta)
 {
@@ -514,12 +525,12 @@ void MyGLWidget::ScreenToWorld(int sx, int sy, double& wx, double& wy)
 //////////////////////////////////////////////////////////////////////////
 void MyGLWidget::OnZoomOut()
 {
-	ZoomDelta(0.1);
+	ZoomDelta(0.5);
 }
 
 void MyGLWidget::OnZoomIn()
 {
-	ZoomDelta(-0.1);
+	ZoomDelta(-0.5);
 }
 
 void MyGLWidget::OnZoomBase()
@@ -621,6 +632,12 @@ void MyGLWidget::GenerateNormalPoints(int number) {
 	if (_pLayer) delete _pLayer;
 	_pLayer = ILayer::CreateLayer(ILayer::LT_Normal_Single
 		, _pLayerSetting, number);
+}
+
+void MyGLWidget::GenerateGrid() {
+	if (_pLayer) delete _pLayer;
+	_pLayer = ILayer::CreateLayer(ILayer::LT_Grid
+		, _pLayerSetting, 100);
 }
 
 void MyGLWidget::GenerateMVNPoints(int number) {

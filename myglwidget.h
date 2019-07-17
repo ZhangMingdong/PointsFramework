@@ -20,13 +20,13 @@ public:
 	MyGLWidget(QWidget *parent);
 	~MyGLWidget();
 
-protected:
+protected: // system events
 	virtual void	mousePressEvent(QMouseEvent * event);
 	virtual void	mouseReleaseEvent(QMouseEvent * event);
 	virtual void	mouseMoveEvent(QMouseEvent * event);
 	virtual void	wheelEvent(QWheelEvent * event);
 	virtual void	keyPressEvent(QKeyEvent * event);
-protected:
+protected:// system operation
 	void initializeGL();
 	void paintGL();
 	void resizeGL(int width, int height);
@@ -52,7 +52,7 @@ public://OpenGL²Ù×÷
 	virtual void OnZoomIn();
 	virtual void OnZoomBase();
 	virtual void OnSize(int cx, int cy);
-private:
+private:// states of the mouse
 	bool m_bLBtnDown;
 	bool m_bRBtnDown;
 	bool m_bMBtnDown;
@@ -94,6 +94,8 @@ public:
 	void GenerateTimeSeries(int number,int nClass);
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateNormalPoints(int number);
+	// generate grid
+	void GenerateGrid();
 	// generate number points according to Normal(mx,my,vx,vy) distribution
 	void GenerateMVNPoints(int number);
 	// generate a sequene
@@ -219,7 +221,7 @@ public:
 	//20121022
 	void DrawRect3D(const DPoint3& pt1, const DPoint3& pt2);
 private:
-	ILayer *_pLayer;	// current layer
+	ILayer *_pLayer=NULL;	// current layer
 
 	// setting for the layers
 	LayerSetting* _pLayerSetting = NULL;

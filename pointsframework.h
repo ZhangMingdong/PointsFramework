@@ -33,6 +33,7 @@ protected:
 	void createConnections();
 public slots:
 	void onGenerateNormalClicked();
+	void onGenerateGridClicked();
 	void onGenerateBlueNoiseClicked();
 	void onGenerateBlueNoiseNormalClicked();
 	void onGenerateTimeSeriesClicked();

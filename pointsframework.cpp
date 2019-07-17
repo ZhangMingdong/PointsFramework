@@ -83,6 +83,7 @@ void PointsFramework::createConnections(){
 	connect(_pControlWidget->ui.pushButtonGenerateBlueNoiseNormal, SIGNAL(pressed()), this, SLOT(onGenerateBlueNoiseNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateTimeSeries, SIGNAL(pressed()), this, SLOT(onGenerateTimeSeriesClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateNormal, SIGNAL(pressed()), this, SLOT(onGenerateNormalClicked()));
+	connect(_pControlWidget->ui.pushButtonGenerateGrid, SIGNAL(pressed()), this, SLOT(onGenerateGridClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateMultiNormal, SIGNAL(pressed()), this, SLOT(onGenerateMultiNormalClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSequence, SIGNAL(pressed()), this, SLOT(onGenerateSequenceClicked()));
 	connect(_pControlWidget->ui.pushButtonGenerateSequence2D, SIGNAL(pressed()), this, SLOT(onGenerateSequence2DClicked()));
@@ -181,6 +182,11 @@ void PointsFramework::onGenerateTimeSeriesClicked() {
 void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
 	pWidget->GenerateNormalPoints(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->updateGL();
+}
+void PointsFramework::onGenerateGridClicked() {
+	// generate grid points
+	pWidget->GenerateGrid();
 	pWidget->updateGL();
 }
 

@@ -12,6 +12,7 @@
 #include "DRLayer.h"
 #include "DataLayer.h"
 #include "TimeSeriesLayer.h"
+#include "GridLayer.h"
 
 #include "LayerSetting.h"
 
@@ -39,6 +40,9 @@ ILayer* ILayer::CreateLayer(EnumLayerType type, LayerSetting* pSetting,int nPoin
 		break;
 	case ILayer::LT_Normal_Single:
 		pLayer = new SingleNormalPointsLayer(nPoints);
+		break;
+	case ILayer::LT_Grid:
+		pLayer = new GridLayer(1000);
 		break;
 	case ILayer::LT_Normal_Multi:
 		pLayer = new MultiNormalPointsLayer(nPoints);
