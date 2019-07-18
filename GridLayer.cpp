@@ -64,9 +64,20 @@ void GridLayer::OnMouse(DPoint3 ptMouse) {
 			DPoint3 pt = _gridRegular[i][j];
 			double dbDis = (pt - ptMouse).norm();
 			if (dbDis < dbRadius) {
-				double dbScale = dbDis / dbRadius;
-				double dbScaleNew = sqrt(dbScale);
-				pt = ptMouse + (pt - ptMouse)*(dbScaleNew / dbScale);
+				// original method, use sqrt
+				if (false) {
+					double dbScale = dbDis / dbRadius;
+					double dbScaleNew = sqrt(dbScale);
+					pt = ptMouse + (pt - ptMouse)*(dbScaleNew / dbScale);
+				}
+
+				// use formula from "Structure-aware Fisheye Views for Efficient Large Graph Exploration"
+				{
+					double dbM = 3;
+					double dbScale = dbDis / dbRadius;
+					double dbScaleNew = (dbM + 1)*dbScale / (dbM*dbScale + 1);
+					pt = ptMouse + (pt - ptMouse)*(dbScaleNew/ dbScale);
+				}
 			}
 			_gridDistort[i][j] = pt;
 		}
