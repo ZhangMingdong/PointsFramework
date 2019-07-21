@@ -15,6 +15,8 @@
 #include <fstream>
 #include <qdebug.h>
 
+#include"MyGLOperator.h"
+
 
 using namespace std;
 
@@ -30,17 +32,12 @@ MyGLWidgetBase::MyGLWidgetBase(QWidget *parent)
 	, m_bLBtnDown(false)
 	, m_bRBtnDown(false)
 	, m_bMBtnDown(false)
-	, _bHandPoint(false)
-	, m_sPolyStyle(0)
 	, m_pt3Eye(0.0, 0.0, 4.0)
-//	, m_clearColor(.6, .6, .4, 1.0)
-//	, m_clearColor(1.0, 1.0, 1.0, 1.0)
-//	, m_clearColor(1,1,1,1)
-	, m_clearColor(.1,.1,.1, 1.0)
 {
+	_pGLOperator = new MyGLOperator(this);
 	onCreate();
-	SetPointSize(2.0f);
-	SetLineWidth(1.0f);
+	_pGLOperator->SetPointSize(2.0f);
+	_pGLOperator->SetLineWidth(1.0f);
 
 
 	m_dbFovy = 45.0;
@@ -54,7 +51,7 @@ MyGLWidgetBase::MyGLWidgetBase(QWidget *parent)
 MyGLWidgetBase::~MyGLWidgetBase()
 {
 
-	Release();
+	delete _pGLOperator;
 
 }
 
@@ -231,20 +228,17 @@ void MyGLWidgetBase::keyPressEvent(QKeyEvent * event)
 	updateGL();
 }
 
-void MyGLWidgetBase::Release()
-{
-	onDestroy();
-}
+
 const double SQRT_3 = 1.732;
 const double arrX[6] = { 2,1,-1,-2,-1,1 };
 const double arrY[6] = { 0,SQRT_3 ,SQRT_3 ,0,-SQRT_3 ,-SQRT_3 };
 
 void MyGLWidgetBase::Draw()
 {
-	SetColor(RGBAf(0, 1, 1, 1));
+	_pGLOperator->SetColor(RGBAf(0, 1, 1, 1));
 	onPreRenderScene();
 	onTransform();
-	SetPolygonStyle(1);		//fill
+	//SetPolygonStyle(1);		//fill
 	// 绘制坐标系
 	//drawCoords();
 
@@ -324,13 +318,14 @@ void MyGLWidgetBase::Draw()
 	}
 
 
+	
 	if (m_bRBtnDown) {
 		// 绘制鼠标圆和半径
 		if (false) {
 			DPoint3 pt1, pt2;
 			screenToWorld(m_ptLBtnDown, pt1);
 			screenToWorld(m_ptMouseCurrent, pt2);
-			DrawCircle(pt1, (pt2 - pt1).norm());
+			_pGLOperator->DrawCircle(pt1, (pt2 - pt1).norm());
 
 			glBegin(GL_LINES);
 			glVertex2d(pt1.x, pt1.y);
@@ -338,7 +333,7 @@ void MyGLWidgetBase::Draw()
 			glEnd();
 		}
 	}
-
+	
 
 
 	onReTransform();
@@ -347,6 +342,7 @@ void MyGLWidgetBase::Draw()
 
 void MyGLWidgetBase::drawCoords()
 {
+	/*
 	//坐标轴
 	SetColor(RGBAf(0, 0, 0, 1));
 	// 	SetLineWidth(3);
@@ -358,6 +354,7 @@ void MyGLWidgetBase::drawCoords()
 	{
 		DrawCircle(DPoint3(0, 0, 0), i / 10.0);
 	}
+	*/
 }
 //////////////////////////////////////////////////////////////////////////
 void MyGLWidgetBase::OnLButtonDown(int x, int y)
@@ -368,99 +365,38 @@ void MyGLWidgetBase::OnLButtonDown(int x, int y)
 	m_ptMouseCurrent.x = x;
 	m_ptMouseCurrent.y = y;
 
-	if (_bHandPoint)
-	{
-		DPoint3 pt1;
-		screenToWorld(m_ptLBtnDown, pt1);
-	//	if (_pLayer)
-	//		_pLayer->AddPoint(pt1);
-	}
+
 }
 void MyGLWidgetBase::OnLButtonUp(int x, int y)
 {
-	switch (m_nState)
-	{
-	case GLAYER_STATE_RINGING:
-	{
-		DPoint3 pt1, pt2;
-		screenToWorld(m_ptLBtnDown, pt1);
-		screenToWorld(IPoint2(x, y), pt2);
-		onZoomFitWrold(pt1.x, pt1.y, pt2.x, pt2.y);
-	}
-		break;
-	case GLAYER_STATE_CALCULATING:
-		// 		if (m_bLBtnDown)
-		// 		{
-		// 			DPoint3 pt1,pt2;
-		// 			screenToWorld(m_ptLBtnDown,pt1);
-		// 			screenToWorld(IPoint2(x,y),pt2);
-		// 			double dis = calculator::distanceLatLon(pt1.x,pt1.y,pt2.x,pt2.y);
-		// 			double dir = calculator::directionLatLon(pt1.x,pt1.y,pt2.x,pt2.y);
-		// 			dis /= 1000;
-		// 			int nDis = int(dis);
-		// 
-		// 			std::ostringstream strDir,strDis;
-		// 			strDir<<dir;
-		// 			strDis<<nDis;
-		// 			m_strDir = strDir.str() + "度";
-		// 			m_strDis = strDis.str() + "公里" + m_strDir;
-		// 		}
-		break;
-	default:
-		break;
-	}
 	m_bLBtnDown = false;
 }
 void MyGLWidgetBase::OnMouseMove(int x, int y)
 {
-	switch (m_nState)
+
+	if (m_bLBtnDown)
 	{
-	case GLAYER_STATE_RINGING:
-		break;
-	case GLAYER_STATE_CALCULATING:
-		if (m_bLBtnDown)
-		{
-			DPoint3 pt1, pt2;
-			screenToWorld(m_ptLBtnDown, pt1);
-			screenToWorld(IPoint2(x, y), pt2);
-			double dis = calculator::distanceLatLon(pt1.x, pt1.y, pt2.x, pt2.y);
-			double dir = calculator::directionLatLon(pt1.x, pt1.y, pt2.x, pt2.y);
-			dis /= 1000;
-			int nDis = int(dis);
+		onPanScreenDelta(x - m_ptMouseCurrent.x, m_ptMouseCurrent.y - y);
 
-			std::ostringstream strDir, strDis;
-			strDir << dir;
-			strDis << nDis;
-			m_strDisDir = strDis.str() + "公里/" + strDir.str() + "度";
-
-		}
-		break;
-	default:
-	{
-		if (m_bLBtnDown)
-		{
-			onPanScreenDelta(x - m_ptMouseCurrent.x, m_ptMouseCurrent.y - y);
-		}
-		else if (m_bRBtnDown)
-		{
-//			ScreenRoll(y - m_ptMouseCurrent.y, x - m_ptMouseCurrent.x);
-
-		}
-		else if (m_bMBtnDown)
-		{
-//			ScreenRotate(m_ptMouseCurrent.x, m_ptMouseCurrent.y, x, y);
-		}
-		break;
+		m_ptMouseCurrent.x = x;
+		m_ptMouseCurrent.y = y;
 	}
-	}
-	m_ptMouseCurrent.x = x;
-	m_ptMouseCurrent.y = y;
-
-	// for layer interaction
+	else if (m_bRBtnDown)
 	{
+
+		m_ptMouseCurrent.x = x;
+		m_ptMouseCurrent.y = y;
+
 		DPoint3 pt1;
 		screenToWorld(IPoint2(x, y), pt1);
 		onMouse(pt1);
+	}
+	else if (m_bMBtnDown)
+	{
+
+		m_ptMouseCurrent.x = x;
+		m_ptMouseCurrent.y = y;
+		//			ScreenRotate(m_ptMouseCurrent.x, m_ptMouseCurrent.y, x, y);
 	}
 
 }
@@ -527,26 +463,6 @@ void MyGLWidgetBase::OnZoomBase()
 	onBase();
 }
 
-void MyGLWidgetBase::SetOperation(std::string strOperation)
-{
-	if (strOperation == "平移")
-	{
-		m_nState = GLAYER_STATE_MOVING;
-	}
-	else if (strOperation == "框选")
-	{
-		m_nState = GLAYER_STATE_RINGING;
-	}
-	else if (strOperation == "测量")
-	{
-		m_nState = GLAYER_STATE_CALCULATING;
-	}
-	else
-	{
-		m_nState = GLAYER_STATE_MOVING;
-	}
-}
-
 void MyGLWidgetBase::onBase()
 {
 	// 	ZoomFitWrold(118.8,29.2,119.2,28.8);
@@ -569,7 +485,7 @@ void MyGLWidgetBase::OnKey(UINT nChar)
 
 
 //////////////////////////////////////////////////////////////////////////OGL
-#define POLYGON_STYLE_FILL		1
+
 #define WCHAR_SIZE					100
 #define MIN(x,y)							(x)>(y)?(y):(x)
 #define MAX(x,y)							(x)>(y)?(x):(y)
@@ -631,20 +547,9 @@ void MyGLWidgetBase::onCreate()
 	//glEnable(GL_BLEND);
 	//glBlendFunc( GL_SRC_ALPHA, GL_ONE); // GL_ONE_MINUS_SRC_ALPHA
 	glClearDepth(1.0);
-	//polygon tess
-	m_pGlTessObj = gluNewTess();
-	gluTessCallback(m_pGlTessObj, GLU_TESS_BEGIN, (void (CALLBACK *) ())glBegin);
-	gluTessCallback(m_pGlTessObj, GLU_TESS_VERTEX, (void (CALLBACK *) ()) &glVertex3dv);
-	gluTessCallback(m_pGlTessObj, GLU_TESS_END, (void (CALLBACK *) ())glEnd);
-	gluTessCallback(m_pGlTessObj, GLU_TESS_ERROR, (void (CALLBACK *) ())errorCallback);
-	gluTessCallback(m_pGlTessObj, GLU_TESS_COMBINE, (void (CALLBACK *) ())combineCallback);
-	gluTessProperty(m_pGlTessObj, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_ODD);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::onDestroy()
-{
 
-	gluDeleteTess(m_pGlTessObj);
 }//----------------------------------------------------------------------------------------------------
+
 void MyGLWidgetBase::onPreRenderScene()
 {
 	//1.viewport setting
@@ -656,7 +561,7 @@ void MyGLWidgetBase::onPreRenderScene()
 
 	//3.clear background
 	glDrawBuffer(GL_BACK);
-	glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
+	glClearColor(0,0,0,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//4.Model View Setting
@@ -815,302 +720,6 @@ void MyGLWidgetBase::onZoomFitWrold(double e, double n, double w, double s)
 	//m_dbScale=1;
 }//----------------------------------------------------------------------------------------------------
 
-void CALLBACK MyGLWidgetBase::errorCallback(GLenum errorCode)
-{
-	const GLubyte *estring;
-
-	estring = gluErrorString(errorCode);
-	fprintf(stderr, "Tessellation Error: %s\n", estring);
-	exit(0);
-}//----------------------------------------------------------------------------------------------------
-void CALLBACK MyGLWidgetBase::combineCallback(GLdouble coords[3], GLdouble *data[4], GLfloat weight[4], GLdouble **dataOut)
-{
-	GLdouble *vertex;
-	vertex = (GLdouble *)malloc(3 * sizeof(GLdouble));
-
-	vertex[0] = coords[0];
-	vertex[1] = coords[1];
-	vertex[2] = coords[2];
-	*dataOut = vertex;
-}//----------------------------------------------------------------------------------------------------
-
-
-void MyGLWidgetBase::SetLineWidth(const float wt)
-{
-	glLineWidth(wt);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::SetPointSize(const float ps)
-{
-	glPointSize(ps);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::SetColor(const RGBAf& col)
-{
-	// 	m_currentColor=col;
-	glColor4f(col.r, col.g, col.b, col.a);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::EnableBlend(bool b)
-{
-	if (b)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE); // GL_ONE_MINUS_SRC_ALPHA
-		return;
-	}
-	glDisable(GL_BLEND);
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::SetClearColor(float r, float g, float b, float a)
-{
-	m_clearColor.r = r;
-	m_clearColor.g = g;
-	m_clearColor.b = b;
-	m_clearColor.a = a;
-}
-void MyGLWidgetBase::DrawImage(DPoint3& ptWS, DPoint3& ptEN, GLsizei imgWidth, GLsizei imgHeight, unsigned char* pData)
-{
-	GLuint texture = 0;
-	EnableBlend(true);
-	glGenTextures(1, &texture);
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, imgWidth, imgHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);
-
-	glEnable(GL_TEXTURE_2D);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-	glBegin(GL_POLYGON);
-	//	glColor4f(0.5,0.5,0.5,1.0);
-
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex2f(ptEN.x, ptEN.y);
-
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2f(ptWS.x, ptEN.y);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2f(ptWS.x, ptWS.y);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2f(ptEN.x, ptWS.y);
-
-	glEnd();
-
-	glDisable(GL_TEXTURE_2D);
-	glDeleteTextures(1, &texture);
-
-	EnableBlend(false);
-}
-void MyGLWidgetBase::SetPolygonStyle(short style)
-{
-	m_sPolyStyle = style;
-}
-
-void MyGLWidgetBase::DrawPoint(const DPoint3& p)
-{
-	glBegin(GL_POINTS);
-	glVertex3d(p.x, p.y, p.z);
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawLine(const DPoint3& p1, const DPoint3& p2)
-{
-	glBegin(GL_LINE_STRIP);
-	glVertex3d(p1.x, p1.y, 0);
-	glVertex3d(p2.x, p2.y, 0);
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawLine3D(const DPoint3& p1, const DPoint3& p2)
-{
-	glBegin(GL_LINE_STRIP);
-	glVertex3d(p1.x, p1.y, p1.z);
-	glVertex3d(p2.x, p2.y, p2.z);
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-
-void MyGLWidgetBase::DrawLine(const std::vector<DPoint3> &dline, bool bClose)
-{
-	size_t size = dline.size();
-	if (size < 2) return;
-	bClose ? glBegin(GL_LINE_LOOP) : glBegin(GL_LINE_STRIP);
-	for (size_t i = 0; i < size; i++)
-	{
-		glVertex3d(dline[i].x, dline[i].y, 0);
-	}
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawLine3D(const std::vector<DPoint3> &dline, bool bClose)
-{
-	size_t size = dline.size();
-	if (size < 2) return;
-	bClose ? glBegin(GL_LINE_LOOP) : glBegin(GL_LINE_STRIP);
-	for (size_t i = 0; i < size; i++)
-	{
-		glVertex3d(dline[i].x, dline[i].y, dline[i].z);
-	}
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-
-void MyGLWidgetBase::DrawLine2D(const IPoint2& pt1, const IPoint2& pt2)
-{
-	DPoint3 p1, p2;
-	screenToWorld(pt1, p1);
-	screenToWorld(pt2, p2);
-	glBegin(GL_LINE_STRIP);
-	glVertex3d(p1.x, p1.y, 0);
-	glVertex3d(p2.x, p2.y, 0);
-	glEnd();
-}
-
-void MyGLWidgetBase::DrawRectangle(const DPoint3& p1, const DPoint3& p2)
-{
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(p1.x, p1.y, 0);
-	glVertex3d(p1.x, p2.y, 0);
-	glVertex3d(p2.x, p2.y, 0);
-	glVertex3d(p2.x, p1.y, 0);
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawRectangle(const IPoint2& pt1, const IPoint2& pt2)
-{
-	DPoint3 p1, p2;
-	screenToWorld(pt1, p1);
-	screenToWorld(pt2, p2);
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(p1.x, p1.y, 0);
-	glVertex3d(p1.x, p2.y, 0);
-	glVertex3d(p2.x, p2.y, 0);
-	glVertex3d(p2.x, p1.y, 0);
-	glEnd();
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawRectangleO(const IPoint2& pt1, const IPoint2& pt2)
-{
-	DPoint3 p1, p2, p3, p4, p5, p6, p7, p8;
-	screenToWorld(pt1 + IPoint2(8, 0), p1);
-	screenToWorld(pt1 + IPoint2(4, 2), p2);
-	screenToWorld(pt1 + IPoint2(2, 4), p3);
-	screenToWorld(pt1 + IPoint2(0, 8), p4);
-
-	screenToWorld(pt2 + IPoint2(-8, 0), p5);
-	screenToWorld(pt2 + IPoint2(-4, -2), p6);
-	screenToWorld(pt2 + IPoint2(-2, -4), p7);
-	screenToWorld(pt2 + IPoint2(0, -8), p8);
-
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(p1.x, p1.y, 0);
-	glVertex3d(p2.x, p2.y, 0);
-	glVertex3d(p3.x, p3.y, 0);
-	glVertex3d(p4.x, p4.y, 0);
-	glVertex3d(p4.x, p8.y, 0);
-	glVertex3d(p3.x, p7.y, 0);
-	glVertex3d(p2.x, p6.y, 0);
-	glVertex3d(p1.x, p5.y, 0);
-	glVertex3d(p5.x, p5.y, 0);
-	glVertex3d(p6.x, p6.y, 0);
-	glVertex3d(p7.x, p7.y, 0);
-	glVertex3d(p8.x, p8.y, 0);
-
-	glVertex3d(p8.x, p4.y, 0);
-	glVertex3d(p7.x, p3.y, 0);
-	glVertex3d(p6.x, p2.y, 0);
-	glVertex3d(p5.x, p1.y, 0);
-	glEnd();
-
-}//----------------------------------------------------------------------------------------------------
-
-void MyGLWidgetBase::DrawPolygon(const std::vector<std::vector<DPoint3>> &poly)
-{
-	//size of contours
-	size_t contours = poly.size();
-	if (m_sPolyStyle == POLYGON_STYLE_FILL)
-	{
-		size_t p = 0;
-		static GLdouble v[32000][3];
-		//only one polygon, but multiple contours
-		gluTessBeginPolygon(m_pGlTessObj, NULL);
-		for (size_t i = 0; i < contours; i++)
-		{
-			size_t size = poly[i].size();
-			gluTessBeginContour(m_pGlTessObj);
-
-			for (size_t k = 0; k < size; k++)
-			{
-				v[p][0] = poly[i][k].x;
-				v[p][1] = poly[i][k].y;
-				v[p][2] = poly[i][k].z;
-				gluTessVertex(m_pGlTessObj, v[p], v[p]);
-				p++;
-			}
-			gluTessEndContour(m_pGlTessObj);
-		}
-		gluTessEndPolygon(m_pGlTessObj);
-		//glPopAttrib();
-	}
-	else
-	{
-		// just draw each ring
-		for (int i = 0; i < contours; i++) DrawLine(poly[i], true);
-	}
-}//----------------------------------------------------------------------------------------------------
-void MyGLWidgetBase::DrawPolygons(const std::vector<std::vector<std::vector<DPoint3>>> &polys)
-{
-	//size of contours
-	size_t nPolys = polys.size();
-	if (m_sPolyStyle == POLYGON_STYLE_FILL)
-	{
-		size_t p = 0;
-		static GLdouble v[32000][3];
-		for (int i = 0; i < nPolys; i++)
-		{
-			size_t contours = polys[i].size();
-			//only one polygon, but multiple contours
-			gluTessBeginPolygon(m_pGlTessObj, NULL);
-			for (size_t j = 0; j < contours; j++)
-			{
-				size_t size = polys[i][j].size();
-				gluTessBeginContour(m_pGlTessObj);
-
-				for (size_t k = 0; k < size; k++)
-				{
-					v[p][0] = polys[i][j][k].x;
-					v[p][1] = polys[i][j][k].y;
-					v[p][2] = 0.0;
-					gluTessVertex(m_pGlTessObj, v[p], v[p]);
-					p++;
-				}
-				gluTessEndContour(m_pGlTessObj);
-			}
-			gluTessEndPolygon(m_pGlTessObj);
-		}
-	}
-	else
-	{
-		// just draw each ring
-		for (int i = 0; i < nPolys; i++)
-		{
-			size_t contours = polys[i].size();
-			for (int j = 0; j < contours; j++)
-			{
-				DrawLine(polys[i][j], true);
-			}
-		}
-	}
-}//----------------------------------------------------------------------------------------------------
-//20121017
-void MyGLWidgetBase::DrawCircle(DPoint3 center, double radius)
-{
-	std::vector<DPoint3> circle;
-	double pi = 3.14;
-	for (int i = 0; i < 360; i++)
-	{
-		DPoint3 pt;
-		pt.x = center.x + radius*sin((double)i*3.14 / 180);
-		pt.y = center.y + radius*cos((double)i*3.14 / 180);
-		circle.push_back(pt);
-	}
-	DrawLine(circle, true);
-}
 //20111208
 void MyGLWidgetBase::drawEagleView()
 {
@@ -1123,20 +732,5 @@ void MyGLWidgetBase::drawEagleView()
 	glCopyPixels(0, 0, _nWidth, _nHeight, GL_COLOR);
 	glPixelZoom(1, 1);
 }
-void MyGLWidgetBase::DrawRect2D(const IPoint2& pt1, const IPoint2& pt2)
-{
-	DPoint3 p1, p2;
-	screenToWorld(pt1, p1);
-	screenToWorld(pt2, p2);
-	glRectf(p1.x, p1.y, p2.x, p2.y);
-}
-void MyGLWidgetBase::DrawPoint2D(const IPoint2& p)
-{
-	DPoint3 pt;
-	screenToWorld(p, pt);
-	DrawPoint(pt);
-}
-void MyGLWidgetBase::DrawRect3D(const DPoint3& pt1, const DPoint3& pt2)
-{
-	glRectf(pt1.x, pt1.y, pt2.x, pt2.y);
-}
+
+

@@ -6,15 +6,24 @@
 #include <QGLWidget>
 #include <gl/GLU.h>
 
+class MyGLOperator;
 
+class IWorldMapping {
+public:
+	//Change point between screen and world
+	virtual void ScreenToWorld(const IPoint2& ps, DPoint3& pw) = 0;
+	virtual void WorldToScreen(DPoint3& wp, IPoint2& sp) = 0;
+};
 
-class MyGLWidgetBase : public QGLWidget
+class MyGLWidgetBase : public QGLWidget,public IWorldMapping
 {
 	Q_OBJECT
 
 public:
 	MyGLWidgetBase(QWidget *parent);
 	~MyGLWidgetBase();
+protected:
+	MyGLOperator* _pGLOperator = NULL;
 
 protected: // system events
 	virtual void	mousePressEvent(QMouseEvent * event);
@@ -29,10 +38,8 @@ protected:// system operation
 	virtual void timerEvent(QTimerEvent* event);
 
 public://整体功能
-	virtual void Release();
 	virtual void Draw();
 public://交互操作
-	virtual void SetOperation(std::string strOperation);
 	virtual void OnLButtonDown(int x, int y);
 	virtual void OnLButtonUp(int x, int y);
 	virtual void OnLButtonDblClk(int x, int y);
@@ -83,8 +90,6 @@ protected:// coordinate operation
 
 	//Initialization
 	void  onCreate();
-	//Release
-	void  onDestroy();
 
 	//Rotate Screen
 	void onScreenRotate(int x1, int y1, int x2, int y2);
@@ -106,7 +111,7 @@ protected:// coordinate operation
 
 
 private:
-	int m_nState;
+	int m_nState=2;
 private:
 	std::string m_strDisDir;
 private:
@@ -116,38 +121,6 @@ private:
 	void drawCoords();
 public:
 	virtual void OnKey(UINT nChar);
-private:
-
-	// add point by hand
-	bool _bHandPoint;
-private:
-	short m_sPolyStyle;
-	RGBAf m_clearColor;
-	//text/stroke font
-	// 	GTFTFont *m_pFont;
-	//poly tess
-	GLUtesselator *m_pGlTessObj;
-
-
-
-
-
-
-public://Set Status
-	// 	void SetTextSize(short sSize);
-	// 	void SetSymbolSize(short sSize);
-	// 	void SetSymbolTextSize(short sSize);
-	void SetLineWidth(const float wt);
-	void SetPointSize(const float ps);
-	void SetColor(const RGBAf& col);
-	void EnableBlend(bool b);
-	void SetClearColor(float r, float g, float b, float a);
-	void SetPolygonStyle(short style);
-
-
-public://Callback
-	static void CALLBACK errorCallback(GLenum errorCode);
-	static void CALLBACK combineCallback(GLdouble coords[3], GLdouble *data[4], GLfloat weight[4], GLdouble **dataOut);
 private:
 	double SW(double s){ return s*GetSWScale(); }
 	void SW(FBox3& sb)
@@ -165,32 +138,12 @@ private:
 
 
 
-public:// drawing
-	//20121021
-	void DrawRect2D(const IPoint2& pt1, const IPoint2& pt2);
-	void DrawPoint2D(const IPoint2& p);
-	//20121022
-	void DrawRect3D(const DPoint3& pt1, const DPoint3& pt2);
-	void DrawPoint(const DPoint3& p);
-
-	void DrawLine(const DPoint3& p1, const DPoint3& p2);
-	void DrawLine3D(const DPoint3& p1, const DPoint3& p2);
-	void DrawLine(const std::vector<DPoint3> &dline, bool bClose);		//draw a line
-	void DrawLine3D(const std::vector<DPoint3> &dline, bool bClose);		//draw a line
-	void DrawLine2D(const IPoint2& p1, const IPoint2& p2);
-	//draw a polygon
-	void DrawPolygon(const std::vector<std::vector<DPoint3>> &poly);
-	//draw a list of polygon
-	void DrawPolygons(const std::vector<std::vector<std::vector<DPoint3>>> &polys);
-	void DrawRectangle(const DPoint3& p1, const DPoint3& p2);
-	void DrawRectangle(const IPoint2& p1, const IPoint2& p2);
-	void DrawRectangleO(const IPoint2& p1, const IPoint2& p2);
-	// 	void DrawRectangleOTextAsW(const IPoint2& p1, const IPoint2& p2,std::string& str);
-
-	void DrawCircle(DPoint3 center, double radius);
-	void DrawImage(DPoint3& ptWS, DPoint3& ptEN, GLsizei imgWidth, GLsizei imgHeight, unsigned char* pData);
 protected:
 	virtual void draw() = 0;
 	virtual void onMouse(DPoint3& pt) = 0;
+public:
+	//Change point between screen and world
+	virtual void ScreenToWorld(const IPoint2& ps, DPoint3& pw) { screenToWorld(ps, pw); }
+	virtual void WorldToScreen(DPoint3& wp, IPoint2& sp) { worldToScreen(wp, sp); }
 };
 
