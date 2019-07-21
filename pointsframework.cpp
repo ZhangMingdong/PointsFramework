@@ -130,7 +130,7 @@ void PointsFramework::createConnections(){
 
 void PointsFramework::onGenerateRandomClicked(){
 	// generate random points
- 	pWidget->GenerateRandomPoints(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateLayer(ILayer::LT_Random,_pControlWidget->ui.spinBoxNum->value());
 
 	pWidget->updateGL();
 
@@ -140,7 +140,7 @@ void PointsFramework::onGenerateBlueNoiseClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateBlueNoise(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
+	pWidget->GenerateLayer(ILayer::LT_Random_Blue,_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
 	int t = GetTickCount() - t1; 
 	QString s1 = QStringLiteral("生成蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -150,7 +150,7 @@ void PointsFramework::onGenerateBlueNoiseClicked() {
 void PointsFramework::onGenerateSpiralClicked() {
 	// generate normal points
 	long t1 = GetTickCount();
-	pWidget->GenerateSpiralPoints();
+	pWidget->GenerateLayer(ILayer::LT_Spiral);
 	int t = GetTickCount() - t1;
 	QString s1 = QStringLiteral("生成蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -161,7 +161,7 @@ void PointsFramework::onGenerateBlueNoiseNormalClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateBlueNoiseNormal(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateLayer(ILayer::LT_Random_Blue_Mult,_pControlWidget->ui.spinBoxNum->value());
 	int t = GetTickCount() - t1;
 	QString s1 = QStringLiteral("生成正态蓝噪声。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -172,7 +172,7 @@ void PointsFramework::onGenerateTimeSeriesClicked() {
 	// generate normal points
 
 	long t1 = GetTickCount();
-	pWidget->GenerateTimeSeries(_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
+	pWidget->GenerateLayer(ILayer::LT_Time_Series,_pControlWidget->ui.spinBoxNum->value(), _pControlWidget->ui.spinBoxClass->value());
 	int t = GetTickCount() - t1; 
 	QString s1 = QStringLiteral("生成时序数据。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
 	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1);
@@ -181,77 +181,57 @@ void PointsFramework::onGenerateTimeSeriesClicked() {
 }
 void PointsFramework::onGenerateNormalClicked() {
 	// generate normal points
-	pWidget->GenerateNormalPoints(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateLayer(ILayer::LT_Normal_Single,_pControlWidget->ui.spinBoxNum->value());
 	pWidget->updateGL();
 }
 void PointsFramework::onGenerateGridClicked() {
 	// generate grid points
-	pWidget->GenerateGrid();
+	pWidget->GenerateLayer(ILayer::LT_Grid, 100);
 	pWidget->updateGL();
 }
 
 void PointsFramework::onGenerateMultiNormalClicked() {
 	// generate normal points
-	pWidget->GenerateMVNPoints(_pControlWidget->ui.spinBoxNum->value());
+	pWidget->GenerateLayer(ILayer::LT_Normal_Multi,_pControlWidget->ui.spinBoxNum->value());
 	pWidget->updateGL();
 
 }
 
 void PointsFramework::onGenerateSequenceClicked() {
 	// generate sequence
-	pWidget->GenerateSequence();
+	pWidget->GenerateLayer(ILayer::LT_Sequence_1D);
 	pWidget->updateGL();
 
 }
 
 void PointsFramework::onGenerateSequence2DClicked() {
 	// generate sequence
-	pWidget->GenerateSequence2D();
+	pWidget->GenerateLayer(ILayer::LT_Sequence_2D);
 	pWidget->updateGL();
 
 }
 void PointsFramework::onGenerateDRClicked() {
 	// generate sequence
-	pWidget->GenerateDR();
+	pWidget->GenerateLayer(ILayer::LT_DR);
 	pWidget->updateGL();
 
 }void PointsFramework::onGenerateDataLayerClicked() {
 	// generate sequence
-	pWidget->GenerateDataLayer();
+	pWidget->GenerateLayer(ILayer::LT_Data);
 	pWidget->updateGL();
 
 }
 void PointsFramework::onCalculateClicked(){
-	long t1 = GetTickCount();
-	DistanceAndIndices result = pWidget->CalcNearestPairOfPoints();
-	pWidget->updateGL();
-	int t = GetTickCount() - t1;
-	QString s1 = QStringLiteral("找到最近点对。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
-	QString s2 = QStringLiteral("最近点对的索引：") + QString::number(result._nIndex1) + ","
-		+ QString::number(result._nIndex2) + QStringLiteral("。\n");
-	QString s3 = QStringLiteral("距离：") + QString::number(result._dbDis) + QStringLiteral("。\n");
-	QString s4 = "==============\n";
-	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText() + s1 + s2 + s3 + s4);
 
 
 }
 
 void PointsFramework::onCalculateDCClicked(){
-	long t1 = GetTickCount();
-	DistanceAndIndices result = pWidget->CalcNearestPairOfPoints_DC();
-	pWidget->updateGL();
-	int t = GetTickCount() - t1;
-	QString s1 = QStringLiteral("分治找到最近点对。\n计算时间：") + QString::number(t) + QStringLiteral("dms。\n");
-	QString s2 = QStringLiteral("最近点对的索引：") + QString::number(result._nIndex1) + ","
-		+ QString::number(result._nIndex2) + QStringLiteral("。\n");
-	QString s3= QStringLiteral("距离：") + QString::number(result._dbDis) + QStringLiteral("。\n");
-	QString s4 = "==============\n";
-	_pControlWidget->ui.textEditResult->setPlainText(_pControlWidget->ui.textEditResult->toPlainText()+s1+s2+s3+s4);
 
 }
 
 void PointsFramework::onPickingClicked(bool bChecked){
-	pWidget->SetHandPoint();
+
 
 }
 
