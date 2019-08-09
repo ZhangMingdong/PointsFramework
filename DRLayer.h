@@ -1,5 +1,5 @@
 #pragma once
-#include "ILayer.h"
+#include "ClassificationLayer.h"
 #include <vector>
 class TextureRenderer;
 
@@ -14,16 +14,16 @@ struct RawData
 	mingdong
 	2017/07/27
 */
-class DRLayer :
-	public ILayer
+class DRLayer : public ClassificationLayer
 {
 public:
 	DRLayer();
 	virtual ~DRLayer();
 public:
-	virtual void Draw();
-	virtual void Initialize();
-	virtual void UpdateLayer();
+	//virtual void Draw();
+	//virtual void UpdateLayer();
+protected:
+	virtual void generatePoints();
 protected:	
 	void readIrisData();	// read the iris
 	void readWaterData();	// read water data points	
@@ -35,7 +35,7 @@ protected:
 	void regularize2();		// (x-mean)/vairance
 	void generateTextureByKDE();	// generate texture by KDE
 protected:	
-	std::vector<LabeledPoint> _vecPoints;		// points	
+	// std::vector<LabeledPoint> _vecPoints;		// points	
 	std::vector<RawData> _vecRaw;				// raw data
 	int _nAttributes = 0;						// number of attributes
 	TextureRenderer* _pTRenderer = NULL;		// the texture renderer

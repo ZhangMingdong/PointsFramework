@@ -44,7 +44,7 @@ DRLayer::DRLayer()
 
 }
 
-void DRLayer::Initialize() {
+void DRLayer::generatePoints() {
 	if (_pSetting->_enumData == LayerSetting::data_water) {
 		readWaterData();
 	}
@@ -60,16 +60,17 @@ void DRLayer::Initialize() {
 }
 
 
-void DRLayer::UpdateLayer() {
-
-	generateTextureByKDE();
-}
+//void DRLayer::UpdateLayer() {
+//
+//	generateTextureByKDE();
+//}
 
 DRLayer::~DRLayer()
 {
 	if (_pTRenderer) delete[] _pTRenderer;
 }
 
+/*
 void DRLayer::Draw() {
 	if (_pSetting->_bShowBg) {
 		float _fLeft = -_pSetting->_dbRadius;
@@ -118,7 +119,7 @@ void DRLayer::Draw() {
 	glEnd();
 
 }
-
+*/
 void DRLayer::readIrisData() {
 	_nAttributes = 4;
 	ifstream input("../Data/bezdekIris.data");

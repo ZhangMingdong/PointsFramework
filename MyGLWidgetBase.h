@@ -8,13 +8,21 @@
 
 class MyGLOperator;
 
+/*
+	interface for world-screen mapping
+*/
 class IWorldMapping {
 public:
 	//Change point between screen and world
 	virtual void ScreenToWorld(const IPoint2& ps, DPoint3& pw) = 0;
 	virtual void WorldToScreen(DPoint3& wp, IPoint2& sp) = 0;
 };
-
+/*
+	Opengl Widget Base class
+	world-screen related operations
+	Mingdong
+	2019/07/21
+*/
 class MyGLWidgetBase : public QGLWidget,public IWorldMapping
 {
 	Q_OBJECT
@@ -106,14 +114,6 @@ protected:// coordinate operation
 	}
 	IPoint2 GetClientRect() { return IPoint2(_nWidth, _nHeight); }
 	// 	IPoint2& GetClientRect(){return m_clientRect;}
-
-
-
-
-private:
-	int m_nState=2;
-private:
-	std::string m_strDisDir;
 private:
 	//set base rect
 	void onBase();

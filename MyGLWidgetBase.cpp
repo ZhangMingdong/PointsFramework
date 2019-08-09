@@ -8,21 +8,16 @@
 #include <QWheelEvent>
 
 
-#include "ILayer.h"
-#include "LayerSetting.h"
-
 #include <assert.h>
 #include <fstream>
-#include <qdebug.h>
+#include <QDebug>
 
 #include"MyGLOperator.h"
 
 
 using namespace std;
 
-#define	GLAYER_STATE_MOVING			0
-#define GLAYER_STATE_RINGING				1
-#define GLAYER_STATE_CALCULATING		2
+
 
 bool debug = false;
 
